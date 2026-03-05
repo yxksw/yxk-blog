@@ -8,6 +8,9 @@ import SectionBlock from '@/components/SectionBlock.astro'
 import PostMetaInfo from '@/components/post/PostMetaInfo.astro'
 import { PostToc } from '@/components/post/PostToc'
 import { ReadingProgress } from '@/components/post/ReadingProgress'
+import { Comments } from '@/components/comment'
+import { PostCopyright } from '@/components/post/PostCopyright'
+import PostNav from '@/components/post/PostNav.astro'
 
 export const getStaticPaths = (async () => {
   const columns = await getColumnsFromFolder()
@@ -82,6 +85,13 @@ const groups = Object.values(
     >,
   ),
 ).sort((a, b) => num(a.key) - num(b.key))
+
+const currentIndexVal = column.items.findIndex((i) => i.slug === post.slug)
+const prevItem = currentIndexVal > 0 ? column.items[currentIndexVal - 1] : undefined
+const nextItem =
+  currentIndexVal < column.items.length - 1 ? column.items[currentIndexVal + 1] : undefined
+const prevUrl = prevItem ? `/columns/${column.slug}/${prevItem.slug.split('/').pop()}` : undefined
+const nextUrl = nextItem ? `/columns/${column.slug}/${nextItem.slug.split('/').pop()}` : undefined
 ---
 
 <MarkdownLayout
@@ -209,6 +219,21 @@ const groups = Object.values(
       <MarkdownWrapper>
         <Content />
       </MarkdownWrapper>
+      <div class="mt-8 space-y-8">
+        <PostCopyright
+          title={post.data.title}
+          slug={mdSlug}
+          lastMod={post.data.lastMod}
+          client:visible
+        />
+        <PostNav
+          prev={prevItem ? { data: { title: prevItem.title } } : undefined}
+          next={nextItem ? { data: { title: nextItem.title } } : undefined}
+          prevUrl={prevUrl}
+          nextUrl={nextUrl}
+        />
+        {post.data.comments && <Comments />}
+      </div>
     </div>
     <div class="hidden xl:block lg:col-start-3 justify-self-start w-[260px]" data-pagefind-ignore>
       <aside class="sticky top-20">

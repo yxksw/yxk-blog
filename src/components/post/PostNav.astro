@@ -3,21 +3,26 @@ import type { CollectionEntry } from 'astro:content'
 import { Icon } from 'astro-icon/components'
 
 interface Props {
-  prev?: CollectionEntry<'posts'>
-  next?: CollectionEntry<'posts'>
+  prev?: CollectionEntry<'posts'> | { data: { title: string }; slug?: string }
+  next?: CollectionEntry<'posts'> | { data: { title: string }; slug?: string }
+  prevUrl?: string
+  nextUrl?: string
   class?: string
 }
 
-const { prev, next, class: className } = Astro.props
+const { prev, next, prevUrl, nextUrl, class: className } = Astro.props
+
+const pUrl = prevUrl || (prev ? `/posts/${(prev.data as any).slug ?? prev.slug}` : undefined)
+const nUrl = nextUrl || (next ? `/posts/${(next.data as any).slug ?? next.slug}` : undefined)
 ---
 
 <div class="grid grid-cols-2" class:list={[className]}>
   <div>
     {
-      prev && (
+      prev && pUrl && (
         <a
           class="flex items-center gap-2 hover:text-accent"
-          href={`/posts/${(prev.data as any).slug ?? prev.slug}`}
+          href={pUrl}
         >
           <Icon name="ri:arrow-left-line" />
           <span>{prev.data.title}</span>
@@ -27,10 +32,10 @@ const { prev, next, class: className } = Astro.props
   </div>
   <div>
     {
-      next && (
+      next && nUrl && (
         <a
           class="flex items-center justify-end gap-2 hover:text-accent"
-          href={`/posts/${(next.data as any).slug ?? next.slug}`}
+          href={nUrl}
         >
           <span>{next.data.title}</span>
           <Icon name="ri:arrow-right-line" />

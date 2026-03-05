@@ -8,7 +8,7 @@ tags:
   - 后端
 column: SpringBoot
 cover:
-status: true
+status: false
 unlisted: true
 pinned: false
 aiSummary: true
