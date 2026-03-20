@@ -14,6 +14,7 @@ aiSummary: true
 outdate: true
 date: 2026-03-09 13:39
 updated: 2026-03-09 19:24
+slug: 'chuang-jian-react'
 ---
 
 ## 创建项目

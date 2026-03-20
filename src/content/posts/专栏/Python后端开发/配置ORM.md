@@ -14,6 +14,7 @@ aiSummary: true
 outdate: true
 date: 2026-03-09 15:16
 updated: 2026-03-10 18:58
+slug: 'pei-zhi-orm'
 ---
 
 ## ORM

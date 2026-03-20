@@ -14,7 +14,7 @@ aiSummary: true
 outdate: true
 date: 2026-02-27 13:59
 updated: 2026-03-11 11:53
-slug:
+slug: 'java-mian-shi-yi'
 ---
 
 昨天进行了一次面试，但是问到的基本没有八股，反而是一些其他很实际的问题，回答的不是很好。
