@@ -11,7 +11,7 @@ cover:
 status: true
 date: 2025-04-23 00:47
 updated: 2026-03-21 02:29
-slug: '303355'
+slug: 'blog-chang-yong-shu-xie-ge-shi-ji-lu'
 pinned: true
 ---
 
