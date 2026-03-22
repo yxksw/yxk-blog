@@ -1,4 +1,5 @@
 import { getCollection } from 'astro:content'
+import columnSortConfig from '@/content/column-sort.json'
 
 // 获取所有文章
 async function getAllPosts() {
@@ -150,6 +151,12 @@ export async function getColumnsFromFolder(folderNames: string[] = ['专栏', 'c
   const all = await getAllPosts()
   type Item = { slug: string; title: string; index?: string; level: number }
   type Column = { slug: string; title: string; base: string; items: Item[] }
+  type ColumnSortConfig = {
+    columnOrder?: string[]
+    postOrder?: Record<string, string[]>
+  }
+  const sortConfig = (columnSortConfig || {}) as ColumnSortConfig
+  const normalizeKey = (v?: string) => (v || '').trim().toLowerCase()
   const map = new Map<string, Column>()
   const parseIndex = (idx?: string) =>
     idx
@@ -178,7 +185,21 @@ export async function getColumnsFromFolder(folderNames: string[] = ['专栏', 'c
       level: (p.data as any).index ? String((p.data as any).index).split('.').length : 1,
     })
   }
-  // 专栏内文章按日期升序
+  const sortByConfiguredOrder = (items: Item[], order: string[] = []) => {
+    if (!order.length) return items
+    const rank = new Map<string, number>()
+    order.forEach((slug, i) => rank.set(slug, i))
+    return [...items].sort((a, b) => {
+      const aSeg = a.slug.split('/').pop()!
+      const bSeg = b.slug.split('/').pop()!
+      const ar = rank.get(a.slug) ?? rank.get(aSeg) ?? Number.MAX_SAFE_INTEGER
+      const br = rank.get(b.slug) ?? rank.get(bSeg) ?? Number.MAX_SAFE_INTEGER
+      if (ar !== br) return ar - br
+      return 0
+    })
+  }
+
+  // 专栏内文章默认按 index + 日期升序；若配置了 postOrder 则优先按配置排序
   const res = Array.from(map.values()).map((c) => {
     c.items = c.items.sort((a, b) => {
       // 按 index 自定义顺序（1 < 1.1 < 1.1.1 < 2 ...），未设置的排在最后
@@ -196,9 +217,27 @@ export async function getColumnsFromFolder(folderNames: string[] = ['专栏', 'c
       const pb = all.find((e) => e.slug === b.slug)!
       return (pa.data.date as Date).valueOf() - (pb.data.date as Date).valueOf()
     })
+    const postOrderByTitle = sortConfig.postOrder?.[c.title]
+    const postOrderBySlug = sortConfig.postOrder?.[c.slug]
+    c.items = sortByConfiguredOrder(c.items, postOrderByTitle || postOrderBySlug)
     return c
   })
-  // 专栏按标题排序
-  res.sort((a, b) => a.title.localeCompare(b.title, 'zh-CN'))
+  // 专栏默认按标题排序；若配置了 columnOrder 则优先按配置排序（支持标题名或 slug）
+  const columnRank = new Map<string, number>()
+  ;(sortConfig.columnOrder || []).forEach((nameOrSlug, i) =>
+    columnRank.set(normalizeKey(nameOrSlug), i),
+  )
+  res.sort((a, b) => {
+    const ar =
+      columnRank.get(normalizeKey(a.title)) ??
+      columnRank.get(normalizeKey(a.slug)) ??
+      Number.MAX_SAFE_INTEGER
+    const br =
+      columnRank.get(normalizeKey(b.title)) ??
+      columnRank.get(normalizeKey(b.slug)) ??
+      Number.MAX_SAFE_INTEGER
+    if (ar !== br) return ar - br
+    return a.title.localeCompare(b.title, 'zh-CN')
+  })
   return res
 }
