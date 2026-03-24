@@ -1,4 +1,4 @@
-import clsx from 'clsx'
+﻿import clsx from 'clsx'
 import { hero } from '@/config.json'
 import { motion } from 'framer-motion'
 import { Icon } from '@iconify/react'
@@ -59,3 +59,4 @@ export function SocialList({ className }: { className?: string }) {
     </motion.ul>
   )
 }
+

@@ -1,0 +1,9 @@
+---
+import footnoteTooltipScriptUrl from '@/scripts/footnote-tooltip.js?url'
+---
+
+<script is:inline type="module" define:vars={{ footnoteTooltipScriptUrl }}>
+  const { initFootnoteTooltip } = await import(footnoteTooltipScriptUrl)
+  document.addEventListener('astro:page-load', () => initFootnoteTooltip())
+  initFootnoteTooltip()
+</script>

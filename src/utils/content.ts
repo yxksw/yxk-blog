@@ -1,4 +1,4 @@
-﻿import { getCollection, render } from 'astro:content'
+﻿import { getCollection } from 'astro:content'
 import columnSortConfig from '@/content/column-sort.json'
 
 function toTimestamp(date?: Date) {
@@ -57,8 +57,31 @@ export async function getSortedPosts() {
 
 export async function getAllPostsWordCount() {
   const allPosts = await getPublicPosts()
-  const rendered = await Promise.all(allPosts.map((post) => render(post)))
-  return rendered.reduce((count, cur) => count + (cur.remarkPluginFrontmatter?.words ?? 0), 0)
+  return allPosts.reduce((count, post) => count + countPostWords(post.body ?? ''), 0)
+}
+
+function countPostWords(body: string) {
+  const plainText = body
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`]*`/g, ' ')
+    .replace(/!\[\[[^\]]+\]\]/g, ' ')
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, ' ')
+    .replace(/\[\[[^\]]+\]\]/g, ' ')
+    .replace(/\[[^\]]*\]\([^)]+\)/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/[#>*_~\-|]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  const cjkChars =
+    plainText.match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu)
+      ?.length ?? 0
+  const latinWords =
+    plainText
+      .replace(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu, ' ')
+      .match(/[A-Za-z0-9_]+/g)?.length ?? 0
+
+  return cjkChars + latinWords
 }
 
 export function slugify(text: string) {

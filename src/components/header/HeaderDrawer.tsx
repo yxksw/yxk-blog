@@ -3,7 +3,16 @@ import { createContext, useContext, useState, forwardRef } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import { Icon } from '@iconify/react'
-import '@/icons/registerRi'
+import {
+  riArchiveLine,
+  riChat1Line,
+  riFilmLine,
+  riGhostLine,
+  riHeart2Line,
+  riLinksLine,
+  riMenuLine,
+  riPantoneLine,
+} from '@/icons/ri'
 
 const contentVariants: Variants = {
   hidden: {
@@ -51,7 +60,7 @@ export function HeaderDrawer({ zIndex = 999 }: { zIndex?: number }) {
           <Dialog.Portal forceMount>
             <Dialog.Overlay asChild>
               <motion.div
-                className="fixed inset-0 bg-gray-800/40"
+                className="fixed inset-0 bg-gray-800/40 data-[state=closed]:pointer-events-none"
                 style={{ zIndex: overlayZIndex }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -61,7 +70,7 @@ export function HeaderDrawer({ zIndex = 999 }: { zIndex?: number }) {
 
             <Dialog.Content asChild>
               <motion.div
-                className="fixed right-0 inset-y-0 h-full bg-primary rounded-l-lg p-4 flex flex-col justify-center w-[140px] max-w-[80%]"
+                className="fixed right-0 inset-y-0 h-full bg-primary rounded-l-lg p-4 flex flex-col justify-center w-[140px] max-w-[80%] data-[state=closed]:pointer-events-none"
                 style={{ zIndex: contentZIndex }}
                 variants={contentVariants}
                 initial="hidden"
@@ -95,19 +104,21 @@ const TriggerButton = forwardRef<HTMLButtonElement>((props, ref) => {
       aria-label="Open menu"
       {...props}
     >
-      <Icon icon="ri:menu-line" className="text-xl" />
+      <Icon icon={riMenuLine} className="text-xl" />
     </button>
   )
 })
 
 function DrawerContentImpl() {
   const { dismiss } = useContext(DrawerContext)
-  const menuIconMap: Record<string, string> = {
-    'icon-pantone': 'ri:pantone-line',
-    'icon-archive': 'ri:archive-line',
-    'icon-flask': 'ri:flask-line',
-    'icon-ghost': 'ri:ghost-line',
-    'icon-hearts': 'ri:heart-2-line',
+  const menuIconMap = {
+    'icon-pantone': riPantoneLine,
+    'icon-archive': riArchiveLine,
+    'icon-flask': riLinksLine,
+    'icon-ghost': riGhostLine,
+    'icon-hearts': riHeart2Line,
+    'icon-film': riFilmLine,
+    'icon-chat': riChat1Line,
   }
 
   return (
@@ -115,7 +126,10 @@ function DrawerContentImpl() {
       {menus.map((menu) => (
         <motion.li key={menu.name} variants={menuItemVariants}>
           <a className="inline-flex items-center p-2 space-x-3" href={menu.link} onClick={dismiss}>
-            <Icon icon={menuIconMap[menu.icon] ?? 'ri:links-line'} />
+            <Icon
+              icon={menuIconMap[menu.icon as keyof typeof menuIconMap] ?? riLinksLine}
+              className="text-[1em] leading-none"
+            />
             <span>{menu.name}</span>
           </a>
         </motion.li>

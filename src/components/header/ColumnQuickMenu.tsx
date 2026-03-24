@@ -2,8 +2,9 @@
 
 type ColumnMeta = { slug: string; title: string; count: number }
 
-export default function ColumnQuickMenu({ open = false }: { open?: boolean }) {
+export default function ColumnQuickMenu() {
   const [cols, setCols] = useState<ColumnMeta[] | null>(null)
+
   useEffect(() => {
     let aborted = false
     fetch('/columns.json')
@@ -14,18 +15,14 @@ export default function ColumnQuickMenu({ open = false }: { open?: boolean }) {
       .catch(() => {
         if (!aborted) setCols([])
       })
+
     return () => {
       aborted = true
     }
   }, [])
 
   return (
-    <div
-      className={
-        'absolute left-1/2 top-full -translate-x-1/2 translate-y-1 w-[168px] rounded-lg border border-primary bg-primary shadow-lg z-20 transition ' +
-        (open ? 'visible opacity-100 scale-100' : 'invisible opacity-0 scale-95')
-      }
-    >
+    <div className="w-[168px] rounded-lg border border-primary bg-primary shadow-lg">
       <ul className="py-1 text-sm">
         {cols === null ? (
           <li className="px-3 py-2 text-secondary">加载中...</li>

@@ -1,4 +1,4 @@
-import { themeAtom } from '@/store/theme'
+﻿import { themeAtom } from '@/store/theme'
 import { useAtom } from 'jotai'
 import { Icon } from '@iconify/react'
 import '@/icons/registerRi'
@@ -45,3 +45,4 @@ export function ThemeSwitch() {
     </div>
   )
 }
+

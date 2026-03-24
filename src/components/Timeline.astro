@@ -48,8 +48,8 @@ const groupedPosts = posts.reduce<
               data-category={post.data.category || ''}
               data-tags={(post.data.tags || []).join(',')}
             >
-              <div class="relative w-full py-3 px-4 rounded-lg flex items-center justify-between gap-2">
-                <PostCardHoverOverlay full client:only="react" />
+              <div class="group relative w-full py-3 px-4 rounded-lg flex items-center justify-between gap-2">
+                <PostCardHoverOverlay full />
                 <div class="flex items-center gap-2 min-w-0">
                   <span class="shrink-0 text-gray-600 dark:text-gray-300 text-sm">
                     {getShortDate(post.data.date as Date)}

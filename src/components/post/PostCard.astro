@@ -16,8 +16,8 @@ const { remarkPluginFrontmatter } = await render(entry)
 const postSlug = getEntrySlug(entry)
 ---
 
-<a class="block relative py-8 focus-visible:outline-0" href={`/posts/${postSlug}`}>
-  <PostCardHoverOverlay client:only="react" />
+<a class="group block relative py-8 focus-visible:outline-0" href={`/posts/${postSlug}`}>
+  <PostCardHoverOverlay />
   <h2 class="relative text-2xl font-bold">
     {entry.data.title}
     {
@@ -51,19 +51,19 @@ const postSlug = getEntrySlug(entry)
           d="M15 10L19.5 5.5L15 1"
           stroke-linecap="round"
           stroke-linejoin="round"
-          class="delay-100 opacity-0 group-hover:opacity-100"></path>
+          class="translate-x-[-2px] opacity-0 transition-all duration-300 delay-75 group-hover:translate-x-0 group-hover:opacity-100"></path>
         <path
           d="M23 10L27.5 5.5L23 1"
           stroke-opacity="0.66"
           stroke-linecap="round"
           stroke-linejoin="round"
-          class="delay-200 opacity-0 group-hover:opacity-100"></path>
+          class="translate-x-[-3px] opacity-0 transition-all duration-300 delay-150 group-hover:translate-x-0 group-hover:opacity-100"></path>
         <path
           d="M31 10L35.5 5.5L31 1"
           stroke-opacity="0.35"
           stroke-linecap="round"
           stroke-linejoin="round"
-          class="delay-300 opacity-0 group-hover:opacity-100"></path>
+          class="translate-x-[-4px] opacity-0 transition-all duration-300 delay-200 group-hover:translate-x-0 group-hover:opacity-100"></path>
       </svg>
     </div>
   </div>

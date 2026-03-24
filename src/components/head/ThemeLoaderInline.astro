@@ -1,0 +1,33 @@
+<script is:inline>
+  ;(() => {
+    const THEME_KEY = 'gyoza-theme'
+    const MOURNING_DAYS = ['4-4', '5-12', '7-7', '9-18', '12-13']
+
+    function getSystemTheme() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+
+    function getLocalTheme() {
+      const localTheme = localStorage.getItem(THEME_KEY)
+      if (localTheme === 'dark' || localTheme === 'light' || localTheme === 'system') {
+        return localTheme
+      }
+      localStorage.setItem(THEME_KEY, 'system')
+      return 'system'
+    }
+
+    function isMourningDay() {
+      const today = new Date()
+      return MOURNING_DAYS.includes(`${today.getMonth() + 1}-${today.getDate()}`)
+    }
+
+    function applyTheme() {
+      const localTheme = getLocalTheme()
+      const theme = localTheme === 'system' ? getSystemTheme() : localTheme
+      document.documentElement.setAttribute('data-theme', theme)
+      document.documentElement.classList.toggle('gray', isMourningDay())
+    }
+
+    applyTheme()
+  })()
+</script>

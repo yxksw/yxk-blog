@@ -10,9 +10,10 @@ import { BackToTopFAB } from '@/components/BackToTopFAB'
 import { ToastContainer } from '@/components/ToastContainer'
 import { ModalStack } from '@/components/ui/modal'
 import Lightbox from '@/components/Lightbox.astro'
-import FootnoteTooltip from '@/components/FootnoteTooltip.astro'
+import FootnoteTooltip from '@/components/FootnoteTooltipInline.astro'
 import { site } from '@/config.json'
 import '@/styles/global.css'
+import livecodesScriptUrl from '@/scripts/livecodes.ts?url'
 
 interface Props {
   title?: string
@@ -31,7 +32,7 @@ const { title, description, image } = Astro.props
     <ThemeLoader />
     <AccentColorInjector />
     <PrintVersion />
-    <script type="module" is:inline>
+    <script is:inline type="module">
       import 'iconify-icon'
     </script>
   </head>
@@ -43,9 +44,8 @@ const { title, description, image } = Astro.props
     <ModalStack client:only="react" />
     <Lightbox />
     <FootnoteTooltip />
-    <script>
-      import { initLivecodes } from '@/scripts/livecodes'
-
+    <script is:inline type="module" define:vars={{ livecodesScriptUrl }}>
+      const { initLivecodes } = await import(livecodesScriptUrl)
       document.addEventListener('astro:page-load', () => initLivecodes())
       initLivecodes()
     </script>

@@ -1,4 +1,4 @@
-import { useHeaderBgOpacity } from './hooks'
+﻿import { useHeaderBgOpacity } from './hooks'
 
 export function BluredBackground() {
   const opacity = useHeaderBgOpacity()
@@ -12,3 +12,4 @@ export function BluredBackground() {
     ></div>
   )
 }
+

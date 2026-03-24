@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { menus } from '@/config.json'
 import { clsx } from 'clsx'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -58,11 +58,24 @@ function AccessibleMenu() {
   )
 }
 
+function normalizePath(value: string) {
+  if (!value) return '/'
+  const cleaned = value.replace(/[?#].*$/, '').replace(/\/+$/, '')
+  return cleaned === '' ? '/' : cleaned
+}
+
 function HeaderMenu({ isBgShow }: { isBgShow: boolean }) {
   const pathName = usePathName()
   const [mouseX, setMouseX] = useState(0)
   const [mouseY, setMouseY] = useState(0)
   const [radius, setRadius] = useState(0)
+
+  const currentPath = normalizePath(pathName || '/')
+  const isMenuActive = (href: string) => {
+    const target = normalizePath(href)
+    if (target === '/') return currentPath === '/'
+    return currentPath === target || currentPath.startsWith(`${target}/`)
+  }
 
   const background = `radial-gradient(${radius}px circle at ${mouseX}px ${mouseY}px, rgb(var(--color-accent) / 0.12) 0%, transparent 65%)`
 
@@ -93,7 +106,7 @@ function HeaderMenu({ isBgShow }: { isBgShow: boolean }) {
             href={menu.link}
             title={menu.name}
             icon={menu.icon}
-            isActive={pathName === menu.link}
+            isActive={isMenuActive(menu.link)}
           />
         ))}
       </div>
@@ -121,8 +134,9 @@ function HeaderMenuItem({
     'icon-film': 'ri:film-line',
     'icon-chat': 'ri:chat-1-line',
   }
+
   const handleMemosClick =
-    title === '说说'
+    href === '/memos'
       ? () => {
           const once = () => {
             document.removeEventListener('swup:content:replace', once as any)
@@ -136,6 +150,7 @@ function HeaderMenuItem({
           document.addEventListener('swup:content:replace', once as any)
         }
       : undefined
+
   const Link = (
     <a
       className={clsx('relative block px-4 py-1.5', isActive ? 'text-accent' : 'hover:text-accent')}
@@ -155,6 +170,8 @@ function HeaderMenuItem({
       )}
     </a>
   )
-  if (title === '专栏') return <ColumnHover>{Link}</ColumnHover>
+
+  if (href === '/columns') return <ColumnHover>{Link}</ColumnHover>
   return Link
 }
+

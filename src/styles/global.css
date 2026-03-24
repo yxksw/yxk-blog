@@ -1,3 +1,5 @@
+@config '../../tailwind.config.js';
+@import 'tailwindcss';
 @import './shiki.css';
 @import './markdown.css';
 @import './signature.css';
@@ -22,17 +24,17 @@
 }
 
 ::selection {
-  background-color: theme('colors.accent');
+  background-color: rgb(var(--color-accent));
   color: white;
 }
 
 [data-theme='dark'] ::selection {
-  background-color: theme('colors.accent/0.3');
+  background-color: rgb(var(--color-accent) / 0.3);
 }
 
 html {
-  color: theme('textColor.primary');
-  background-color: theme('backgroundColor.root');
+  color: rgb(var(--color-text-primary));
+  background-color: rgb(var(--color-bg-root));
   scroll-padding-top: 64px;
 }
 

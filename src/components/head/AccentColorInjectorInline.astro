@@ -1,0 +1,89 @@
+---
+import { color as themeColor } from '@/config.json'
+---
+
+<script
+  is:inline
+  define:vars={{
+    accentPalette: themeColor.accent,
+    bgColors: themeColor.bg,
+    textColors: themeColor.text,
+    borderColors: themeColor.border,
+  }}
+>
+  ;(() => {
+    const STYLE_ID = 'accent-color-vars'
+
+    function hexToRgb(hex) {
+      const normalized = hex.replace('#', '').trim()
+      const full =
+        normalized.length === 3 ? normalized.split('').map((v) => v + v).join('') : normalized
+      const value = Number.parseInt(full, 16)
+      return [(value >> 16) & 255, (value >> 8) & 255, value & 255]
+    }
+
+    function rgbToString(rgb) {
+      return rgb.map((n) => Math.round(n)).join(' ')
+    }
+
+    function mixRgb(base, accent, weight) {
+      return base.map((n, i) => n + (accent[i] - n) * weight)
+    }
+
+    function getAccentIndex() {
+      if (accentPalette.length <= 1) return 0
+
+      const previous = Number.parseInt(document.documentElement.dataset.accentIndex || '', 10)
+      let next = Math.floor(Math.random() * accentPalette.length)
+
+      if (Number.isInteger(previous) && previous >= 0 && previous < accentPalette.length) {
+        while (next === previous) {
+          next = Math.floor(Math.random() * accentPalette.length)
+        }
+      }
+
+      document.documentElement.dataset.accentIndex = String(next)
+      return next
+    }
+
+    function buildCssText() {
+      const accentColor = accentPalette[getAccentIndex()]
+      const lightAccent = hexToRgb(accentColor.light)
+      const darkAccent = hexToRgb(accentColor.dark)
+      const lightRootBg = mixRgb([250, 250, 250], lightAccent, 0.05)
+      const darkRootBg = mixRgb([0, 2, 18], darkAccent, 0.12)
+
+      return `html {
+  --color-accent: ${rgbToString(lightAccent)};
+  --color-bg-root: ${rgbToString(lightRootBg)};
+  --color-bg-primary: ${rgbToString(hexToRgb(bgColors.primary.light))};
+  --color-bg-secondary: ${rgbToString(hexToRgb(bgColors.secondary.light))};
+  --color-text-primary: ${rgbToString(hexToRgb(textColors.primary.light))};
+  --color-text-secondary: ${rgbToString(hexToRgb(textColors.secondary.light))};
+  --color-border-primary: ${rgbToString(hexToRgb(borderColors.primary.light))};
+}
+[data-theme='dark'] {
+  --color-accent: ${rgbToString(darkAccent)};
+  --color-bg-root: ${rgbToString(darkRootBg)};
+  --color-bg-primary: ${rgbToString(hexToRgb(bgColors.primary.dark))};
+  --color-bg-secondary: ${rgbToString(hexToRgb(bgColors.secondary.dark))};
+  --color-text-primary: ${rgbToString(hexToRgb(textColors.primary.dark))};
+  --color-text-secondary: ${rgbToString(hexToRgb(textColors.secondary.dark))};
+  --color-border-primary: ${rgbToString(hexToRgb(borderColors.primary.dark))};
+}`
+    }
+
+    function applyAccentVars() {
+      let styleEl = document.getElementById(STYLE_ID)
+      if (!styleEl) {
+        styleEl = document.createElement('style')
+        styleEl.id = STYLE_ID
+        document.head.appendChild(styleEl)
+      }
+      styleEl.textContent = buildCssText()
+    }
+
+    applyAccentVars()
+    document.addEventListener('swup:content:replace', applyAccentVars)
+  })()
+</script>

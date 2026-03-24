@@ -34,7 +34,7 @@ export function Modal({
       <Dialog.Portal>
         <Dialog.Overlay asChild>
           <motion.div
-            className="fixed inset-0 bg-gray-800/40"
+            className="fixed inset-0 bg-gray-800/40 data-[state=closed]:pointer-events-none"
             style={{ zIndex: overlayZIndex }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -43,7 +43,7 @@ export function Modal({
         </Dialog.Overlay>
 
         <Dialog.Content
-          className="fixed inset-0 flex items-center justify-center"
+          className="fixed inset-0 flex items-center justify-center data-[state=closed]:pointer-events-none"
           style={{ zIndex: contentZIndex }}
           onClick={(e) => {
             if (e.target === e.currentTarget) {

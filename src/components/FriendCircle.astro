@@ -1,5 +1,6 @@
 ---
 import '@/styles/components/friend-circle.css'
+import cycleScriptUrl from '@/scripts/cycle.js?url'
 ---
 
 <div class="friend-circle-container mt-12">
@@ -35,6 +36,6 @@ import '@/styles/components/friend-circle.css'
     error_img: 'https://fastly.jsdelivr.net/gh/Rock-Candy-Tea/Friend-Circle-Frontend/logo.png',
   }
 </script>
-<script>
-  import '@/scripts/cycle.js'
+<script is:inline type="module" define:vars={{ cycleScriptUrl }}>
+  await import(cycleScriptUrl)
 </script>

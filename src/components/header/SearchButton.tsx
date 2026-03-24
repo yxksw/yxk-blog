@@ -26,7 +26,7 @@ export function SearchButton() {
 
   return (
     <button
-      className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-secondary/50 transition-colors text-secondary hover:text-primary"
+      className="w-10 h-10 flex items-center justify-center rounded-full cursor-pointer hover:bg-secondary/50 transition-colors text-secondary hover:text-primary"
       type="button"
       aria-label="Search"
       onClick={openModal}
