@@ -1,4 +1,4 @@
----
+﻿---
 import type { CollectionEntry } from 'astro:content'
 import type { GetStaticPaths } from 'astro'
 import MarkdownLayout from '@/layouts/MarkdownLayout.astro'
@@ -53,7 +53,7 @@ function concat(str1: string, str2: string, sep = ' / ') {
 
 const lastMod = (current.data.lastMod || current.data.date) as Date
 // 1. 如果 frontmatter 明确设置了 outdate: true/false，则直接使用
-// 2. 如果未设置 (undefined)，则走默认逻辑：超过 90 天显示
+// 2. 如果未设置(undefined)，则走默认逻辑：超过 90 天显示
 const shouldShowOutdate =
   typeof current.data.outdate === 'boolean' ? current.data.outdate : getDiffInDays(lastMod) > 90
 
@@ -127,7 +127,7 @@ const shouldShowAiSummary = current.data.aiSummary
     </div>
     <div class="lg:col-start-2" data-pagefind-ignore>
       <section class="space-y-6">
-        <PostCopyright title={current.data.title} slug={mdSlug} lastMod={lastMod} client:visible />
+        <PostCopyright title={current.data.title} slug={mdSlug} date={current.data.date as Date} lastMod={current.data.lastMod} client:visible />
         <PostNav prev={prev} next={next} />
         {current.data.comments && <Comments />}
       </section>

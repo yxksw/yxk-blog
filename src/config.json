@@ -102,7 +102,8 @@
     }
   ],
   "posts": {
-    "perPage": 10
+    "perPage": 10,
+    "updateThresholdHours": 12
   },
   "footer": {
     "startTime": "2024-01-07T00:00:00Z"

@@ -1,5 +1,5 @@
-import { author, site } from '@/config.json'
-import { getFormattedDateTime } from '@/utils/date'
+﻿import { author, site, posts } from '@/config.json'
+import { getFormattedDateTime, isSignificantDateUpdate } from '@/utils/date'
 import { AnimatedSignature } from '../AnimatedSignature'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
@@ -11,14 +11,19 @@ function getPostUrl(slug: string) {
 export function PostCopyright({
   title,
   slug,
+  date,
   lastMod,
 }: {
   title: string
   slug: string
-  lastMod: Date
+  date: Date
+  lastMod?: Date
 }) {
-  const [lastModStr, setLastModStr] = useState('')
+  const [displayTimeStr, setDisplayTimeStr] = useState('')
   const url = getPostUrl(slug)
+  const isEdited = isSignificantDateUpdate(date, lastMod, posts.updateThresholdHours)
+  const displayDate = isEdited && lastMod ? lastMod : date
+  const timeLabel = isEdited ? '最后修改时间' : '发布时间'
 
   function handleCopyUrl() {
     navigator.clipboard.writeText(url)
@@ -26,8 +31,8 @@ export function PostCopyright({
   }
 
   useEffect(() => {
-    setLastModStr(getFormattedDateTime(lastMod))
-  }, [lastMod])
+    setDisplayTimeStr(getFormattedDateTime(displayDate))
+  }, [displayDate])
 
   return (
     <section className="text-xs leading-loose text-secondary break-words">
@@ -39,7 +44,9 @@ export function PostCopyright({
           [复制]
         </span>
       </p>
-      <p>最后修改时间：{lastModStr}</p>
+      <p>
+        {timeLabel}：{displayTimeStr}
+      </p>
       <hr className="my-3 border-primary" />
       <div>
         <div className="float-right ml-4 my-2">

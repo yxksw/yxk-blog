@@ -1,4 +1,29 @@
-import { z, defineCollection } from 'astro:content'
+﻿import { z, defineCollection } from 'astro:content'
+
+const DEFAULT_TIMEZONE_OFFSET = '+08:00'
+
+function parseFrontmatterDate(input: string): Date | undefined {
+  const s = input.trim()
+  if (!s) return undefined
+
+  // 字符串里已带时区信息时，直接按原值解析。
+  if (/[zZ]$|[+\-]\d{2}:\d{2}$/.test(s)) {
+    const withT = s.includes('T') ? s : s.replace(' ', 'T')
+    const d = new Date(withT)
+    return isNaN(d.valueOf()) ? undefined : d
+  }
+
+  // 只有日期时，默认按配置时区的当天 00:00:00 解析。
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const d = new Date(`${s}T00:00:00${DEFAULT_TIMEZONE_OFFSET}`)
+    return isNaN(d.valueOf()) ? undefined : d
+  }
+
+  // 无时区的日期时间统一附加默认时区，避免跨天漂移。
+  const normalized = s.includes('T') ? s : s.replace(' ', 'T')
+  const d = new Date(`${normalized}${DEFAULT_TIMEZONE_OFFSET}`)
+  return isNaN(d.valueOf()) ? undefined : d
+}
 
 const toDate = z
   .union([z.date(), z.string()])
@@ -6,10 +31,7 @@ const toDate = z
   .transform((val) => {
     if (!val) return undefined
     if (val instanceof Date) return val
-    const s = val as string
-    const normalized = s.includes('T') ? s : s.replace(' ', 'T')
-    const d = new Date(normalized)
-    return isNaN(d.valueOf()) ? undefined : d
+    return parseFrontmatterDate(val as string)
   })
 
 const postsCollection = defineCollection({
@@ -27,8 +49,8 @@ const postsCollection = defineCollection({
       comments: z.boolean().default(true),
       draft: z.boolean().default(false),
       sticky: z.number().default(0),
-      // 专栏/目录定序（例如 "1"、"1.1"、"1.1.1"）
-      // 兼容数值写法（YAML 会把 1.1 解析成 number），统一转成字符串
+
+      // 专栏/目录序号（例如：1、1.1、1.1.1），兼容 YAML 把 1.1 解析为 number 的情况
       index: z
         .union([z.string(), z.number()])
         .optional()
@@ -36,6 +58,7 @@ const postsCollection = defineCollection({
           if (v === undefined || v === null) return undefined
           return String(v)
         }),
+
       description: z.string().optional(),
       categories: z.array(z.string()).optional(),
       updated: toDate,
@@ -61,6 +84,7 @@ const postsCollection = defineCollection({
       const sticky = typeof data.pinned === 'boolean' ? (data.pinned ? 1 : 0) : data.sticky
       // date required after transform
       const date = data.date ?? data.updated ?? data.lastMod
+
       return {
         ...data,
         summary,

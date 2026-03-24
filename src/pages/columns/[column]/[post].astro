@@ -1,4 +1,4 @@
----
+﻿---
 import type { GetStaticPaths } from 'astro'
 import { getCollection } from 'astro:content'
 import { getColumnsFromFolder } from '@/utils/content'
@@ -223,6 +223,7 @@ const nextUrl = nextItem ? `/columns/${column.slug}/${nextItem.slug.split('/').p
         <PostCopyright
           title={post.data.title}
           slug={mdSlug}
+          date={post.data.date as Date}
           lastMod={post.data.lastMod}
           client:visible
         />
