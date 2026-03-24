@@ -13,31 +13,34 @@ pinned: false
 aiSummary: true
 outdate: true
 date: 2026-03-09 15:16
-updated: 2026-03-09 15:17
+updated: 2026-03-22 13:13
 slug: 'python'
 ---
 
+## 创建路由
+
+独立路由模块+main 挂载
+
+1. 首先创建 news 路由
+
 ```python
-def my_decorator(func):
-    def wrapper(*args, **kwargs):
-        print("函数执行前的一些操作")
-        result = func(*args, **kwargs)
-        print("函数执行后的一些操作")
-        return result
-    return wrapper
+from fastapi import APIRouter
 
-@my_decorator
-def say_hello(name):
-    print(f"Hello, {name}!")
+## 创建 APIRouter 实例
+router = APIRouter(prefix="/api/news", tags=["news"])
 
-# 使用装饰器
-say_hello("Alice")
+@router.get("/categories")
+async def get_categories():
+    return {"msg":"success"}
 ```
 
-**输出结果：**
+2. 挂载
 
 ```python
-函数执行前的一些操作
-Hello, Alice!
-函数执行后的一些操作
+from fastapi import FastAPI
+from routers import news
+app = FastAPI()
+
+
+app.include_router(news.router)
 ```

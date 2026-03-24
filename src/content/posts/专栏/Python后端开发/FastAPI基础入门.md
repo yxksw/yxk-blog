@@ -13,12 +13,16 @@ pinned: false
 aiSummary: true
 outdate: true
 date: 2026-03-09 13:36
-updated: 2026-03-09 16:47
+updated: 2026-03-22 13:06
 index: '1'
 slug: 'fastapi-ji-chu-ru-men'
 ---
 
 ## 快速构建项目
+
+## 项目目录
+
+![](./附件/FastAPI基础入门/FastAPI基础入门.webp)
 
 ### 直接运行
 
