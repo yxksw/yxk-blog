@@ -1,8 +1,8 @@
----
+﻿---
 import type { CollectionEntry } from 'astro:content'
 import { getShortDate } from '@/utils/date'
 import { Icon } from 'astro-icon/components'
-import { slugify } from '@/utils/content'
+import { slugify, getEntrySlug } from '@/utils/content'
 import { PostCardHoverOverlay } from '@/components/post/PostCardHoverOverlay'
 
 interface Props {
@@ -65,7 +65,7 @@ const groupedPosts = posts.reduce<
                   )}
                   <a
                     class="break-words hover:text-accent/80 hover:underline underline-offset-2"
-                    href={`/posts/${post.slug}`}
+                    href={`/posts/${getEntrySlug(post)}`}
                     title={post.data.title}
                   >
                     {post.data.title}
@@ -91,3 +91,5 @@ const groupedPosts = posts.reduce<
     ))
   }
 </section>
+
+

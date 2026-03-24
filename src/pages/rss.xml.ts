@@ -1,7 +1,7 @@
-import type { APIContext } from 'astro'
+﻿import type { APIContext } from 'astro'
 import rss from '@astrojs/rss'
 import { site } from '@/config.json'
-import { getSortedPosts } from '@/utils/content'
+import { getSortedPosts, getEntrySlug } from '@/utils/content'
 
 export async function GET(context: APIContext) {
   const sortedPosts = await getSortedPosts()
@@ -12,7 +12,7 @@ export async function GET(context: APIContext) {
     description: site.description,
     site: context.site!,
     items: filteredPosts.map((post) => ({
-      link: `/posts/${post.slug}`,
+      link: `/posts/${getEntrySlug(post)}`,
       title: post.data.title,
       pubDate: post.data.date,
       description: post.data.summary,

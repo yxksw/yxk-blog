@@ -1,7 +1,7 @@
----
+﻿---
 import type { GetStaticPaths } from 'astro'
 import type { CollectionEntry } from 'astro:content'
-import { getCollection } from 'astro:content'
+import { getCollection, render } from 'astro:content'
 import MarkdownLayout from '@/layouts/MarkdownLayout.astro'
 import PageLayout from '@/layouts/PageLayout.astro'
 import Highlight from '@/components/Highlight.astro'
@@ -13,12 +13,13 @@ import ProjectList from '@/components/ProjectList.astro'
 import { ReadingProgress } from '@/components/post/ReadingProgress'
 import { PostToc } from '@/components/post/PostToc'
 import { Comments } from '@/components/comment'
+import { getEntrySlug } from '@/utils/content'
 
 export const getStaticPaths = (async () => {
   const specList = await getCollection('spec')
 
   return specList.map((md) => ({
-    params: { spec: md.slug },
+    params: { spec: getEntrySlug(md) },
     props: {
       md,
     },
@@ -30,10 +31,10 @@ interface Props {
 }
 
 const { md } = Astro.props
+const specSlug = getEntrySlug(md)
+const { headings, Content } = await render(md)
 
-const { headings, Content } = await md.render()
-
-const isPageLayout = ['friends', 'projects'].includes(md.slug)
+const isPageLayout = ['friends', 'projects'].includes(specSlug)
 const isMdContentEmpty = typeof md.body === 'string' ? md.body.trim().length === 0 : false
 ---
 
@@ -47,13 +48,13 @@ const isMdContentEmpty = typeof md.body === 'string' ? md.body.trim().length ===
           </h1>
           <p>{md.data.description}</p>
         </header>
-        {md.slug === 'friends' && (
+        {specSlug === 'friends' && (
           <>
             <FriendList />
             <FriendCircle />
           </>
         )}
-        {md.slug === 'projects' && <ProjectList />}
+        {specSlug === 'projects' && <ProjectList />}
         {!isMdContentEmpty && (
           <MarkdownWrapper>
             <Content />
@@ -68,7 +69,7 @@ const isMdContentEmpty = typeof md.body === 'string' ? md.body.trim().length ===
       description={md.data.description}
       mdTitle={md.data.title}
       mdDescription={md.data.description}
-      mdSlug={md.slug}
+      mdSlug={specSlug}
     >
       <div
         class="w-full px-4 md:px-8 py-16 grid gap-8 lg:grid-cols-[1fr_minmax(0,900px)_1fr]"

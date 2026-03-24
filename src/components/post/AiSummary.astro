@@ -1,4 +1,4 @@
----
+﻿---
 interface Props {
   slug: string
   title: string
@@ -28,8 +28,8 @@ const containerClass = embedded
       stroke-linejoin="round"
       class="w-6 h-6"
       ><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path
-        d="M2 14h2"></path><path d="M20 14h2"></path><path d="M15 13v2"></path><path d="M9 13v2"
-      ></path></svg
+        d="M2 14h2"
+      ></path><path d="M20 14h2"></path><path d="M15 13v2"></path><path d="M9 13v2"></path></svg
     >
     <span>AI 摘要</span>
   </div>
@@ -48,7 +48,7 @@ const containerClass = embedded
     return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
   }
 
-  // 添加延迟确保DOM完全加载
+  // 添加延迟，确保 DOM 完全加载
   setTimeout(async () => {
     const container = document.getElementById(`ai-summary-${slug}`)
     const outputEl = document.getElementById(`ai-summary-text-${slug}`)
@@ -60,9 +60,9 @@ const containerClass = embedded
 
     try {
       // 1. 获取文章完整文本
-      const articleText = `标题：${title}\n\n${body}`
+      const articleText = `标题: ${title}\n\n${body}`
 
-      // 2. 计算内容的SHA256哈希
+      // 2. 计算内容的 SHA256 哈希
       const contentHash = await sha256(articleText)
 
       // 3. 检查内容是否已上传且未变更
@@ -71,7 +71,7 @@ const containerClass = embedded
       const checkRes = await fetch(checkUrl)
       const isUploaded = await checkRes.text()
 
-      // 4. 如果内容未上传或已变更，则上传新内容
+      // 4. 若内容未上传或已变更，则上传新内容
       if (isUploaded !== 'yes') {
         const uploadUrl = `${apiBaseUrl}/upload_blog?id=${encodeURIComponent(slug)}`
 
@@ -95,7 +95,7 @@ const containerClass = embedded
       if (cachedSummary && cachedSummary !== 'no') {
         outputEl.textContent = cachedSummary
       } else {
-        // 没有缓存的摘要，生成新摘要
+        // 没有缓存摘要，生成新摘要
         outputEl.textContent = '正在生成摘要，请稍候...'
         const streamUrl = `${apiBaseUrl}/summary?id=${encodeURIComponent(slug)}`
         const streamRes = await fetch(streamUrl)
@@ -143,5 +143,5 @@ const containerClass = embedded
       outputEl.textContent = `摘要生成失败: ${err.message}`
       outputEl.style.color = 'red'
     }
-  }, 500) // 500ms延迟确保DOM就绪
+  }, 500)
 </script>

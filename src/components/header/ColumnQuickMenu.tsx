@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 
 type ColumnMeta = { slug: string; title: string; count: number }
 
@@ -28,7 +28,7 @@ export default function ColumnQuickMenu({ open = false }: { open?: boolean }) {
     >
       <ul className="py-1 text-sm">
         {cols === null ? (
-          <li className="px-3 py-2 text-secondary">加载中…</li>
+          <li className="px-3 py-2 text-secondary">加载中...</li>
         ) : cols.length === 0 ? (
           <li className="px-3 py-2 text-secondary">暂无专栏</li>
         ) : (

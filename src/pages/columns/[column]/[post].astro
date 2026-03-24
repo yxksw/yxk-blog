@@ -1,7 +1,7 @@
 ﻿---
 import type { GetStaticPaths } from 'astro'
-import { getCollection } from 'astro:content'
-import { getColumnsFromFolder } from '@/utils/content'
+import { getCollection, render } from 'astro:content'
+import { getColumnsFromFolder, getEntryPath } from '@/utils/content'
 import MarkdownLayout from '@/layouts/MarkdownLayout.astro'
 import MarkdownWrapper from '@/components/MarkdownWrapper.astro'
 import SectionBlock from '@/components/SectionBlock.astro'
@@ -19,7 +19,7 @@ export const getStaticPaths = (async () => {
   for (const col of columns) {
     for (const it of col.items) {
       const seg = it.slug.split('/').pop()!
-      const p = posts.find((e) => e.slug === it.slug)
+      const p = posts.find((e) => getEntryPath(e) === it.slug)
       if (!p) continue
       paths.push({ params: { column: col.slug, post: seg }, props: { column: col, post: p } })
     }
@@ -43,9 +43,10 @@ const itemsTyped = (
   seg: it.slug.split('/').pop()!,
   level: it.level ?? 1,
 }))
-const { Content, remarkPluginFrontmatter, headings } = await post.render()
-const mdSlug = `/columns/${column.slug}/${post.slug.split('/').pop()!}`
-const currentIndex = (column.items as any[]).find((i) => i.slug === post.slug)?.index as
+const { Content, remarkPluginFrontmatter, headings } = await render(post)
+const postPath = getEntryPath(post)
+const mdSlug = `/columns/${column.slug}/${postPath.split('/').pop()!}`
+const currentIndex = (column.items as any[]).find((i) => i.slug === postPath)?.index as
   | string
   | undefined
 const topKey = currentIndex ? currentIndex.split('.')[0] : undefined
@@ -86,7 +87,7 @@ const groups = Object.values(
   ),
 ).sort((a, b) => num(a.key) - num(b.key))
 
-const currentIndexVal = column.items.findIndex((i) => i.slug === post.slug)
+const currentIndexVal = column.items.findIndex((i) => i.slug === postPath)
 const prevItem = currentIndexVal > 0 ? column.items[currentIndexVal - 1] : undefined
 const nextItem =
   currentIndexVal < column.items.length - 1 ? column.items[currentIndexVal + 1] : undefined
@@ -117,7 +118,7 @@ const nextUrl = nextItem ? `/columns/${column.slug}/${nextItem.slug.split('/').p
                           <a
                             class:list={[
                               'block px-3 py-1 rounded-md hover:text-accent hover:bg-secondary/60',
-                              it.slug === post.slug && 'bg-accent/10 text-accent',
+                              it.slug === postPath && 'bg-accent/10 text-accent',
                             ]}
                             href={`/columns/${column.slug}/${it.seg}`}
                           >
@@ -181,7 +182,7 @@ const nextUrl = nextItem ? `/columns/${column.slug}/${nextItem.slug.split('/').p
                                         <a
                                           class:list={[
                                             'block px-3 py-1 rounded-md hover:text-accent hover:bg-secondary/60',
-                                            it.slug === post.slug && 'bg-accent/10 text-accent',
+                                            it.slug === postPath && 'bg-accent/10 text-accent',
                                           ]}
                                           href={`/columns/${column.slug}/${it.seg}`}
                                           style={{

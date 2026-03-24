@@ -2,7 +2,7 @@
 import type { CollectionEntry } from 'astro:content'
 import type { GetStaticPaths } from 'astro'
 import MarkdownLayout from '@/layouts/MarkdownLayout.astro'
-import { getSortedPosts } from '@/utils/content'
+import { getSortedPosts, getEntrySlug } from '@/utils/content'
 import MarkdownWrapper from '@/components/MarkdownWrapper.astro'
 import SectionBlock from '@/components/SectionBlock.astro'
 import { PostToc } from '@/components/post/PostToc'
@@ -16,12 +16,13 @@ import { ActionAside } from '@/components/post/ActionAside'
 import { PostCopyright } from '@/components/post/PostCopyright'
 import AiSummary from '@/components/post/AiSummary.astro'
 import { getDiffInDays } from '@/utils/date'
+import { render } from 'astro:content'
 
 export const getStaticPaths = (async () => {
   const sortedPosts = await getSortedPosts()
 
   return sortedPosts.map((post, index) => ({
-    params: { slug: String((post.data as any).slug ?? post.slug) },
+    params: { slug: getEntrySlug(post) },
     props: {
       current: post,
       prev: index > 0 ? sortedPosts[index - 1] : undefined,
@@ -38,9 +39,10 @@ interface Props {
 
 const { current, prev, next } = Astro.props
 
-const { headings, Content, remarkPluginFrontmatter } = await current.render()
+const { headings, Content, remarkPluginFrontmatter } = await render(current)
 
-const mdSlug = `/posts/${String((current.data as any).slug ?? current.slug)}`
+const currentSlug = getEntrySlug(current)
+const mdSlug = `/posts/${currentSlug}`
 
 const mdDescription = concat(current.data.category || '', current.data.tags.join(', '))
 
@@ -99,9 +101,9 @@ const shouldShowAiSummary = current.data.aiSummary
               )}
               {shouldShowAiSummary && (
                 <AiSummary
-                  slug={String((current.data as any).slug ?? current.slug)}
+                  slug={currentSlug}
                   title={current.data.title}
-                  body={current.body}
+                  body={current.body ?? ''}
                   embedded={true}
                 />
               )}

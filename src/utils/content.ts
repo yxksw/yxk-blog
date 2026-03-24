@@ -1,152 +1,106 @@
-import { getCollection } from 'astro:content'
+﻿import { getCollection, render } from 'astro:content'
 import columnSortConfig from '@/content/column-sort.json'
 
-// 获取所有文章
-async function getAllPosts() {
-  const allPosts = await getCollection('posts', ({ data }) => {
-    // 1. 在生产环境过滤草稿 (draft: true)
-    if (import.meta.env.PROD && data.draft) {
-      return false
-    }
-    return true
-  })
-
-  return allPosts
+function toTimestamp(date?: Date) {
+  return date instanceof Date ? date.valueOf() : 0
 }
 
-// 获取所有公开展示的文章（过滤 draft 和 unlisted）
-export async function getPublicPosts() {
-  const allPosts = await getCollection('posts', ({ data }) => {
-    // 生产环境过滤草稿
+export function getEntryPath(entry: { id: string; filePath?: string }) {
+  const rawPath = String(entry.filePath ?? entry.id).replace(/\\/g, '/')
+  const withoutExt = rawPath.replace(/\.(md|mdx)$/i, '')
+  return withoutExt
+    .replace(/^\.?\/*src\/content\/[^/]+\//i, '')
+    .replace(/^\.?\/*(?:posts|spec|friends|projects)\//i, '')
+}
+
+export function getEntrySlug(entry: { id: string; filePath?: string; data?: unknown }) {
+  const slug = (entry.data as { slug?: string | number } | undefined)?.slug
+  return String(slug ?? getEntryPath(entry))
+}
+
+async function getAllPosts() {
+  return getCollection('posts', ({ data }) => {
     if (import.meta.env.PROD && data.draft) return false
-    // 始终过滤 unlisted
+    return true
+  })
+}
+
+export async function getPublicPosts() {
+  return getCollection('posts', ({ data }) => {
+    if (import.meta.env.PROD && data.draft) return false
     if (data.unlisted) return false
     return true
   })
-  return allPosts
 }
 
-// 获取所有文章，发布日期升序
 async function getNewestPosts() {
-  // 使用 getPublicPosts 替代 getAllPosts，确保列表只包含公开文章
   const allPosts = await getPublicPosts()
-
-  return allPosts.sort((a, b) => {
-    return (a.data.date as Date).valueOf() - (b.data.date as Date).valueOf()
-  })
+  return allPosts.sort(
+    (a, b) => toTimestamp(a.data.date as Date) - toTimestamp(b.data.date as Date),
+  )
 }
 
-// 获取所有文章，发布日期降序
 export async function getOldestPosts() {
   const allPosts = await getPublicPosts()
-
-  return allPosts.sort((a, b) => {
-    return (b.data.date as Date).valueOf() - (a.data.date as Date).valueOf()
-  })
+  return allPosts.sort(
+    (a, b) => toTimestamp(b.data.date as Date) - toTimestamp(a.data.date as Date),
+  )
 }
 
-// 获取所有文章，置顶优先，发布日期降序
 export async function getSortedPosts() {
   const allPosts = await getPublicPosts()
-
   return allPosts.sort((a, b) => {
-    if (a.data.sticky !== b.data.sticky) {
-      return b.data.sticky - a.data.sticky
-    } else {
-      return (b.data.date as Date).valueOf() - (a.data.date as Date).valueOf()
-    }
+    if (a.data.sticky !== b.data.sticky) return b.data.sticky - a.data.sticky
+    return toTimestamp(b.data.date as Date) - toTimestamp(a.data.date as Date)
   })
 }
 
-// 获取所有文章的字数
 export async function getAllPostsWordCount() {
-  // 字数统计通常只统计公开文章
   const allPosts = await getPublicPosts()
-
-  const promises = allPosts.map((post) => {
-    return post.render()
-  })
-
-  const res = await Promise.all(promises)
-
-  const wordCount = res.reduce((count, cur) => {
-    return count + cur.remarkPluginFrontmatter.words
-  }, 0)
-
-  return wordCount
+  const rendered = await Promise.all(allPosts.map((post) => render(post)))
+  return rendered.reduce((count, cur) => count + (cur.remarkPluginFrontmatter?.words ?? 0), 0)
 }
 
-// 转换为 URL 安全的 slug，删除点，空格转为短横线，大写转为小写
 export function slugify(text: string) {
   return text.replace(/\./g, '').replace(/\s/g, '-').toLowerCase()
 }
 
-// 获取所有分类
 export async function getAllCategories() {
   const newestPosts = await getNewestPosts()
-
-  const allCategories = newestPosts.reduce<{ slug: string; name: string; count: number }[]>(
-    (acc, cur) => {
-      if (cur.data.category) {
-        const slug = slugify(cur.data.category)
-        const index = acc.findIndex((category) => category.slug === slug)
-        if (index === -1) {
-          acc.push({
-            slug,
-            name: cur.data.category,
-            count: 1,
-          })
-        } else {
-          acc[index].count += 1
-        }
-      }
-      return acc
-    },
-    [],
-  )
-
-  return allCategories
+  return newestPosts.reduce<{ slug: string; name: string; count: number }[]>((acc, cur) => {
+    if (!cur.data.category) return acc
+    const slug = slugify(cur.data.category)
+    const index = acc.findIndex((category) => category.slug === slug)
+    if (index === -1) {
+      acc.push({ slug, name: cur.data.category, count: 1 })
+    } else {
+      acc[index].count += 1
+    }
+    return acc
+  }, [])
 }
 
-// 获取所有标签
 export async function getAllTags() {
   const newestPosts = await getNewestPosts()
-
-  const allTags = newestPosts.reduce<{ slug: string; name: string; count: number }[]>(
-    (acc, cur) => {
-      cur.data.tags.forEach((tag) => {
-        const slug = slugify(tag)
-        const index = acc.findIndex((tag) => tag.slug === slug)
-        if (index === -1) {
-          acc.push({
-            slug,
-            name: tag,
-            count: 1,
-          })
-        } else {
-          acc[index].count += 1
-        }
-      })
-      return acc
-    },
-    [],
-  )
-
-  return allTags
+  return newestPosts.reduce<{ slug: string; name: string; count: number }[]>((acc, cur) => {
+    cur.data.tags.forEach((tag) => {
+      const slug = slugify(tag)
+      const index = acc.findIndex((item) => item.slug === slug)
+      if (index === -1) {
+        acc.push({ slug, name: tag, count: 1 })
+      } else {
+        acc[index].count += 1
+      }
+    })
+    return acc
+  }, [])
 }
 
-// 获取热门标签
 export async function getHotTags(len = 5) {
   const allTags = await getAllTags()
-
-  return allTags
-    .sort((a, b) => {
-      return b.count - a.count
-    })
-    .slice(0, len)
+  return allTags.sort((a, b) => b.count - a.count).slice(0, len)
 }
 
-// 根据 posts 子目录（如 “专栏” 或 “column”）自动构建专栏与分栏目录
 export async function getColumnsFromFolder(folderNames: string[] = ['专栏', 'column']) {
   const all = await getAllPosts()
   type Item = { slug: string; title: string; index?: string; level: number }
@@ -155,9 +109,11 @@ export async function getColumnsFromFolder(folderNames: string[] = ['专栏', 'c
     columnOrder?: string[]
     postOrder?: Record<string, string[]>
   }
+
   const sortConfig = (columnSortConfig || {}) as ColumnSortConfig
   const normalizeKey = (v?: string) => (v || '').trim().toLowerCase()
   const map = new Map<string, Column>()
+
   const parseIndex = (idx?: string) =>
     idx
       ? idx
@@ -165,30 +121,36 @@ export async function getColumnsFromFolder(folderNames: string[] = ['专栏', 'c
           .map((n) => Number(n))
           .filter((n) => !Number.isNaN(n))
       : []
+
   for (const p of all) {
-    const id = p.id // e.g. "专栏/Java/控制反转….md"
-    const segs = id.split('/')
+    const entryPath = getEntryPath(p)
+    const segs = entryPath.split('/')
     if (segs.length < 2) continue
+
     const root = segs[0]
     if (!folderNames.includes(root)) continue
-    const colTitle = segs[1] // e.g. "Java"
-    const base = `${root}/${colTitle}` // e.g. "专栏/Java"
+
+    const colTitle = segs[1]
+    const base = `${root}/${colTitle}`
     const colSlug = slugify(colTitle)
+
     if (!map.has(base)) {
       map.set(base, { slug: colSlug, title: colTitle, base, items: [] })
     }
-    const col = map.get(base)!
-    col.items.push({
-      slug: p.slug,
+
+    map.get(base)!.items.push({
+      slug: entryPath,
       title: p.data.title,
       index: (p.data as any).index,
       level: (p.data as any).index ? String((p.data as any).index).split('.').length : 1,
     })
   }
+
   const sortByConfiguredOrder = (items: Item[], order: string[] = []) => {
     if (!order.length) return items
     const rank = new Map<string, number>()
     order.forEach((slug, i) => rank.set(slug, i))
+
     return [...items].sort((a, b) => {
       const aSeg = a.slug.split('/').pop()!
       const bSeg = b.slug.split('/').pop()!
@@ -199,34 +161,34 @@ export async function getColumnsFromFolder(folderNames: string[] = ['专栏', 'c
     })
   }
 
-  // 专栏内文章默认按 index + 日期升序；若配置了 postOrder 则优先按配置排序
   const res = Array.from(map.values()).map((c) => {
     c.items = c.items.sort((a, b) => {
-      // 按 index 自定义顺序（1 < 1.1 < 1.1.1 < 2 ...），未设置的排在最后
-      const ai = parseIndex((all.find((e) => e.slug === a.slug)?.data as any)?.index)
-      const bi = parseIndex((all.find((e) => e.slug === b.slug)?.data as any)?.index)
+      const ai = parseIndex((all.find((e) => getEntryPath(e) === a.slug)?.data as any)?.index)
+      const bi = parseIndex((all.find((e) => getEntryPath(e) === b.slug)?.data as any)?.index)
       const len = Math.max(ai.length, bi.length)
+
       for (let i = 0; i < len; i++) {
-        // 缺失位视为 0，确保 1 在 1.1 之前
         const av = ai[i] ?? 0
         const bv = bi[i] ?? 0
         if (av !== bv) return av - bv
       }
-      // 其次按日期升序
-      const pa = all.find((e) => e.slug === a.slug)!
-      const pb = all.find((e) => e.slug === b.slug)!
-      return (pa.data.date as Date).valueOf() - (pb.data.date as Date).valueOf()
+
+      const pa = all.find((e) => getEntryPath(e) === a.slug)
+      const pb = all.find((e) => getEntryPath(e) === b.slug)
+      return toTimestamp(pa?.data.date as Date) - toTimestamp(pb?.data.date as Date)
     })
+
     const postOrderByTitle = sortConfig.postOrder?.[c.title]
     const postOrderBySlug = sortConfig.postOrder?.[c.slug]
     c.items = sortByConfiguredOrder(c.items, postOrderByTitle || postOrderBySlug)
     return c
   })
-  // 专栏默认按标题排序；若配置了 columnOrder 则优先按配置排序（支持标题名或 slug）
+
   const columnRank = new Map<string, number>()
   ;(sortConfig.columnOrder || []).forEach((nameOrSlug, i) =>
     columnRank.set(normalizeKey(nameOrSlug), i),
   )
+
   res.sort((a, b) => {
     const ar =
       columnRank.get(normalizeKey(a.title)) ??
@@ -239,5 +201,6 @@ export async function getColumnsFromFolder(folderNames: string[] = ['专栏', 'c
     if (ar !== br) return ar - br
     return a.title.localeCompare(b.title, 'zh-CN')
   })
+
   return res
 }

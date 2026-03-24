@@ -1,4 +1,5 @@
-﻿import { z, defineCollection } from 'astro:content'
+import { defineCollection, z } from 'astro:content'
+import { glob } from 'astro/loaders'
 
 const DEFAULT_TIMEZONE_OFFSET = '+08:00'
 
@@ -34,11 +35,10 @@ const toDate = z
     return parseFrontmatterDate(val as string)
   })
 
-const postsCollection = defineCollection({
-  type: 'content',
+const posts = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/posts' }),
   schema: z
     .object({
-      // 标准字段
       title: z.string(),
       date: toDate,
       lastMod: toDate,
@@ -49,8 +49,6 @@ const postsCollection = defineCollection({
       comments: z.boolean().default(true),
       draft: z.boolean().default(false),
       sticky: z.number().default(0),
-
-      // 专栏/目录序号（例如：1、1.1、1.1.1），兼容 YAML 把 1.1 解析为 number 的情况
       index: z
         .union([z.string(), z.number()])
         .optional()
@@ -58,7 +56,6 @@ const postsCollection = defineCollection({
           if (v === undefined || v === null) return undefined
           return String(v)
         }),
-
       description: z.string().optional(),
       categories: z.array(z.string()).optional(),
       updated: toDate,
@@ -66,23 +63,16 @@ const postsCollection = defineCollection({
       unlisted: z.boolean().optional(),
       pinned: z.boolean().optional(),
       aiSummary: z.boolean().optional(),
-      outdate: z.boolean().optional(), // 控制是否显示过期提示，默认根据时间自动判断
+      outdate: z.boolean().optional(),
       slug: z.union([z.string(), z.number()]).optional(),
     })
     .transform((data) => {
-      // summary <- description
       const summary = data.summary ?? data.description
-      // category <- categories[0]
       const category = data.category ?? (data.categories && data.categories[0])
-      // lastMod <- updated
       const lastMod = data.lastMod ?? data.updated
-      // draft <- !status
       const draft = typeof data.status === 'boolean' ? !data.status : data.draft
-      // unlisted: default false
       const unlisted = data.unlisted ?? false
-      // sticky <- pinned ? 1 : sticky
       const sticky = typeof data.pinned === 'boolean' ? (data.pinned ? 1 : 0) : data.sticky
-      // date required after transform
       const date = data.date ?? data.updated ?? data.lastMod
 
       return {
@@ -102,8 +92,8 @@ const postsCollection = defineCollection({
     }),
 })
 
-const projectsCollection = defineCollection({
-  type: 'data',
+const projects = defineCollection({
+  loader: glob({ pattern: '**/*.{json,yaml,yml,toml}', base: './src/content/projects' }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -112,23 +102,8 @@ const projectsCollection = defineCollection({
   }),
 })
 
-const columnsCollection = defineCollection({
-  type: 'data',
-  schema: z.object({
-    slug: z.string(),
-    title: z.string(),
-    description: z.string().optional(),
-    items: z.array(
-      z.object({
-        slug: z.string(),
-        title: z.string().optional(),
-      }),
-    ),
-  }),
-})
-
-const specCollection = defineCollection({
-  type: 'content',
+const spec = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/spec' }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -136,8 +111,8 @@ const specCollection = defineCollection({
   }),
 })
 
-const friendsCollection = defineCollection({
-  type: 'data',
+const friends = defineCollection({
+  loader: glob({ pattern: '**/*.{json,yaml,yml,toml}', base: './src/content/friends' }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -147,9 +122,8 @@ const friendsCollection = defineCollection({
 })
 
 export const collections = {
-  posts: postsCollection,
-  projects: projectsCollection,
-  columns: columnsCollection,
-  spec: specCollection,
-  friends: friendsCollection,
+  posts,
+  projects,
+  spec,
+  friends,
 }
