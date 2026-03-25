@@ -43,7 +43,7 @@ function Buttons({ hasComments }: { hasComments: boolean }) {
     <div className="flex flex-col gap-3 items-end">
       {hasComments && (
         <motion.button
-          className="size-10 rounded-full shadow-lg shadow-zinc-800/5 border border-primary bg-white/50 dark:bg-zinc-800/50 backdrop-blur"
+          className="size-10 rounded-full shadow-lg shadow-zinc-800/5 border border-primary bg-white/50 dark:bg-zinc-800/50 backdrop-blur cursor-pointer"
           type="button"
           aria-label="Go to comments"
           onClick={handleScrollToComments}
@@ -55,7 +55,7 @@ function Buttons({ hasComments }: { hasComments: boolean }) {
         </motion.button>
       )}
       <motion.button
-        className="size-10 rounded-full shadow-lg shadow-zinc-800/5 border border-primary bg-white/50 dark:bg-zinc-800/50 backdrop-blur"
+        className="size-10 rounded-full shadow-lg shadow-zinc-800/5 border border-primary bg-white/50 dark:bg-zinc-800/50 backdrop-blur cursor-pointer"
         type="button"
         aria-label="Back to top"
         onClick={handleBackToTop}
