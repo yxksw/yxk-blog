@@ -99,6 +99,7 @@ export function initLivecodes() {
       if (lang === 'html') {
         config = {
           ...config,
+
           activeEditor: 'markup',
           markup: {
             language: 'html',

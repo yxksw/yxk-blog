@@ -194,6 +194,8 @@ export function rehypeLivecodes() {
       const heightRaw = node.properties?.['data-lc-height']
       const height = Number.isFinite(Number(heightRaw)) ? Number(heightRaw) : 520
       const title = node.properties?.['data-lc-title']
+      const rawShowCode = node.properties?.['data-lc-code']
+      const showCode = ['1', 'true', 'yes', 'on'].includes(String(rawShowCode || '').toLowerCase())
 
       const code = getNodeText(pre)
 
@@ -211,12 +213,16 @@ export function rehypeLivecodes() {
 
       const mount = h('div', { class: 'livecodes-runner__mount' })
 
-      const codeWrapper = h('div', { class: 'livecodes-runner__code' }, node.children || [])
+      const children = [mount, data]
+      if (showCode) {
+        const codeWrapper = h('div', { class: 'livecodes-runner__code' }, node.children || [])
+        children.push(codeWrapper)
+      }
 
       parent.children[index] = h(
         'div',
         { class: 'livecodes-runner', 'data-lc-height': String(height) },
-        [mount, data, codeWrapper],
+        children,
       )
     })
   }

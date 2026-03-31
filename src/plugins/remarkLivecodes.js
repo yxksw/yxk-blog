@@ -15,6 +15,7 @@ export function remarkLivecodes() {
         ...(attrs.template ? { 'data-lc-template': String(attrs.template) } : {}),
         ...(attrs.height ? { 'data-lc-height': String(attrs.height) } : {}),
         ...(attrs.title ? { 'data-lc-title': String(attrs.title) } : {}),
+        ...(attrs.code ? { 'data-lc-code': String(attrs.code) } : {}),
       }
     })
   }
