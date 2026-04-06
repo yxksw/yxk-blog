@@ -20,6 +20,8 @@ interface MenuItem {
   children?: MenuItem[]
 }
 
+const typedMenus = menus as MenuItem[]
+
 export function HeaderContent() {
   return (
     <>
@@ -116,7 +118,7 @@ function HeaderMenu({ isBgShow }: { isBgShow: boolean }) {
         aria-hidden
       ></div>
       <div className="text-sm px-4 flex">
-        {menus.map((menu) => (
+        {typedMenus.map((menu) => (
           <div
             key={menu.name}
             className="relative"
