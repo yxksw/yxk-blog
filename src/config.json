@@ -87,13 +87,18 @@
     },
     {
       "name": "说说",
-      "link": "/memos",
+      "link": "/jike",
       "icon": "icon-chat"
     },
     {
       "name": "关于",
       "link": "/about",
       "icon": "icon-ghost"
+    },
+    {
+      "name": "我",
+      "link": "/me",
+      "icon": "icon-user"
     },
     {
       "name": "友链",
@@ -106,7 +111,7 @@
     "updateThresholdHours": 12
   },
   "footer": {
-    "startTime": "2024-01-07T00:00:00Z"
+    "startTime": "2024-11-01T12:00:00Z"
   },
   "comment": {
     "provider": "artalk"

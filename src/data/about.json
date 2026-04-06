@@ -1,0 +1,96 @@
+{
+  "top_info": {
+    "avatar": "https://blog.liushen.fun/info/avatar.ico",
+    "site_name": "清羽飞扬",
+    "motto": "柳影曳曳，清酒孤灯，扬笔撒墨，心境如霜",
+    "float_text": [
+      "🐝 勤劳小蜜蜂",
+      "🧱 踏实实在人",
+      "👷‍♀️ 努力小天使",
+      "🐔 乐观大白鹅",
+      "阳光小少年 👱‍♀️",
+      "温暖小太阳 ☀️",
+      "可爱小白兔 🐰",
+      "懒惰小胖猪 🐗"
+    ]
+  },
+  "personal_info": {
+    "name": "柳清扬",
+    "gender": "男",
+    "address": "陕西西安",
+    "school": "武汉理工大学",
+    "grade": "二〇二一级",
+    "major": "人工智能",
+    "email": "01@liushen.fun",
+    "QQ": "3162475700",
+    "birthday": "2003/01/01",
+    "bottom_img": "https://p.liiiu.cn/i/2024/04/14/661ab09243659.png"
+  },
+  "personality": {
+    "type": "ENFJ-T",
+    "type_name": "主人公",
+    "svg": "/config/img/enfj.svg",
+    "url": "https://www.16personalities.com/ch/enfj-%E4%BA%BA%E6%A0%BC"
+  },
+  "description_and_social_links": {
+    "description": "大家好！这里是清羽飞扬的小站。为什么叫清羽飞扬呢？因为「清扬」是我的名字，而「飞扬」代表着自由和轻盈，这与我的性格不谋而合。我是一个充满热情、富有同情心的人，喜欢与人交流，乐于分享我的想法和见解。在这里，我会分享我的生活点滴、兴趣爱好以及对世界的观察和思考。希望我的小站能给大家带来一些启发和乐趣。",
+    "social_links": [
+      {
+        "platform": "GitHub",
+        "url": "https://github.com/willow-god",
+        "icon": "https://p.liiiu.cn/i/2024/07/27/66a461a3098aa.webp"
+      },
+      {
+        "platform": "Gitee",
+        "url": "https://gitee.com/willow-god",
+        "icon": "https://p.liiiu.cn/i/2024/07/27/66a461c3dea80.webp"
+      },
+      {
+        "platform": "QQ",
+        "url": "https://qm.qq.com/cgi-bin/qm_share/open_source_page?uin=3162475700&jump_from=webapi",
+        "icon": "https://p.liiiu.cn/i/2024/07/27/66a461b627dc2.webp"
+      }
+    ]
+  },
+  "skills": {
+    "technical": [
+      "https://img02.anheyu.com/adminuploads/1/2022/09/25/633005bf0fd1e.jpg",
+      "https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647df7fa.png",
+      "https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647e1f10.png",
+      "https://img02.anheyu.com/adminuploads/1/2022/09/26/6330ff27e5c9b.png",
+      "https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647dea51.png",
+      "https://img02.anheyu.com/adminuploads/1/2023/05/09/645a45854e093.png",
+      "https://img02.anheyu.com/adminuploads/1/2022/09/25/633001374747b.png"
+    ],
+    "general": [
+      "https://img02.anheyu.com/adminuploads/1/2022/09/25/633006cc55e07.png",
+      "https://img02.anheyu.com/adminuploads/1/2022/09/25/633006eee047b.png",
+      "https://img02.anheyu.com/adminuploads/1/2022/09/25/633006f9ab27d.png",
+      "https://img02.anheyu.com/adminuploads/1/2023/04/11/6434a635e9726.webp",
+      "https://img02.anheyu.com/adminuploads/1/2022/09/25/633007087a4dc.webp",
+      "https://img02.anheyu.com/adminuploads/1/2022/09/25/633005bf0fd1e.jpg",
+      "https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647df7fa.png",
+      "https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647e1f10.png",
+      "https://img02.anheyu.com/adminuploads/1/2022/09/26/6330ff27e5c9b.png"
+    ],
+    "learning": "正在持续学习中"
+  },
+  "projects": [
+    {
+      "name": "Friend-Circle-lite",
+      "description": "轻量化友链朋友圈",
+      "url": "https://github.com/willow-god/Friend-Circle-Lite"
+    },
+    {
+      "name": "Hexo-Safego",
+      "description": "hexo插件之安全跳转中转页",
+      "url": "https://github.com/willow-god/hexo-safego"
+    }
+  ],
+  "hobbies": ["阅读", "写作", "编程", "摄影"],
+  "self_evaluation": {
+    "thoughts": "思想上乐观开朗，乐于助人，具有团队协作精神及创新意识。",
+    "work": "工作上极富责任心与信念感，对待工作认真负责，有较强的组织管理及动手能力。",
+    "summary": "人嘎嘎好！"
+  }
+}

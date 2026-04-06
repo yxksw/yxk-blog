@@ -1,0 +1,479 @@
+---
+import PageLayout from '@/layouts/PageLayout.astro'
+const title = '说说'
+---
+
+<PageLayout title={title}>
+  <div class="w-full px-4 md:px-8 py-16 grid gap-6 lg:grid-cols-[1fr_minmax(0,900px)_1fr]">
+    <div class="lg:col-start-2 memos memos-scope">
+      <header class="space-y-2 mb-4">
+        <h1 class="text-4xl font-bold">说说</h1>
+      </header>
+
+      <section class="memos-list">
+        <div id="memo-grid" class="memos-grid"></div>
+      </section>
+      <div id="memos-comment-global" class="comment-global d-none"></div>
+
+      <template id="memo-item-template">
+        <article class="memos-item">
+          <div class="memos-content prose dark:prose-invert"></div>
+          <div class="memos-footer">
+            <time class="memos-time"></time>
+            <a class="memos-link" target="_blank" rel="noopener noreferrer">查看原文</a>
+          </div>
+        </article>
+      </template>
+
+      <div class="bb-load" id="load-more-container"></div>
+
+      <script type="module" is:inline>
+        if (!window.__JIKE_BOOT_FROM_LAYOUT__ && !window.__JIKE_PAGE_INITED__) {
+          window.__JIKE_PAGE_INITED__ = true
+          const CONFIG = {
+            rssUrl: '/api/jike-rss',
+            limit: 10,
+            dom: {
+              gridContainer: '#memo-grid',
+              template: '#memo-item-template',
+              loadMore: '#load-more-container',
+            },
+          }
+
+          let allItems = []
+          let currentPage = 0
+          const itemsPerPage = 10
+          let memoGrid = document.querySelector(CONFIG.dom.gridContainer)
+          let memoTemplate = document.querySelector(CONFIG.dom.template)
+          let loadMoreContainer = document.querySelector(CONFIG.dom.loadMore)
+          let isLoading = false
+
+          function formatDate(dateStr) {
+            const date = new Date(dateStr)
+            const year = date.getFullYear()
+            const month = String(date.getMonth() + 1).padStart(2, '0')
+            const day = String(date.getDate()).padStart(2, '0')
+            const hour = String(date.getHours()).padStart(2, '0')
+            const minute = String(date.getMinutes()).padStart(2, '0')
+            return `${year}-${month}-${day} ${hour}:${minute}`
+          }
+
+          function parseRSS(xmlText) {
+            const parser = new DOMParser()
+            const xmlDoc = parser.parseFromString(xmlText, 'text/xml')
+            const items = xmlDoc.querySelectorAll('item')
+            const result = []
+            items.forEach(item => {
+              const title = item.querySelector('title')?.textContent || ''
+              const description = item.querySelector('description')?.textContent || ''
+              const link = item.querySelector('link')?.textContent || ''
+              const pubDate = item.querySelector('pubDate')?.textContent || ''
+              const guid = item.querySelector('guid')?.textContent || ''
+              result.push({
+                title,
+                content: description,
+                link,
+                pubDate,
+                id: guid || link,
+              })
+            })
+            return result
+          }
+
+          function renderMemoItem(item) {
+            const frag = memoTemplate.content.cloneNode(true)
+            const article = frag.firstElementChild
+            article.dataset.id = item.id
+
+            const contentEl = frag.querySelector('.memos-content')
+            contentEl.innerHTML = item.content || item.title || ''
+
+            frag.querySelector('.memos-time').textContent = formatDate(item.pubDate)
+
+            const linkBtn = frag.querySelector('.memos-link')
+            linkBtn.href = item.link
+
+            return frag
+          }
+
+          function updateMemoList(items = []) {
+            if (!memoGrid || items.length === 0) return
+            items.forEach(item => memoGrid.appendChild(renderMemoItem(item)))
+          }
+
+          function initLoadMoreBtn() {
+            loadMoreContainer.innerHTML = '<button class="load-btn button-load">加载更多</button>'
+            const btn = loadMoreContainer.querySelector('.button-load')
+            btn.addEventListener('click', () => {
+              btn.textContent = '加载中…'
+              loadMoreItems().then(() => {
+                if (currentPage * itemsPerPage >= allItems.length) {
+                  loadMoreContainer.innerHTML = ''
+                } else {
+                  btn.textContent = '加载更多'
+                }
+              })
+            })
+            return btn
+          }
+
+          async function loadMoreItems() {
+            const start = currentPage * itemsPerPage
+            const end = start + itemsPerPage
+            const itemsToShow = allItems.slice(start, end)
+            updateMemoList(itemsToShow)
+            currentPage++
+          }
+
+          async function initJike() {
+            if (isLoading) return
+            isLoading = true
+
+            memoGrid = document.querySelector(CONFIG.dom.gridContainer)
+            memoTemplate = document.querySelector(CONFIG.dom.template)
+            loadMoreContainer = document.querySelector(CONFIG.dom.loadMore)
+
+            if (!memoGrid || !memoTemplate) return
+
+            memoGrid.innerHTML = ''
+            loadMoreContainer.innerHTML = '<div class="memo-loading">加载中…</div>'
+
+            try {
+              const res = await fetch(CONFIG.rssUrl)
+              if (!res.ok) throw new Error('Network response was not ok')
+              const xmlText = await res.text()
+              allItems = parseRSS(xmlText)
+              currentPage = 0
+
+              if (allItems.length === 0) {
+                memoGrid.innerHTML = '<div class="memo-error">暂无动态</div>'
+                loadMoreContainer.innerHTML = ''
+                return
+              }
+
+              await loadMoreItems()
+
+              if (allItems.length > itemsPerPage) {
+                initLoadMoreBtn()
+              } else {
+                loadMoreContainer.innerHTML = ''
+              }
+            } catch (err) {
+              console.error('加载失败:', err)
+              memoGrid.innerHTML = '<div class="memo-error">加载失败，请检查网络</div>'
+              loadMoreContainer.innerHTML = ''
+            } finally {
+              isLoading = false
+            }
+          }
+
+          window.__initJike = initJike
+          initJike()
+        }
+      </script>
+    </div>
+  </div>
+</PageLayout>
+
+<style is:inline>
+  :root {
+    /* 适配本站主题变量映射 */
+    --text-primary: rgb(var(--color-text-primary));
+    --text-secondary: rgb(var(--color-text-secondary));
+    --line-divider: rgb(var(--color-border-primary));
+    --content-pane-bg: rgb(var(--color-bg-primary));
+    --text-link: rgb(var(--color-accent));
+    --theme-color: rgb(var(--color-accent));
+    --tag-bg: rgb(var(--color-accent) / 0.08);
+    /* 组件内部使用的别名 */
+    --color-border: var(--line-divider);
+    --color-bg-1: var(--content-pane-bg);
+    --text-muted: var(--text-secondary);
+    --color-link: var(--text-link);
+    --grid-gap: 16px;
+    --card-min-width: 220px;
+  }
+
+  .dark {
+    --color-border: var(--line-divider);
+    --color-bg-1: var(--content-pane-bg);
+    --text-muted: var(--text-secondary);
+    --color-link: var(--text-link);
+  }
+
+  .memos {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .memos .page-title {
+    margin: 0 !important;
+    font-size: 1.1rem !important;
+    line-height: 1.15 !important;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 0.25rem !important;
+  }
+
+  .memos .page-title :global(svg) {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+
+  .memos .page-subtitle {
+    margin: 0.12rem 0 0.4rem !important;
+    font-size: 0.85rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .d-none {
+    display: none !important;
+  }
+
+  /* 多列布局保持不变 */
+  .memos-list {
+    margin-top: 0.4rem;
+  }
+
+  .memos-grid {
+    column-count: 4;
+    column-gap: var(--grid-gap);
+    width: 100%;
+    column-width: var(--card-min-width);
+  }
+
+  /* 卡片样式保持不变 */
+  .memos-item {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    background: var(--color-bg-1);
+    transition: box-shadow 0.2s ease;
+    break-inside: avoid;
+    margin-bottom: var(--grid-gap);
+  }
+
+  .memos-item:hover {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  }
+
+  /* 内容区域：缩小整体字体基数 */
+  .memos-content.prose {
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    color: var(--text-primary) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex: 1;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-all !important;
+    white-space: normal !important;
+  }
+
+  .memos-content.prose h1,
+  .memos-content.prose h2,
+  .memos-content.prose h3 {
+    margin: 0.3rem 0 0.15rem !important;
+    font-size: 1.1rem !important;
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+  }
+
+  /* 段落样式：同步缩小间距 */
+  .memos-content.prose p {
+    margin: 0.2rem 0 !important;
+  }
+
+  .memos-content.prose ul {
+    margin: 0.2rem 0 0.3rem 0.4rem !important;
+    padding-left: 1.2rem !important;
+    margin-left: 0 !important;
+  }
+
+  .memos-content.prose li {
+    margin: 0.1rem 0 !important;
+    font-size: 0.86rem !important;
+    line-height: 1.45 !important;
+    text-indent: -0.5em !important;
+    padding-left: 0.5em !important;
+  }
+
+  .memos-content.prose li::marker {
+    font-size: 0.9em !important;
+  }
+
+  .memos-content.prose blockquote {
+    margin: 0.3rem 0 !important;
+    padding: 0.2rem 0.5rem !important;
+    font-size: 0.84rem !important;
+  }
+
+  /* 图片样式保持不变 */
+  .memo-img {
+    max-width: 100% !important;
+    height: auto !important;
+    border-radius: 6px !important;
+    margin: 0.3rem 0 !important;
+  }
+
+  /* 链接样式：同步缩小 */
+  .memo-link {
+    color: var(--color-link) !important;
+    text-decoration: underline !important;
+    display: inline-block !important;
+    font-size: 0.86rem !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .comment-global {
+    width: 100%;
+    margin: 0.6rem 0;
+    padding: 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-bg-1);
+    column-span: all;
+  }
+
+  .comment {
+    width: 100%;
+    margin: 0.6rem 0;
+    padding: 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-bg-1);
+  }
+
+  /* 底部区域保持不变 */
+  .memos-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 0.5rem !important;
+    border-top: 1px solid var(--color-border);
+    line-height: 1 !important;
+  }
+
+  .memos-time {
+    font-size: 0.7rem !important;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  /* 查看原文链接样式 */
+  .memos-link {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.75rem !important;
+    color: var(--theme-color);
+    background: var(--tag-bg);
+    border: 1px solid var(--line-divider);
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+    margin: 0 !important;
+    margin-left: auto !important;
+    border-radius: 8px !important;
+    cursor: pointer;
+    transition: all 0.2s ease !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    outline: none !important;
+    appearance: none !important;
+    text-decoration: none !important;
+  }
+
+  .memos-link:hover {
+    background: var(--theme-color);
+    border-color: var(--theme-color);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  }
+
+  /* 加载更多按钮保持不变 */
+  .bb-load {
+    margin: 1rem 0 2rem;
+    column-span: all;
+  }
+
+  .button-load {
+    width: 100% !important;
+    font-size: 0.8rem;
+    background: none;
+    border-radius: 10px;
+    border: 1px solid var(--color-border);
+    padding: 10px 30px;
+    letter-spacing: 0.8rem;
+    text-align: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+
+  .button-load:hover {
+    border-color: var(--color-link);
+    color: var(--color-link);
+  }
+
+  /* 错误提示保持不变 */
+  .memo-error {
+    text-align: center;
+    color: #ef4444;
+    padding: 1rem;
+    font-size: 0.9rem;
+    column-span: all;
+  }
+
+  /* 加载中提示 */
+  .memo-loading {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 1rem;
+    font-size: 0.9rem;
+    column-span: all;
+  }
+
+  /* 响应式适配保持不变 */
+  @media (max-width: 1024px) {
+    .memos-grid {
+      column-count: 2;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .memos-grid {
+      column-count: 1;
+    }
+
+    .memos-item {
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+
+    .memos-content.prose {
+      font-size: 0.86rem !important;
+    }
+
+    .memos-content.prose h1,
+    .memos-content.prose h2,
+    .memos-content.prose h3 {
+      font-size: 0.9rem !important;
+    }
+
+    .memos-time,
+    .memos-link {
+      font-size: 0.68rem !important;
+    }
+  }
+</style>

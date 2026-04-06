@@ -1,14 +1,8 @@
 ---
-title: 自述
-description: 这是一份站长的自述报告，请查收。
+title: 关于
+description: 关于作者
 comments: false
 ---
-
-## 关于站点
-
-本站基于[Gyoza](https://github.com/lxchapu/astro-gyoza)进行构建和开发。
-
-由于个人的能力不足，之前的[博客](https://github.com/Keduoli03/Lanke)实在是无力在动画和过渡效果上取得成果，所以基于此主题的过渡效果，迁移之前的博客功能，进行二次开发。
 
 ## 关于作者
 

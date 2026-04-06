@@ -1,0 +1,147 @@
+---
+import { Image } from 'astro:assets'
+
+import type { LinkItem } from '@/links.config'
+import { getLinkBadge, specialLinkBadge } from '@/links.config'
+import { getBadgeIcon } from '@/utils/badgeIcon'
+
+interface Props {
+  links?: LinkItem[]
+  /** 是否为 Special Links，使用特殊印记 */
+  isSpecial?: boolean
+}
+const { links, isSpecial = false, ...props } = Astro.props
+
+// 处理新的 links 配置
+let sortedLinks: LinkItem[] = []
+if (links && links.length > 0) {
+  sortedLinks = [...links]
+}
+---
+
+<div class='grid gap-3.5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3' {...props}>
+  {
+    sortedLinks.length > 0 ? (
+      sortedLinks.map((link: LinkItem) => {
+        const badge = isSpecial ? specialLinkBadge : getLinkBadge(link)
+        return (
+          <a href={link.url} target='_blank' rel='noopener noreferrer' class='no-underline'>
+          <div class='group relative h-full overflow-hidden rounded-2xl border bg-background px-2.5 py-1.5 transition-colors hover:bg-muted sm:px-4 sm:py-2'>
+            <div class='relative z-10 flex h-full items-center gap-3'>
+              {/* avatar */}
+              <div class='relative h-14 w-14 min-w-14 overflow-hidden rounded-full'>
+                <Image
+                  class='my-0 bg-white'
+                  src={link.avatar}
+                  height={80}
+                  width={80}
+                  alt={link.name}
+                  loading='lazy'
+                />
+                <div class='absolute start-0 top-0 h-full w-full'>
+                  <div class='flex h-full w-full items-center justify-center rounded-full bg-foreground opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-50'>
+
+                <svg
+                      xmlns='http://www.w3.org/2000/svg'
+                      width='32'
+                      height='32'
+                      viewBox='0 0 24 24'
+                      fill='none'
+                      stroke-width='2.5'
+                      stroke-linecap='round'
+                      stroke-linejoin='round'
+                      class='me-2 stroke-background'
+                    >
+                      <line
+                        x1='5'
+                        y1='12'
+                        x2='19'
+                        y2='12'
+                        class='translate-x-4 scale-x-0 transition-all duration-300 ease-in-out group-hover:translate-x-1 group-hover:scale-x-100'
+                      />
+                      <polyline
+                        points='12 5 19 12 12 19'
+                        class='translate-x-0 transition-all duration-300 ease-in-out group-hover:translate-x-1'
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              {/* details */}
+              <div class='flex flex-1 flex-col gap-y-1 h-full py-1'>
+                <div class='flex items-center gap-2'>
+                  <p class='my-0 line-clamp-1 text-sm'>{link.name}</p>
+                  {link.recommended && (
+                    <svg
+                      xmlns='http://www.w3.org/2000/svg'
+                      width='14'
+                      height='14'
+                      viewBox='0 0 24 24'
+                      fill='none'
+                      stroke='currentColor'
+                      stroke-width='2'
+                      stroke-linecap='round'
+                      stroke-linejoin='round'
+                      class='flex-shrink-0 text-[#f59e0b]'
+                    >
+                      <path d='M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z' />
+                      <path d='M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3' />
+                    </svg>
+                  )}
+                </div>
+                <div class='flex flex-col justify-between h-full'>
+                  <p class='my-0 line-clamp-1 text-xs text-muted-foreground'>{link.description}</p>
+                  {!isSpecial && (
+                    <div class='text-[10px] text-muted-foreground self-end leading-none'>
+                      {badge.name.includes('失联') ? 'LOST' : `${badge.days} DAYS`}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            </div>
+            {/* avatar bg */}
+            <Image
+              class='absolute -start-2 top-0 z-0 my-0 h-full w-2/3 bg-white object-cover opacity-15'
+              src={link.avatar}
+              height={80}
+              width={80}
+              alt={`${link.name} bg`}
+              loading='lazy'
+              style={{
+                maskImage: 'linear-gradient(to left, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%)',
+                msMaskImage:
+                  '-ms-linear-gradient(to left, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%)',
+                WebkitMaskImage:
+                  '-webkit-linear-gradient(to left, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%)'
+              }}
+            />
+              {/* badge stamp */}
+            {!isSpecial && (
+              <div class='pointer-events-none absolute right-[-20px] top-[-25px] transition-all duration-300 group-hover:rotate-[-12deg] group-hover:scale-110'>
+                <div class='relative flex h-24 w-24 items-center justify-center' style={{ color: badge.color }}>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    width='40'
+                    height='40'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    stroke-width='1.5'
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    class='opacity-20 transition-opacity duration-300 group-hover:opacity-30'
+                    set:html={getBadgeIcon(badge.icon)}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </a>
+        )
+      })
+    ) : (
+      <p>Nothing here.</p>
+    )
+  }
+</div>

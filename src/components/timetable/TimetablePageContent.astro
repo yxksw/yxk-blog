@@ -1,0 +1,81 @@
+---
+import type { TimetableViewModel } from '@/types/timetable';
+import LiveTimetableStatus from './LiveTimetableStatus.astro';
+import TimetableDayList from './TimetableDayList.astro';
+import TimetableGrid from './TimetableGrid.astro';
+import TimetableVisualEditor from './TimetableVisualEditor.svelte';
+import TimetableEditor from './TimetableEditor.svelte';
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  viewModel: TimetableViewModel;
+  isCurrentWeek?: boolean;
+  jsonText?: string;
+}
+
+const { viewModel, isCurrentWeek = false, jsonText = '' } = Astro.props;
+
+const liveStatusPayload = {
+  coursesByDay: viewModel.coursesByDay,
+};
+---
+
+<div class="card-base p-6 md:p-8 rounded-xl border border-border bg-card">
+  <div class="flex items-center gap-3 mb-4">
+    <div class="h-10 w-10 rounded-lg bg-accent flex items-center justify-center shrink-0">
+      <Icon name="lucide:calendar-days" class="text-xl text-accent-foreground" />
+    </div>
+    <div class="flex-1">
+      <h1 class="text-xl font-bold text-foreground">{viewModel.tableName}</h1>
+      <p class="text-sm text-muted-foreground">共 {viewModel.maxWeek} 周</p>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap items-center gap-3 mb-5 text-sm">
+    <div class="inline-flex items-center gap-1">
+      <a
+        href={`/timetable/${Math.max(1, viewModel.currentWeek - 1)}/`}
+        class:list={[
+          'h-9 w-9 rounded-lg flex items-center justify-center font-medium border border-border bg-secondary hover:bg-secondary/80 transition-colors',
+          { 'pointer-events-none opacity-50': viewModel.currentWeek <= 1 },
+        ]}
+        aria-label="上一周"
+      >
+        <Icon name="lucide:chevron-left" class="text-lg" />
+      </a>
+      <span class="min-w-[4.5rem] px-1 text-center font-medium text-foreground"
+        >第 {viewModel.currentWeek} 周</span
+      >
+      <a
+        href={`/timetable/${Math.min(viewModel.maxWeek, viewModel.currentWeek + 1)}/`}
+        class:list={[
+          'h-9 w-9 rounded-lg flex items-center justify-center font-medium border border-border bg-secondary hover:bg-secondary/80 transition-colors',
+          { 'pointer-events-none opacity-50': viewModel.currentWeek >= viewModel.maxWeek },
+        ]}
+        aria-label="下一周"
+      >
+        <Icon name="lucide:chevron-right" class="text-lg" />
+      </a>
+      {
+        isCurrentWeek && (
+          <span class="rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-sm font-medium text-emerald-500 leading-none">
+            当前周
+          </span>
+        )
+      }
+    </div>
+  </div>
+
+  <LiveTimetableStatus payload={liveStatusPayload} class="mb-4" />
+
+  <TimetableVisualEditor client:load viewModel={viewModel} />
+
+  {jsonText && <TimetableEditor client:load viewModel={viewModel} jsonText={jsonText} />}
+
+  <p class="text-xs text-muted-foreground mb-4">
+    提示：周次切换后将展示该周实际有课的安排，多周课程会在对应周自动出现。
+  </p>
+
+  <TimetableGrid viewModel={viewModel} />
+  <TimetableDayList viewModel={viewModel} />
+</div>

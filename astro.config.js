@@ -14,6 +14,7 @@ import { remarkLivecodes } from './src/plugins/remarkLivecodes'
 import { rehypeLivecodes } from './src/plugins/rehypeLivecodes'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@astrojs/react'
+import svelte from '@astrojs/svelte'
 import sitemap from '@astrojs/sitemap'
 import { rehypeHeadingIds } from '@astrojs/markdown-remark'
 import { site } from './src/config.json'
@@ -29,6 +30,7 @@ export default defineConfig({
   site: site.url,
   integrations: [
     react(),
+    svelte(),
     sitemap(),
     swup({
       theme: false,

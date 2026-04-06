@@ -1,0 +1,171 @@
+---
+import PageLayout from '@/layouts/PageLayout.astro'
+import siteConfig from '@/config.json'
+import aboutData from '@/data/about.json'
+import Single from '@/components/Single.astro'
+---
+
+<PageLayout title="关于我" description={siteConfig.site.description}>
+  <div id="about-container" class="max-w-6xl mx-auto px-4 py-8">
+    <!-- Top Section -->
+    <section class="top-section">
+      <div class="top-content">
+        <div class="float-texts">
+          {aboutData.top_info.float_text.slice(0, 4).map((text, index) => (
+            <div class={`float-text float-text-${index + 1}`}>{text}</div>
+          ))}
+        </div>
+        <div class="avatar-container">
+          <img 
+            class="no-lightbox avatar" 
+            src={aboutData.top_info.avatar} 
+            onerror="this.onerror=null;this.src='https://gravatar.loli.net/avatar/57d8260dfb55501c37dde588e7c3852c'" 
+            alt="avatar"
+          />
+        </div>
+        <div class="float-texts">
+          {aboutData.top_info.float_text.slice(4, 8).map((text, index) => (
+            <div class={`float-text float-text-${index + 5}`}>{text}</div>
+          ))}
+        </div>
+      </div>
+      <div class="site-name">{aboutData.top_info.site_name}</div>
+      <div class="motto">{aboutData.top_info.motto}</div>
+    </section>
+
+    <!-- Info Section -->
+    <section class="info-section">
+      <div class="left-column card">
+        <div class="personal-info">
+          <h2 class="section-title">个人信息</h2>
+          <div class="info-grid">
+            <p><strong>姓名:</strong> {aboutData.personal_info.name}</p>
+            <p><strong>性别:</strong> {aboutData.personal_info.gender}</p>
+            <p><strong>地址:</strong> {aboutData.personal_info.address}</p>
+            <p><strong>学校:</strong> {aboutData.personal_info.school}</p>
+            <p><strong>年级:</strong> {aboutData.personal_info.grade}</p>
+            <p><strong>专业:</strong> {aboutData.personal_info.major}</p>
+            <p><strong>邮箱:</strong> <a href={`mailto:${aboutData.personal_info.email}`}>{aboutData.personal_info.email}</a></p>
+            <p><strong>QQ:</strong> {aboutData.personal_info.QQ}</p>
+            <p><strong>生日:</strong> {aboutData.personal_info.birthday}</p>
+          </div>
+        </div>
+        <div class="flex-1"></div>
+        <img 
+          class="left-column-bottom" 
+          src={aboutData.personal_info.bottom_img} 
+          onerror="this.onerror=null;this.src='https://gravatar.loli.net/avatar/57d8260dfb55501c37dde588e7c3852c'" 
+          alt=""
+        />
+      </div>
+      <div class="right-column">
+        <div class="personality card">
+          <div class="personality-info">
+            <p class="type">{aboutData.personality.type}</p>
+            <p class="type_name">{aboutData.personality.type_name}</p>
+            <div class="flex-1"></div>
+            <p class="learn_more">
+              点击在 <a href={aboutData.personality.url} target="_blank" rel="noopener nofollower">16Personalities</a> 上了解更多
+            </p>
+          </div>
+          <div class="personality-svg">
+            <img 
+              class="no-lightbox svg" 
+              src={aboutData.personality.svg} 
+              onerror="this.onerror=null;this.src='https://gravatar.loli.net/avatar/57d8260dfb55501c37dde588e7c3852c'" 
+              alt="Personality SVG"
+            />
+          </div>
+        </div>
+
+        <div class="description-and-social card">
+          <p class="description">{aboutData.description_and_social_links.description}</p>
+          <div class="social-links">
+            {aboutData.description_and_social_links.social_links.map((link) => (
+              <a href={link.url} target="_blank" rel="noopener noreferrer">
+                <img 
+                  class="no-lightbox" 
+                  src={link.icon} 
+                  onerror="this.onerror=null;this.src='https://gravatar.loli.net/avatar/57d8260dfb55501c37dde588e7c3852c'" 
+                  alt={link.platform}
+                />
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills and Projects -->
+    <section class="skills-and-projects">
+      <div class="skills card">
+        <h2 class="section-title">技能</h2>
+        <div class="skills-grid">
+          <div class="skill-category">
+            {aboutData.skills.technical.map((skill) => (
+              <div class="skill-card">
+                <img 
+                  src={skill} 
+                  onerror="this.onerror=null;this.src='https://gravatar.loli.net/avatar/57d8260dfb55501c37dde588e7c3852c'" 
+                  alt="技术图标"
+                />
+              </div>
+            ))}
+          </div>
+          <div class="skill-category category-2">
+            {aboutData.skills.general.map((skill) => (
+              <div class="skill-card">
+                <img 
+                  src={skill} 
+                  onerror="this.onerror=null;this.src='https://gravatar.loli.net/avatar/57d8260dfb55501c37dde588e7c3852c'" 
+                  alt="通用图标"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        <p class="learning">{aboutData.skills.learning}</p>
+      </div>
+      <div class="projects card">
+        <h2 class="section-title">项目</h2>
+        <div class="projects-grid">
+          {aboutData.projects.map((project) => (
+            <div class="project">
+              <a href={project.url} target="_blank" rel="noopener noreferrer">
+                <h3>{project.name}</h3>
+                <p>{project.description}</p>
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Hobbies and Evaluation -->
+    <section class="hobbies-and-evaluation">
+      <div class="hobbies card">
+        <h2 class="section-title">爱好</h2>
+        <ul class="hobbies-list">
+          {aboutData.hobbies.map((hobby) => (
+            <li>{hobby}</li>
+          ))}
+        </ul>
+      </div>
+      <div class="self-evaluation card">
+        <h2 class="section-title">评价</h2>
+        <p><strong>思想:</strong> {aboutData.self_evaluation.thoughts}</p>
+        <p><strong>工作:</strong> {aboutData.self_evaluation.work}</p>
+        <p class="summary"><strong>总结:</strong> {aboutData.self_evaluation.summary}</p>
+      </div>
+    </section>
+
+    <!-- Single Component -->
+    <section class="single-section">
+      <Single />
+    </section>
+  </div>
+</PageLayout>
+
+<style>
+  @import '@/styles/me.css';
+</style>

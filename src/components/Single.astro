@@ -1,0 +1,136 @@
+---
+import { getCollection, render } from 'astro:content'
+import { getEntrySlug } from '@/utils/content'
+
+// 获取 about.md 内容
+const aboutPosts = await getCollection('spec')
+const aboutPost = aboutPosts.find((entry) => getEntrySlug(entry) === 'about')
+
+let Content = null
+if (aboutPost) {
+  const rendered = await render(aboutPost)
+  Content = rendered.Content
+}
+
+// 配置数据
+const singleData = {
+  tip: '关于作者',
+  title: '关于',
+  content: '我是 lanke ，一位积极求职的2026届应届生，喜欢各种有趣的东西。',
+  lishi: '致谢'
+}
+---
+
+<div class="author-content-item single">
+  <div class="author-content-item-tips">
+    {singleData.tip}
+  </div>
+  <div class="author-content-item-title">
+    {singleData.title}
+  </div>
+  <p class="author-content-item-content">
+    {singleData.content}
+  </p>
+  <div class="lishi">
+    {singleData.lishi}
+  </div>
+  <div class="singlePost">
+    {Content ? (
+      <div class="article markdown-body">
+        <Content />
+      </div>
+    ) : (
+      <p class="text-center">
+        可于 about.md 配置补充说明。
+      </p>
+    )}
+  </div>
+</div>
+
+<style>
+  .author-content-item.single {
+    width: 100%;
+    background-color: hsl(var(--secondary));
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid hsl(var(--border));
+  }
+
+  .author-content-item-tips {
+    opacity: 0.8;
+    font-size: 12px;
+    margin-bottom: 0.5rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .author-content-item-title {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    margin-bottom: 0.5rem;
+  }
+
+  .lishi {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .author-content-item-content {
+    margin-bottom: 1rem;
+    margin-top: 0.5rem;
+    vertical-align: middle;
+    color: hsl(var(--foreground));
+    line-height: 1.6;
+  }
+
+  .singlePost {
+    margin-top: 1rem;
+  }
+
+  .singlePost .article {
+    color: hsl(var(--foreground));
+  }
+
+  .singlePost .article :global(h2) {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: hsl(var(--foreground));
+  }
+
+  .singlePost .article :global(p) {
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+  }
+
+  .singlePost .article :global(a) {
+    color: hsl(var(--accent));
+    text-decoration: none;
+  }
+
+  .singlePost .article :global(a:hover) {
+    text-decoration: underline;
+  }
+
+  .singlePost .article :global(ul) {
+    list-style: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .singlePost .article :global(li) {
+    margin-bottom: 0.25rem;
+  }
+
+  .text-center {
+    text-align: center;
+    color: hsl(var(--muted-foreground));
+    padding: 2rem 0;
+  }
+</style>

@@ -1,0 +1,54 @@
+---
+interface Props {
+  publishedAt: string | Date
+  lastUpdated: string | Date
+}
+
+const { publishedAt, lastUpdated } = Astro.props
+const publishedStr = publishedAt instanceof Date ? publishedAt.toISOString() : publishedAt
+const updatedStr = lastUpdated instanceof Date ? lastUpdated.toISOString() : lastUpdated
+---
+
+<div
+  id="outdated-notice"
+  class="hidden mb-6 p-4 rounded-xl bg-secondary border border-border items-center gap-3 text-foreground/80"
+>
+  <div class="h-8 w-8 rounded-lg bg-accent flex items-center justify-center shrink-0">
+    <iconify-icon icon="lucide:info" class="text-lg text-accent-foreground"></iconify-icon>
+  </div>
+  <div class="text-sm leading-relaxed flex flex-col sm:flex-row sm:items-center gap-2">
+    <span id="outdated-message">正在计算文章时效性...</span>
+  </div>
+</div>
+
+<script define:vars={{ publishedAt: publishedStr, lastUpdated: updatedStr }}>
+  function updateNotice() {
+    const notice = document.getElementById('outdated-notice')
+    const message = document.getElementById('outdated-message')
+    if (!notice || !message) return
+
+    const publishedDate = new Date(publishedAt)
+    const updatedDate = new Date(lastUpdated)
+    const now = new Date()
+
+    const diffTimeUpdated = Math.abs(now - updatedDate)
+    const diffDaysUpdated = Math.floor(diffTimeUpdated / (1000 * 60 * 60 * 24))
+
+    const diffTimePublished = Math.abs(now - publishedDate)
+    const diffDaysPublished = Math.floor(diffTimePublished / (1000 * 60 * 60 * 24))
+
+    let statusText = ''
+    if (diffDaysUpdated === 0) {
+      statusText = '这篇文章今天刚刚更新，内容非常新鲜。'
+    } else {
+      statusText = `文章初次发布于 ${diffDaysPublished} 天前，最后修改于 ${diffDaysUpdated} 天前，部分技术细节可能已随时间演变，请结合实际情况参考。`
+    }
+
+    message.innerText = statusText
+
+    notice.classList.remove('hidden')
+    notice.classList.add('flex')
+  }
+
+  updateNotice()
+</script>

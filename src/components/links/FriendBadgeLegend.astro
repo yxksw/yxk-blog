@@ -1,0 +1,43 @@
+---
+import { badgeConfigs } from '@/links.config'
+import { getBadgeIcon } from '@/utils/badgeIcon'
+---
+
+<div class='grid grid-cols-2 gap-4 pt-4 sm:grid-cols-3 md:grid-cols-5'>
+  {
+    badgeConfigs.map((badge) => (
+      <div class='flex cursor-default items-center gap-2 rounded-lg border border-transparent p-2 transition-colors hover:bg-muted'>
+        <div
+          class='flex h-8 w-8 items-center justify-center rounded-full bg-muted'
+          style={{ color: badge.color }}
+        >
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            width='20'
+            height='20'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            stroke-width='2'
+            stroke-linecap='round'
+            stroke-linejoin='round'
+            set:html={getBadgeIcon(badge.icon)}
+          />
+        </div>
+        <div class='flex flex-col cursor-default'>
+          <span class='cursor-default text-xs font-medium' style={{ color: badge.color }}>
+            {badge.name.split('/')[0]}
+            <span class='text-[10px] opacity-60'>/{badge.name.split('/')[1]}</span>
+          </span>
+          <span class='cursor-default text-[10px] text-muted-foreground'>
+            {badge.name.includes('失联')
+              ? 'Lost'
+              : badge.maxDays === Infinity
+                ? `${badge.minDays} Days+`
+                : `${badge.minDays}-${badge.maxDays} Days`}
+          </span>
+        </div>
+      </div>
+    ))
+  }
+</div>
