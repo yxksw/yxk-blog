@@ -121,9 +121,25 @@ const friends = defineCollection({
   }),
 })
 
+const photos = defineCollection({
+  loader: glob({ pattern: '**/*.json', base: './src/content/photos' }),
+  schema: z.array(
+    z.object({
+      name: z.string(),
+      url: z.string(),
+      description: z.string().optional(),
+      tag: z.array(z.string()).optional(),
+      location: z.string().optional(),
+      date: z.string(),
+      author: z.string(),
+    }),
+  ),
+})
+
 export const collections = {
   posts,
   projects,
   spec,
   friends,
+  photos,
 }

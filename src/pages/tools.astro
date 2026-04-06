@@ -1,0 +1,67 @@
+---
+import PageLayout from '@/layouts/PageLayout.astro'
+import Highlight from '@/components/Highlight.astro'
+import { Icon } from '@iconify/react'
+
+const tools = [
+	{
+		title: "相册",
+		desc: "浏览精选图片集",
+		href: "/gallery/",
+		icon: "ri:image-line",
+	},
+	{
+		title: "课程表",
+		desc: "查看和管理课程安排",
+		href: "/timetable/",
+		icon: "ri:calendar-line",
+	},
+	{
+		title: "追番",
+		desc: "查看正在追的番剧",
+		href: "/bangumi/",
+		icon: "ri:film-line",
+	},
+	{
+		title: "说说",
+		desc: "查看日常动态",
+		href: "/jike/",
+		icon: "ri:chat-1-line",
+	},
+]
+---
+
+<PageLayout title="工具">
+	<div class="px-4 py-16">
+		<div class="max-w-[900px] mx-auto">
+			<header class="mb-10">
+				<h1 class="text-4xl font-bold mb-4">
+					<Highlight>工具</Highlight>
+				</h1>
+				<p class="text-gray-600 dark:text-gray-400">
+					本站提供的实用工具入口，点击卡片即可跳转使用。
+				</p>
+				<hr class="w-[100px] border-neutral-200 dark:border-neutral-700 mt-6" />
+			</header>
+
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+				{tools.map((t) => (
+					<a
+						href={t.href}
+						class="group block rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-5 hover:border-accent hover:shadow-lg transition-all duration-300"
+					>
+						<div class="flex items-center gap-3 mb-3">
+							<Icon 
+								icon={t.icon} 
+								className="w-7 h-7 text-accent group-hover:scale-110 transition-transform duration-300" 
+								client:load
+							/>
+							<span class="text-lg font-bold text-gray-900 dark:text-white">{t.title}</span>
+						</div>
+						<p class="text-sm text-gray-500 dark:text-gray-400">{t.desc}</p>
+					</a>
+				))}
+			</div>
+		</div>
+	</div>
+</PageLayout>

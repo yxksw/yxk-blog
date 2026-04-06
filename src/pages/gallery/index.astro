@@ -1,0 +1,67 @@
+---
+import { site } from '@/config.json'
+import PageLayout from '@/layouts/PageLayout.astro'
+import { GalleryWrapper } from '@/components/gallery/GalleryWrapper'
+import Highlight from '@/components/Highlight.astro'
+import { TypewriterText } from '@/components/TypewriterText'
+import { RssCopyButton } from '@/components/CopyLink'
+import { getCollection } from 'astro:content'
+// 获取照片数据
+const photosCollection = await getCollection('photos')
+const allPhotos = photosCollection.flatMap((entry) => entry.data)
+const sortedPhotos = allPhotos.sort(
+  (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+)
+
+const rssUrl = new URL('gallery/rss.xml', site.url).href
+
+const structuredData = sortedPhotos.map((photo) => ({
+  '@context': 'https://schema.org/',
+  '@type': 'ImageObject',
+  contentUrl: photo.url,
+  license: new URL('license', site.url).href,
+  acquireLicensePage: new URL('about', site.url).href,
+  creditText: photo.author,
+  creator: {
+    '@type': 'Person',
+    name: photo.author || '',
+  },
+  copyrightNotice: `This image is copyrighted and belongs to ${photo.author || site.url || ''}.`,
+  datePublished: photo.date,
+  keywords: photo.tag || [],
+  description: photo.description || '',
+  name: photo.name || '',
+  contentLocation: photo.location || '',
+}))
+
+// 相册配置
+const galleryTitle = '相册'
+const gallerySubtitle = 'Gallery'
+const galleryDescription = '记录生活中的美好瞬间，分享旅途中的风景。'
+---
+
+<PageLayout title={`${gallerySubtitle}@${galleryTitle}`}>
+  <div class="px-4 py-16">
+    <div class="max-w-[800px] mx-auto mb-12">
+      <header class="space-y-4 mb-8">
+        <h1 class="text-4xl font-bold">
+          <Highlight>{galleryTitle}</Highlight>
+          <RssCopyButton url={rssUrl} client:load />
+        </h1>
+        <p><TypewriterText text={galleryDescription} speed={40} delay={0.1} client:load /></p>
+        <hr class="w-[100px] border-neutral-200 dark:border-neutral-700" />
+      </header>
+    </div>
+    <div class="w-[90%] mx-auto">
+      {sortedPhotos.length > 0 ? (
+        <GalleryWrapper initialPhotos={sortedPhotos} client:only="react" />
+      ) : (
+        <div class="text-center py-16 text-gray-500 dark:text-gray-400">
+          <p class="text-lg">暂无照片</p>
+          <p class="text-sm mt-2">请在 src/content/photos/ 目录下添加照片数据</p>
+        </div>
+      )}
+    </div>
+  </div>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+</PageLayout>

@@ -1,0 +1,38 @@
+[
+  {
+    "name": "示例照片",
+    "url": "https://picsum.photos/800/600",
+    "description": "这是一张示例照片，用于展示相册功能。\n你可以添加多行描述。",
+    "tag": ["示例", "风景"],
+    "location": "示例地点",
+    "date": "2024-12-01T12:00:00Z",
+    "author": "Lanke"
+  },
+  {
+    "name": "山间晨雾",
+    "url": "https://picsum.photos/600/800",
+    "description": "清晨的山间，云雾缭绕。",
+    "tag": ["自然", "山景", "晨雾"],
+    "location": "黄山",
+    "date": "2024-11-15T08:30:00Z",
+    "author": "Lanke"
+  },
+  {
+    "name": "城市夜景",
+    "url": "https://picsum.photos/800/500",
+    "description": "繁华都市的璀璨夜色。",
+    "tag": ["城市", "夜景"],
+    "location": "上海",
+    "date": "2024-10-20T20:00:00Z",
+    "author": "Lanke"
+  },
+  {
+    "name": "海边日落",
+    "url": "https://picsum.photos/700/900",
+    "description": "夕阳西下，海天一色。\n金色的余晖洒在海面上。",
+    "tag": ["海景", "日落", "自然"],
+    "location": "三亚",
+    "date": "2024-09-10T18:30:00Z",
+    "author": "Lanke"
+  }
+]

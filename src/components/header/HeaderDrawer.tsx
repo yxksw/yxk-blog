@@ -13,6 +13,7 @@ import {
   riMenuLine,
   riPantoneLine,
 } from '@/icons/ri'
+import { clsx } from 'clsx'
 
 const contentVariants: Variants = {
   hidden: {
@@ -25,7 +26,7 @@ const contentVariants: Variants = {
   visible: {
     x: 0,
     transition: {
-      staggerChildren: 0.1,
+      staggerChildren: 0.05,
       delayChildren: 0.1,
       duration: 0.2,
       ease: [0, 0, 0.2, 1],
@@ -42,6 +43,13 @@ const menuItemVariants: Variants = {
     opacity: 1,
     x: 0,
   },
+}
+
+interface MenuItem {
+  name: string
+  link: string
+  icon: string
+  children?: MenuItem[]
 }
 
 export function HeaderDrawer({ zIndex = 999 }: { zIndex?: number }) {
@@ -70,7 +78,7 @@ export function HeaderDrawer({ zIndex = 999 }: { zIndex?: number }) {
 
             <Dialog.Content asChild>
               <motion.div
-                className="fixed right-0 inset-y-0 h-full bg-primary rounded-l-lg p-4 flex flex-col justify-center w-[140px] max-w-[80%] data-[state=closed]:pointer-events-none"
+                className="fixed right-0 inset-y-0 h-full bg-primary rounded-l-lg p-4 flex flex-col justify-center w-[200px] max-w-[80%] data-[state=closed]:pointer-events-none"
                 style={{ zIndex: contentZIndex }}
                 variants={contentVariants}
                 initial="hidden"
@@ -111,6 +119,8 @@ const TriggerButton = forwardRef<HTMLButtonElement>((props, ref) => {
 
 function DrawerContentImpl() {
   const { dismiss } = useContext(DrawerContext)
+  const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set())
+  
   const menuIconMap = {
     'icon-pantone': riPantoneLine,
     'icon-archive': riArchiveLine,
@@ -121,17 +131,78 @@ function DrawerContentImpl() {
     'icon-chat': riChat1Line,
   }
 
+  const toggleMenu = (menuName: string) => {
+    const newExpanded = new Set(expandedMenus)
+    if (newExpanded.has(menuName)) {
+      newExpanded.delete(menuName)
+    } else {
+      newExpanded.add(menuName)
+    }
+    setExpandedMenus(newExpanded)
+  }
+
   return (
     <ul className="mt-8 pb-8 overflow-y-auto overflow-x-hidden min-h-0 flex flex-col">
-      {menus.map((menu) => (
+      {menus.map((menu: MenuItem) => (
         <motion.li key={menu.name} variants={menuItemVariants}>
-          <a className="inline-flex items-center p-2 space-x-3" href={menu.link} onClick={dismiss}>
-            <Icon
-              icon={menuIconMap[menu.icon as keyof typeof menuIconMap] ?? riLinksLine}
-              className="text-[1em] leading-none"
-            />
-            <span>{menu.name}</span>
-          </a>
+          {menu.children ? (
+            <div className="flex flex-col">
+              <button
+                type="button"
+                className="inline-flex items-center justify-between p-2 w-full text-left"
+                onClick={() => toggleMenu(menu.name)}
+              >
+                <div className="inline-flex items-center space-x-3">
+                  <Icon
+                    icon={menuIconMap[menu.icon as keyof typeof menuIconMap] ?? riLinksLine}
+                    className="text-[1em] leading-none"
+                  />
+                  <span>{menu.name}</span>
+                </div>
+                <Icon 
+                  icon={expandedMenus.has(menu.name) ? 'ri:arrow-down-s-line' : 'ri:arrow-right-s-line'} 
+                  className="text-lg opacity-60"
+                />
+              </button>
+              
+              <AnimatePresence>
+                {expandedMenus.has(menu.name) && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pl-8 flex flex-col border-l border-border ml-4">
+                      {menu.children.map((child) => (
+                        <a 
+                          key={child.name} 
+                          className="inline-flex items-center p-2 space-x-3 text-secondary hover:text-accent transition-colors"
+                          href={child.link} 
+                          onClick={dismiss}
+                        >
+                          <Icon
+                            icon={menuIconMap[child.icon as keyof typeof menuIconMap] ?? riLinksLine}
+                            className="text-[1em] leading-none"
+                          />
+                          <span>{child.name}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <a className="inline-flex items-center p-2 space-x-3" href={menu.link} onClick={dismiss}>
+              <Icon
+                icon={menuIconMap[menu.icon as keyof typeof menuIconMap] ?? riLinksLine}
+                className="text-[1em] leading-none"
+              />
+              <span>{menu.name}</span>
+            </a>
+          )}
         </motion.li>
       ))}
     </ul>

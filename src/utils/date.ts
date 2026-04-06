@@ -1,4 +1,4 @@
-﻿// 获取两个日期的相对时间
+// 获取两个日期的相对时间
 export function getRelativeTime(startDate: Date, endDate = new Date()) {
   const diffSeconds = Math.floor((endDate.getTime() - startDate.getTime()) / 1000)
   if (diffSeconds < 0) {
@@ -85,9 +85,101 @@ export function getStartOfDay(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate())
 }
 
-// 判断是否属于“显著更新”
+// 判断是否属于"显著更新"
 export function isSignificantDateUpdate(date: Date, lastMod?: Date, thresholdHours = 12) {
   if (!lastMod) return false
   const thresholdMs = thresholdHours * 60 * 60 * 1000
   return lastMod.getTime() - date.getTime() >= thresholdMs
+}
+
+// 计算两个日期之间的时间差
+export interface TimeDifference {
+  years: number
+  months: number
+  days: number
+  hours: number
+  minutes: number
+  seconds: number
+}
+
+export function calculateTimeDifference(startDate: Date, endDate: Date): TimeDifference {
+  let years = endDate.getFullYear() - startDate.getFullYear()
+  let months = endDate.getMonth() - startDate.getMonth()
+  let days = endDate.getDate() - startDate.getDate()
+  let hours = endDate.getHours() - startDate.getHours()
+  let minutes = endDate.getMinutes() - startDate.getMinutes()
+  let seconds = endDate.getSeconds() - startDate.getSeconds()
+
+  // 处理负数情况
+  if (seconds < 0) {
+    seconds += 60
+    minutes--
+  }
+  if (minutes < 0) {
+    minutes += 60
+    hours--
+  }
+  if (hours < 0) {
+    hours += 24
+    days--
+  }
+  if (days < 0) {
+    const prevMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 0)
+    days += prevMonth.getDate()
+    months--
+  }
+  if (months < 0) {
+    months += 12
+    years--
+  }
+
+  return { years, months, days, hours, minutes, seconds }
+}
+
+// 格式化时间差为中文描述
+export function formatTimeDifference(diff: TimeDifference): string {
+  const parts: string[] = []
+
+  if (diff.years > 0) {
+    parts.push(`${diff.years}年`)
+  }
+  if (diff.months > 0) {
+    parts.push(`${diff.months}个月`)
+  }
+  if (diff.days > 0 && parts.length < 2) {
+    parts.push(`${diff.days}天`)
+  }
+  if (diff.hours > 0 && parts.length < 2) {
+    parts.push(`${diff.hours}小时`)
+  }
+  if (diff.minutes > 0 && parts.length < 2) {
+    parts.push(`${diff.minutes}分钟`)
+  }
+
+  if (parts.length === 0) {
+    return '刚刚'
+  }
+
+  return parts.join('')
+}
+
+// 获取时间单位
+export interface TimeUnits {
+  year: number
+  month: number
+  day: number
+  hours: number
+  minutes: number
+  seconds: number
+}
+
+export function getTimeUnits(date: Date): TimeUnits {
+  return {
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    day: date.getDate(),
+    hours: date.getHours(),
+    minutes: date.getMinutes(),
+    seconds: date.getSeconds(),
+  }
 }

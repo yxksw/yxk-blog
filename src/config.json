@@ -1,43 +1,43 @@
 {
   "site": {
-    "url": "https://blog.blueke.top",
-    "title": "Lanke",
-    "description": "Lanke的博客。",
-    "keywords": "Lanke,blog,Astro,theme",
+    "url": "https://blog.050815.xyz",
+    "title": "塔罗会",
+    "description": "异飨客的博客。",
+    "keywords": "异飨客,blog,Astro,theme",
     "lang": "zh-CN",
     "favicon": "/favicon.ico",
     "appleTouchIcon": "/apple-touch-icon.png"
   },
   "author": {
-    "name": "Lanke",
+    "name": "异飨客",
     "twitterId": "@null",
-    "avatar": "https://gcore.jsdelivr.net/gh/Keduoli03/My_img@main/image/%E5%A4%B4%E5%83%8F.webp"
+    "avatar": "https://cn.cravatar.com/avatar/56cd72b5460ecaa08ddffea9562f5629?size=512"
   },
   "hero": {
-    "name": "Lanke",
-    "bio": "关山难越，萍水相逢",
-    "description": "分享文章与生活。",
+    "name": "异飨客",
+    "bio": "每一段旅行，都有终点。",
+    "description": "我在这个博客记录我的生活日常、踩坑教程和资源分享。",
     "socials": [
       {
         "name": "Github",
         "icon": "icon-github",
-        "url": "https://github.com/Keduoli03",
+        "url": "https://github.com/yxksw",
         "color": "rgb(24, 23, 23)"
       },
       {
         "name": "邮箱",
         "icon": "icon-mail",
-        "url": "mailto:2801429414@qq.com",
+        "url": "mailto:yxksw@foxmail.com",
         "color": "rgb(212, 70, 56)"
       },
       {
         "name": "主页",
         "icon": "ri:at-line",
-        "url": "https://www.blueke.top",
+        "url": "https://www.050815.xyz",
         "color": "#FF6666"
       }
     ],
-    "yiyan": "https://hitokoto.blueke.dpdns.org/"
+    "yiyan": "https://hitokoto.050815.xyz/"
   },
   "color": {
     "accent": [
@@ -81,24 +81,14 @@
       "icon": "icon-archive"
     },
     {
-      "name": "追番",
-      "link": "/bangumi",
-      "icon": "icon-film"
-    },
-    {
-      "name": "说说",
-      "link": "/jike",
-      "icon": "icon-chat"
+      "name": "工具",
+      "link": "/tools",
+      "icon": "ri:build-line"
     },
     {
       "name": "关于",
-      "link": "/about",
-      "icon": "icon-ghost"
-    },
-    {
-      "name": "我",
       "link": "/me",
-      "icon": "icon-user"
+      "icon": "icon-ghost"
     },
     {
       "name": "友链",
@@ -114,7 +104,7 @@
     "startTime": "2024-11-01T12:00:00Z"
   },
   "comment": {
-    "provider": "artalk"
+    "provider": "giscus"
   },
   "waline": {
     "serverURL": "https://waline.lxchapu.com"
@@ -122,6 +112,18 @@
   "artalk": {
     "server": "https://artalk.blueke.top",
     "site": "Lanke"
+  },
+  "giscus": {
+    "repo": "yxksw/Giscus",
+    "repoId": "R_kgDORsOu7w",
+    "category": "yxk-blog",
+    "categoryId": "DIC_kwDORsOu784C43G6",
+    "mapping": "pathname",
+    "strict": "1",
+    "reactionsEnabled": "1",
+    "emitMetadata": "0",
+    "inputPosition": "top",
+    "lang": "zh-CN"
   },
   "sponsor": {
     "wechat": "https://object.lxchapu.com/bed%2F2024%2F0507_6e3e8f73df2d4e6d.webp"
@@ -141,7 +143,7 @@
   },
   "bangumi": {
     "enable": true,
-    "api": "https://api.bgm.blueke.top/api",
+    "api": "https://bili-api.050815.xyz/api",
     "page": "/bangumi",
     "tabs": ["watching", "completed", "on_hold", "dropped", "planned"]
   },
@@ -152,14 +154,9 @@
       "icon": "ri:train-line"
     },
     {
-      "name": "笔墨迹",
-      "url": "https://blogscn.fun/random.html",
+      "name": "友链墙",
+      "url": "https://hub.314926.xyz",
       "icon": "ri:ball-pen-line"
-    },
-    {
-      "name": "博友圈",
-      "url": "https://www.boyouquan.com/planet-shuttle",
-      "icon": "ri:link-m"
     }
   ]
 }
