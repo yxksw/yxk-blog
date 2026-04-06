@@ -1,43 +1,43 @@
 {
   "top_info": {
-    "avatar": "https://blog.liushen.fun/info/avatar.ico",
-    "site_name": "清羽飞扬",
-    "motto": "柳影曳曳，清酒孤灯，扬笔撒墨，心境如霜",
+    "avatar": "https://cn.cravatar.com/avatar/56cd72b5460ecaa08ddffea9562f5629?size=512",
+    "site_name": "异飨客",
+    "motto": "每一段旅行，都有终点。",
     "float_text": [
-      "🐝 勤劳小蜜蜂",
-      "🧱 踏实实在人",
-      "👷‍♀️ 努力小天使",
-      "🐔 乐观大白鹅",
-      "阳光小少年 👱‍♀️",
-      "温暖小太阳 ☀️",
-      "可爱小白兔 🐰",
-      "懒惰小胖猪 🐗"
+      "🐝 博客写作者",
+      "🧱 博客魔改者",
+      "👷‍♀️ 只会CTRL CV",
+      "🐔 乐观不悲观",
+      "喜欢大晴天 👱‍♀️",
+      "小说爱好者 📔",
+      "ai使用者 🤖",
+      "摆烂小笨猪 🐗"
     ]
   },
   "personal_info": {
-    "name": "柳清扬",
+    "name": "MCY",
     "gender": "男",
-    "address": "陕西西安",
-    "school": "武汉理工大学",
-    "grade": "二〇二一级",
-    "major": "人工智能",
-    "email": "01@liushen.fun",
-    "QQ": "3162475700",
-    "birthday": "2003/01/01",
-    "bottom_img": "https://p.liiiu.cn/i/2024/04/14/661ab09243659.png"
+    "address": "江苏苏州",
+    "school": "南京工业职业技术大学",
+    "grade": "二〇二三级",
+    "major": "自动化技术与应用",
+    "email": "yxksw@foxmail.com",
+    "QQ": "3813596020",
+    "birthday": "2005/08/15",
+    "bottom_img": "https://cdn.jsdmirror.com/gh/zsxcoder/github-img@main/img/umami.avif"
   },
   "personality": {
-    "type": "ENFJ-T",
+    "type": "INFJ-T",
     "type_name": "主人公",
-    "svg": "/config/img/enfj.svg",
-    "url": "https://www.16personalities.com/ch/enfj-%E4%BA%BA%E6%A0%BC"
+    "svg": "https://cdn.jsdmirror.com/gh/zsxcoder/github-img@main/img/infj.avif",
+    "url": "https://www.16personalities.com/ch/infj-%E4%BA%BA%E6%A0%BC"
   },
   "description_and_social_links": {
-    "description": "大家好！这里是清羽飞扬的小站。为什么叫清羽飞扬呢？因为「清扬」是我的名字，而「飞扬」代表着自由和轻盈，这与我的性格不谋而合。我是一个充满热情、富有同情心的人，喜欢与人交流，乐于分享我的想法和见解。在这里，我会分享我的生活点滴、兴趣爱好以及对世界的观察和思考。希望我的小站能给大家带来一些启发和乐趣。",
+    "description": "大家好！这里是异飨客的小站。你可以称呼我「异飨客」、「克喵」或者「钟神秀」。我不大聊天，你找我我会回，但是聊不长，喜欢一个人待着。名字来源于小说《诡秘之主》。我在这个博客记录我的生活日常、踩坑教程和资源分享。希望你喜欢我的博客！",
     "social_links": [
       {
         "platform": "GitHub",
-        "url": "https://github.com/willow-god",
+        "url": "https://github.com/yxksw",
         "icon": "https://p.liiiu.cn/i/2024/07/27/66a461a3098aa.webp"
       },
       {

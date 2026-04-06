@@ -320,11 +320,32 @@
   background-color: hsl(var(--accent) / 0.2);
 }
 
-#about-container .description-and-social .social-links img {
+#about-container .description-and-social .social-links .social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  height: 60px;
+  width: 60px;
+  background-color: hsl(var(--accent) / 0.1);
+  transition: background-color 0.3s ease;
+}
+
+#about-container .description-and-social .social-links .social-link:hover {
+  background-color: hsl(var(--accent) / 0.2);
+}
+
+#about-container .description-and-social .social-links .social-img {
   width: 40px;
   height: 40px;
   border-radius: 8px;
   object-fit: cover;
+}
+
+#about-container .description-and-social .social-links .social-icon {
+  width: 32px;
+  height: 32px;
+  color: hsl(var(--accent));
 }
 
 /* Skills and Projects */

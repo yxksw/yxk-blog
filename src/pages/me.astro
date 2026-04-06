@@ -3,6 +3,12 @@ import PageLayout from '@/layouts/PageLayout.astro'
 import siteConfig from '@/config.json'
 import aboutData from '@/data/about.json'
 import Single from '@/components/Single.astro'
+import { Icon } from '@iconify/react'
+
+// 判断是否为 iconify 图标名（格式如：ri:github-line）
+function isIconifyIcon(icon: string): boolean {
+  return /^[a-z0-9-]+:[a-z0-9-]+$/i.test(icon)
+}
 ---
 
 <PageLayout title="关于我" description={siteConfig.site.description}>
@@ -82,13 +88,17 @@ import Single from '@/components/Single.astro'
           <p class="description">{aboutData.description_and_social_links.description}</p>
           <div class="social-links">
             {aboutData.description_and_social_links.social_links.map((link) => (
-              <a href={link.url} target="_blank" rel="noopener noreferrer">
-                <img 
-                  class="no-lightbox" 
-                  src={link.icon} 
-                  onerror="this.onerror=null;this.src='https://gravatar.loli.net/avatar/57d8260dfb55501c37dde588e7c3852c'" 
-                  alt={link.platform}
-                />
+              <a href={link.url} target="_blank" rel="noopener noreferrer" class="social-link">
+                {isIconifyIcon(link.icon) ? (
+                  <Icon icon={link.icon} className="social-icon" client:load />
+                ) : (
+                  <img 
+                    class="no-lightbox social-img" 
+                    src={link.icon} 
+                    onerror="this.onerror=null;this.src='https://gravatar.loli.net/avatar/57d8260dfb55501c37dde588e7c3852c'" 
+                    alt={link.platform}
+                  />
+                )}
               </a>
             ))}
           </div>
