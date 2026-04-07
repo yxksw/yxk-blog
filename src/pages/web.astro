@@ -1,0 +1,496 @@
+---
+import PageLayout from '@/layouts/PageLayout.astro'
+import config from '@/config.json'
+const title = '动态'
+
+// 从 config.json 读取自定义头像和名称
+const CUSTOM_AVATAR = config.shuoshuo?.customAvatar || ''
+const CUSTOM_NAME = config.shuoshuo?.customName || ''
+---
+
+<PageLayout title={title}>
+  <div class="w-full px-4 md:px-8 py-16 grid gap-6 lg:grid-cols-[1fr_minmax(0,900px)_1fr]">
+    <div class="lg:col-start-2 web-scope">
+      <header class="space-y-2 mb-4">
+        <h1 class="text-4xl font-bold">动态</h1>
+        <p class="text-sm text-neutral-500">基于 Gitee Issue 的动态流</p>
+      </header>
+
+      <section class="web-list">
+        <div id="web-grid" class="web-grid"></div>
+      </section>
+
+      <template id="web-item-template">
+        <article class="web-item">
+          <div class="web-header">
+            <img class="web-avatar" src="" alt="avatar" />
+            <div class="web-meta">
+              <span class="web-author"></span>
+              <time class="web-time"></time>
+            </div>
+          </div>
+          <div class="web-content prose dark:prose-invert"></div>
+          <div class="web-labels"></div>
+          <div class="web-footer">
+            <a class="web-link" href="#" target="_blank" rel="noopener noreferrer">
+              查看原文
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            </a>
+          </div>
+        </article>
+      </template>
+
+      <div class="bb-load" id="load-more-container"></div>
+
+      <script is:inline define:vars={{ CUSTOM_AVATAR, CUSTOM_NAME }}>
+        const CONFIG = {
+          custom: {
+            avatar: CUSTOM_AVATAR,
+            name: CUSTOM_NAME,
+          },
+          dom: {
+            gridContainer: '#web-grid',
+            template: '#web-item-template',
+            loadMore: '#load-more-container',
+          },
+        }
+
+        let currentPage = 1
+        let hasMore = true
+        let isLoading = false
+
+        function formatDate(dateStr) {
+          const date = new Date(dateStr)
+          const year = date.getFullYear()
+          const month = String(date.getMonth() + 1).padStart(2, '0')
+          const day = String(date.getDate()).padStart(2, '0')
+          const hour = String(date.getHours()).padStart(2, '0')
+          const minute = String(date.getMinutes()).padStart(2, '0')
+          return `${year}-${month}-${day} ${hour}:${minute}`
+        }
+
+        function renderMarkdownBasic(text) {
+          if (!text) return ''
+          let s = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+          // 代码块
+          s = s.replace(
+            /```([\s\S]*?)```/g,
+            (_, code) => `<pre><code>${code.replace(/&/g, '&amp;')}</code></pre>`,
+          )
+          // 行内代码
+          s = s.replace(/`([^`]+)`/g, '<code>$1</code>')
+          // 标题
+          s = s
+            .replace(/^###\s+(.*)$/gm, '<h3>$1</h3>')
+            .replace(/^##\s+(.*)$/gm, '<h2>$1</h2>')
+            .replace(/^#\s+(.*)$/gm, '<h1>$1</h1>')
+          // 粗体斜体
+          s = s
+            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+          // 图片
+          s = s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img alt="$1" src="$2" class="web-img" />')
+          // 链接
+          s = s.replace(
+            /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+            '<a href="$2" target="_blank" rel="noopener noreferrer" class="web-link-text">$1</a>',
+          )
+          // 引用
+          s = s.replace(/^>\s+(.*)$/gm, '<blockquote>$1</blockquote>')
+          // 列表
+          s = s.replace(/^(?:-\s.*(?:\r?\n|$))+?/gm, (block) => {
+            const items = block
+              .trim()
+              .split(/\r?\n/)
+              .map((l) => l.replace(/^-+\s?/, '').trim())
+            const li = items
+              .filter(Boolean)
+              .map((i) => `<li>${i}</li>`)
+              .join('')
+            return `<ul>${li}</ul>`
+          })
+          // 段落
+          s = s
+            .split(/\n{2,}/)
+            .map((chunk) => {
+              if (/^\s*(<h\d|<ul|<pre|<blockquote|<img|<p)/.test(chunk)) return chunk
+              const lines = chunk
+                .split(/\n/)
+                .map((l) => l.trim())
+                .filter(Boolean)
+              if (!lines.length) return ''
+              return `<p>${lines.join('<br/>')}</p>`
+            })
+            .join('\n')
+
+          return s
+        }
+
+        function renderWebItem(issue) {
+          const frag = document.querySelector(CONFIG.dom.template).content.cloneNode(true)
+          const article = frag.firstElementChild
+          article.dataset.number = issue.number
+
+          // 头像（使用自定义或 Gitee 用户头像）
+          const avatar = frag.querySelector('.web-avatar')
+          avatar.src = CONFIG.custom.avatar || issue.user.avatar_url
+          avatar.alt = CONFIG.custom.name || issue.user.login
+
+          // 作者和时间（使用自定义名称或 Gitee 用户名）
+          frag.querySelector('.web-author').textContent = CONFIG.custom.name || issue.user.login
+          frag.querySelector('.web-time').textContent = formatDate(issue.created_at)
+
+          // 内容
+          const contentEl = frag.querySelector('.web-content')
+          contentEl.innerHTML = renderMarkdownBasic(issue.body || issue.title)
+
+          // 标签
+          const labelsEl = frag.querySelector('.web-labels')
+          if (issue.labels && issue.labels.length > 0) {
+            issue.labels.forEach((label) => {
+              const span = document.createElement('span')
+              span.className = 'web-label'
+              span.style.backgroundColor = '#' + label.color
+              span.textContent = label.name
+              labelsEl.appendChild(span)
+            })
+          }
+
+          // 链接
+          const link = frag.querySelector('.web-link')
+          link.href = issue.html_url
+
+          return frag
+        }
+
+        function initLoadMoreBtn() {
+          const container = document.querySelector(CONFIG.dom.loadMore)
+          container.innerHTML = '<button class="load-btn button-load">加载中…</button>'
+          const btn = container.querySelector('.button-load')
+          btn.addEventListener('click', () => {
+            if (isLoading) return
+            btn.textContent = '加载中…'
+            loadMoreIssues()
+          })
+          return btn
+        }
+
+        async function fetchIssues(page = 1) {
+          // 使用本地 API 路由实时获取数据
+          const url = '/api/web-issues'
+          
+          const res = await fetch(url)
+          if (!res.ok) {
+            const text = await res.text()
+            console.error('API Error:', res.status, text)
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+          }
+          return res.json()
+        }
+
+        async function loadMoreIssues() {
+          if (isLoading || !hasMore) return
+          isLoading = true
+
+          const btn = document.querySelector('.button-load')
+          const grid = document.querySelector(CONFIG.dom.gridContainer)
+
+          try {
+            const issues = await fetchIssues(currentPage)
+            
+            if (issues.length === 0) {
+              hasMore = false
+              document.querySelector(CONFIG.dom.loadMore).innerHTML = '<div class="web-end">没有更多了</div>'
+              return
+            }
+
+            issues.forEach((issue) => {
+              grid.appendChild(renderWebItem(issue))
+            })
+
+            // JSON 数据源一次性返回所有数据，不需要分页
+            hasMore = false
+            document.querySelector(CONFIG.dom.loadMore).innerHTML = '<div class="web-end">没有更多了</div>'
+          } catch (err) {
+            console.error('加载失败:', err)
+            btn.textContent = '加载失败，重试'
+          } finally {
+            isLoading = false
+          }
+        }
+
+        async function initWeb() {
+          const grid = document.querySelector(CONFIG.dom.gridContainer)
+          const loadMore = document.querySelector(CONFIG.dom.loadMore)
+          if (!grid || !loadMore) return
+
+          grid.innerHTML = ''
+          currentPage = 1
+          hasMore = true
+          isLoading = false
+
+          initLoadMoreBtn()
+          await loadMoreIssues()
+        }
+
+        // 初始化
+        if (!window.__WEB_PAGE_INITED__) {
+          window.__WEB_PAGE_INITED__ = true
+          initWeb()
+        }
+      </script>
+    </div>
+  </div>
+
+  <style is:inline>
+    :root {
+      --text-primary: rgb(var(--color-text-primary));
+      --text-secondary: rgb(var(--color-text-secondary));
+      --line-divider: rgb(var(--color-border-primary));
+      --content-pane-bg: rgb(var(--color-bg-primary));
+      --text-link: rgb(var(--color-accent));
+      --theme-color: rgb(var(--color-accent));
+      --tag-bg: rgb(var(--color-accent) / 0.08);
+      --color-border: var(--line-divider);
+      --color-bg-1: var(--content-pane-bg);
+      --text-muted: var(--text-secondary);
+      --color-link: var(--text-link);
+      --grid-gap: 16px;
+    }
+
+    .dark {
+      --color-border: var(--line-divider);
+      --color-bg-1: var(--content-pane-bg);
+      --text-muted: var(--text-secondary);
+      --color-link: var(--text-link);
+    }
+
+    .web-scope {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .web-grid {
+      column-count: 3;
+      column-gap: var(--grid-gap);
+      width: 100%;
+    }
+
+    .web-item {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 14px;
+      background: var(--color-bg-1);
+      transition: box-shadow 0.2s ease;
+      break-inside: avoid;
+      margin-bottom: var(--grid-gap);
+    }
+
+    .web-item:hover {
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    }
+
+    .web-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .web-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .web-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .web-author {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .web-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .web-content.prose {
+      font-size: 0.95rem !important;
+      line-height: 1.6 !important;
+      color: var(--text-primary) !important;
+      margin: 0 0 10px 0 !important;
+      padding: 0 !important;
+      flex: 1;
+      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
+      word-break: break-all !important;
+      white-space: normal !important;
+    }
+
+    .web-content.prose h1,
+    .web-content.prose h2,
+    .web-content.prose h3 {
+      margin: 0.4rem 0 0.2rem !important;
+      font-size: 1rem !important;
+      font-weight: 600 !important;
+      line-height: 1.4 !important;
+    }
+
+    .web-content.prose p {
+      margin: 0.3rem 0 !important;
+    }
+
+    .web-content.prose ul {
+      margin: 0.3rem 0 0.4rem 0.4rem !important;
+      padding-left: 1.2rem !important;
+      margin-left: 0 !important;
+    }
+
+    .web-content.prose li {
+      margin: 0.1rem 0 !important;
+      font-size: 0.9rem !important;
+      line-height: 1.5 !important;
+    }
+
+    .web-content.prose blockquote {
+      margin: 0.4rem 0 !important;
+      padding: 0.3rem 0.6rem !important;
+      font-size: 0.9rem !important;
+      border-left: 3px solid var(--theme-color);
+      background: var(--tag-bg);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .web-img {
+      max-width: 100% !important;
+      height: auto !important;
+      border-radius: 6px !important;
+      margin: 0.4rem 0 !important;
+    }
+
+    .web-link-text {
+      color: var(--color-link) !important;
+      text-decoration: underline !important;
+      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
+    }
+
+    .web-labels {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .web-label {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      color: white;
+      font-weight: 500;
+    }
+
+    .web-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .web-comments {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .web-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: var(--theme-color);
+      text-decoration: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .web-link:hover {
+      opacity: 0.8;
+    }
+
+    .bb-load {
+      margin: 1rem 0 2rem;
+      column-span: all;
+    }
+
+    .button-load {
+      width: 100% !important;
+      font-size: 0.8rem;
+      background: none;
+      border-radius: 10px;
+      border: 1px solid var(--color-border);
+      padding: 10px 30px;
+      letter-spacing: 0.8rem;
+      text-align: center;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+
+    .button-load:hover {
+      border-color: var(--color-link);
+      color: var(--color-link);
+    }
+
+    .web-end {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 1rem;
+      font-size: 0.85rem;
+      column-span: all;
+    }
+
+    @media (max-width: 1024px) {
+      .web-grid {
+        column-count: 2;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .web-grid {
+        column-count: 1;
+      }
+
+      .web-item {
+        padding: 12px;
+        margin-bottom: 12px;
+      }
+
+      .web-content.prose {
+        font-size: 0.9rem !important;
+      }
+
+      .web-content.prose h1,
+      .web-content.prose h2,
+      .web-content.prose h3 {
+        font-size: 0.95rem !important;
+      }
+    }
+  </style>
+</PageLayout>

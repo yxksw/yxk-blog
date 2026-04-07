@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro'
 
 export const GET: APIRoute = async () => {
-  // 获取预生成的 RSS JSON 数据
+  // 获取预生成的 Gitee Issues JSON 数据
   const jsonUrl =
-    'https://rss-json.261770.xyz/jike_user_07152f0c-0f65-4501-855b-031f3e20e4a5/data.json'
+    'https://gitee-json.261770.xyz/v2/api/v5/repos/kemiaoshiwo/main/issues%3Fstate%3Dall%26per_page%3D20/data.json'
 
   try {
     const response = await fetch(jsonUrl, {

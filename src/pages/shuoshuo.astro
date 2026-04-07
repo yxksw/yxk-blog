@@ -1,0 +1,1104 @@
+---
+import PageLayout from '@/layouts/PageLayout.astro'
+import Highlight from '@/components/Highlight.astro'
+import { MomentCard } from '@/components/diary'
+import { getDiaryList, getAllTags } from '@/data/diary'
+import { Icon } from '@iconify/react'
+import config from '@/config.json'
+
+const title = '说说'
+const subtitle = '记录生活中的点滴瞬间'
+
+// 获取日记数据
+const moments = getDiaryList()
+const allTags = getAllTags()
+
+const filterTabs = [
+  {
+    value: 'all',
+    label: '全部',
+    icon: 'ri:apps-line',
+    count: moments.length,
+  },
+  ...allTags.map((tag) => ({
+    value: tag,
+    label: tag,
+    count: moments.filter((m) => m.tags && m.tags.includes(tag)).length,
+  })),
+]
+
+// 从 config.json 读取自定义头像和名称
+const CUSTOM_AVATAR = config.shuoshuo?.customAvatar || ''
+const CUSTOM_NAME = config.shuoshuo?.customName || ''
+---
+
+<PageLayout title={title}>
+  <div class="px-4 py-16">
+    <div class="max-w-[900px] mx-auto">
+      <!-- Banner Header -->
+      <div class="diary-banner rounded-xl p-6 sm:p-8 mb-8">
+        <div class="flex items-center justify-between gap-4">
+          <div class="min-w-0">
+            <h1 class="text-2xl sm:text-3xl font-bold text-white mb-1 drop-shadow-sm">
+              <Highlight class="text-white">{title}</Highlight>
+            </h1>
+            <p class="text-sm sm:text-base text-white/80">
+              {subtitle}
+            </p>
+          </div>
+          <div class="shrink-0 text-center">
+            <span class="block text-2xl sm:text-3xl font-bold text-white drop-shadow-sm diary-count" data-count={moments.length}>
+              {moments.length}
+            </span>
+            <span class="block text-xs sm:text-sm text-white/70">
+              篇日记
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 数据源切换按钮 -->
+      <div class="flex gap-3 flex-wrap mb-8">
+        <button id="btn-jike" class="source-btn" data-source="jike">
+          <Icon icon="ri:rss-line" className="w-4 h-4" client:load />
+          <span>即刻</span>
+        </button>
+        <button id="btn-web" class="source-btn" data-source="web">
+          <Icon icon="ri:at-line" className="w-4 h-4" client:load />
+          <span>动态</span>
+        </button>
+        <button id="btn-diary" class="source-btn active" data-source="diary">
+          <Icon icon="ri:book-open-line" className="w-4 h-4" client:load />
+          <span>日记</span>
+        </button>
+      </div>
+
+      <!-- Jike (RSS) 说说 -->
+      <div id="jike-container" class="shuoshuo-container hidden">
+        <div class="memos-scope">
+          <section class="memos-list">
+            <div id="jike-grid" class="memos-grid"></div>
+          </section>
+          <div id="memos-comment-global" class="comment-global d-none"></div>
+
+          <template id="memo-item-template">
+            <article class="memos-item">
+              <div class="memos-content prose dark:prose-invert"></div>
+              <div class="memos-footer">
+                <time class="memos-time"></time>
+                <a class="memos-link" target="_blank" rel="noopener noreferrer">查看原文</a>
+              </div>
+            </article>
+          </template>
+
+          <div class="bb-load" id="jike-load-more-container"></div>
+        </div>
+      </div>
+
+      <!-- Web (Gitee Issue) 动态 -->
+      <div id="web-container" class="shuoshuo-container hidden">
+        <div class="web-scope">
+          <section class="web-list">
+            <div id="web-grid" class="web-grid"></div>
+          </section>
+
+          <template id="web-item-template">
+            <article class="web-item">
+              <div class="web-header">
+                <img class="web-avatar" src="" alt="avatar" />
+                <div class="web-meta">
+                  <span class="web-author"></span>
+                  <time class="web-time"></time>
+                </div>
+              </div>
+              <div class="web-content prose dark:prose-invert"></div>
+              <div class="web-labels"></div>
+              <div class="web-footer">
+                <a class="web-link" href="#" target="_blank" rel="noopener noreferrer">
+                  查看原文
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                </a>
+              </div>
+            </article>
+          </template>
+
+          <div class="bb-load" id="web-load-more-container"></div>
+        </div>
+      </div>
+
+      <!-- Diary 日记 -->
+      <div id="diary-container" class="shuoshuo-container">
+        <!-- Filter Tabs -->
+        {
+          moments.length > 0 && allTags.length > 0 && (
+            <div class="mb-8">
+              <div class="diary-filter-tabs">
+                {filterTabs.map((tab) => (
+                  <button
+                    class="diary-filter-tab"
+                    data-filter={tab.value}
+                    type="button"
+                  >
+                    {'icon' in tab && tab.icon && (
+                      <Icon icon={tab.icon} className="w-4 h-4" client:load />
+                    )}
+                    <span>{tab.label}</span>
+                    <span class="count">({tab.count})</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )
+        }
+
+        <!-- Diary List -->
+        <div id="diary-list" class="space-y-4">
+          {
+            moments.map((moment, index) => (
+              <MomentCard
+                moment={moment}
+                index={index}
+                minutesAgo="分钟前"
+                hoursAgo="小时前"
+                daysAgo="天前"
+              />
+            ))
+          }
+        </div>
+
+        <!-- No Results -->
+        <div id="no-results" class="hidden text-center py-16">
+          <Icon
+            icon="ri:file-list-line"
+            className="text-6xl text-neutral-300 dark:text-neutral-700 mb-4"
+            client:load
+          />
+          <p class="text-neutral-500 dark:text-neutral-500 text-lg">
+            没有找到匹配的日记
+          </p>
+        </div>
+
+        <!-- Empty State -->
+        {
+          moments.length === 0 && (
+            <div class="text-center py-16">
+              <Icon
+                icon="ri:file-list-line"
+                className="text-6xl text-neutral-300 dark:text-neutral-700 mb-4"
+                client:load
+              />
+              <h3 class="text-lg font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                还没有日记
+              </h3>
+              <p class="text-neutral-500 dark:text-neutral-500">
+                在 src/data/diary.ts 中添加你的第一篇日记吧
+              </p>
+            </div>
+          )
+        }
+
+        <!-- Tips -->
+        <div class="text-center mt-8 text-neutral-500 dark:text-neutral-500 text-sm italic">
+          记录生活，留下回忆
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline define:vars={{ CUSTOM_AVATAR, CUSTOM_NAME }}>
+    // ==================== Tab Switching ====================
+    const btnJike = document.getElementById('btn-jike')
+    const btnWeb = document.getElementById('btn-web')
+    const btnDiary = document.getElementById('btn-diary')
+    const jikeContainer = document.getElementById('jike-container')
+    const webContainer = document.getElementById('web-container')
+    const diaryContainer = document.getElementById('diary-container')
+
+    function switchTab(source) {
+      // Reset all buttons
+      btnJike.classList.remove('active')
+      btnWeb.classList.remove('active')
+      btnDiary.classList.remove('active')
+      
+      // Hide all containers
+      jikeContainer.classList.add('hidden')
+      webContainer.classList.add('hidden')
+      diaryContainer.classList.add('hidden')
+      
+      // Activate selected
+      if (source === 'jike') {
+        btnJike.classList.add('active')
+        jikeContainer.classList.remove('hidden')
+        if (!window.__JIKE_INITED__) {
+          window.__JIKE_INITED__ = true
+          initJike()
+        }
+      } else if (source === 'web') {
+        btnWeb.classList.add('active')
+        webContainer.classList.remove('hidden')
+        if (!window.__WEB_INITED__) {
+          window.__WEB_INITED__ = true
+          initWeb()
+        }
+      } else {
+        btnDiary.classList.add('active')
+        diaryContainer.classList.remove('hidden')
+      }
+    }
+
+    btnJike.addEventListener('click', () => switchTab('jike'))
+    btnWeb.addEventListener('click', () => switchTab('web'))
+    btnDiary.addEventListener('click', () => switchTab('diary'))
+
+    // ==================== Diary Filter ====================
+    document.addEventListener('DOMContentLoaded', () => {
+      const filterButtons = document.querySelectorAll('.diary-filter-tab')
+      const diaryCards = document.querySelectorAll('.moment-card')
+      const noResults = document.getElementById('no-results')
+
+      filterButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const filter = button.getAttribute('data-filter')
+
+          // Update button state
+          filterButtons.forEach((btn) => btn.classList.remove('active'))
+          button.classList.add('active')
+
+          // Filter cards
+          let visibleCount = 0
+          diaryCards.forEach((card) => {
+            const tags = card.getAttribute('data-tags') || ''
+            if (filter === 'all' || tags.includes(filter)) {
+              card.classList.remove('filtered-out')
+              visibleCount++
+            } else {
+              card.classList.add('filtered-out')
+            }
+          })
+
+          // Show/hide no results message
+          if (visibleCount === 0) {
+            noResults?.classList.remove('hidden')
+          } else {
+            noResults?.classList.add('hidden')
+          }
+        })
+      })
+
+      // Default select first
+      if (filterButtons.length > 0) {
+        filterButtons[0].classList.add('active')
+      }
+    })
+
+    // ==================== Jike (RSS JSON) ====================
+    const JIKE_CONFIG = {
+      jsonUrl: '/api/jike-rss',
+      limit: 10,
+      dom: {
+        gridContainer: '#jike-grid',
+        template: '#memo-item-template',
+        loadMore: '#jike-load-more-container',
+      },
+    }
+
+    let jikeAllItems = []
+    let jikeCurrentPage = 0
+    const jikeItemsPerPage = 10
+    let jikeIsLoading = false
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr)
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      const hour = String(date.getHours()).padStart(2, '0')
+      const minute = String(date.getMinutes()).padStart(2, '0')
+      return `${year}-${month}-${day} ${hour}:${minute}`
+    }
+
+    function parseJSON(jsonData) {
+      // 处理 RSS JSON 格式
+      if (!jsonData || !Array.isArray(jsonData.items)) return []
+      
+      return jsonData.items.map(item => {
+        return {
+          title: item.title || '',
+          content: item.description || item.title || '',
+          link: item.link || '',
+          pubDate: item.pubDate || new Date().toISOString(),
+          id: item.guid || item.link || '',
+        }
+      })
+    }
+
+    function renderMemoItem(item) {
+      const template = document.querySelector(JIKE_CONFIG.dom.template)
+      if (!template) return null
+      const frag = template.content.cloneNode(true)
+      const article = frag.firstElementChild
+      article.dataset.id = item.id
+
+      const contentEl = frag.querySelector('.memos-content')
+      contentEl.innerHTML = item.content || item.title || ''
+
+      frag.querySelector('.memos-time').textContent = formatDate(item.pubDate)
+
+      const linkBtn = frag.querySelector('.memos-link')
+      linkBtn.href = item.link
+
+      return frag
+    }
+
+    function updateMemoList(items = []) {
+      const memoGrid = document.querySelector(JIKE_CONFIG.dom.gridContainer)
+      if (!memoGrid || items.length === 0) return
+      items.forEach(item => {
+        const rendered = renderMemoItem(item)
+        if (rendered) memoGrid.appendChild(rendered)
+      })
+    }
+
+    function initJikeLoadMoreBtn() {
+      const loadMoreContainer = document.querySelector(JIKE_CONFIG.dom.loadMore)
+      loadMoreContainer.innerHTML = '<button class="load-btn button-load">加载更多</button>'
+      const btn = loadMoreContainer.querySelector('.button-load')
+      btn.addEventListener('click', () => {
+        btn.textContent = '加载中…'
+        loadMoreJikeItems().then(() => {
+          if (jikeCurrentPage * jikeItemsPerPage >= jikeAllItems.length) {
+            loadMoreContainer.innerHTML = ''
+          } else {
+            btn.textContent = '加载更多'
+          }
+        })
+      })
+    }
+
+    async function loadMoreJikeItems() {
+      const start = jikeCurrentPage * jikeItemsPerPage
+      const end = start + jikeItemsPerPage
+      const itemsToShow = jikeAllItems.slice(start, end)
+      updateMemoList(itemsToShow)
+      jikeCurrentPage++
+    }
+
+    async function initJike() {
+      if (jikeIsLoading) return
+      jikeIsLoading = true
+
+      const memoGrid = document.querySelector(JIKE_CONFIG.dom.gridContainer)
+      const loadMoreContainer = document.querySelector(JIKE_CONFIG.dom.loadMore)
+
+      if (!memoGrid) return
+
+      memoGrid.innerHTML = ''
+      loadMoreContainer.innerHTML = '<div class="memo-loading">加载中…</div>'
+
+      try {
+        const res = await fetch(JIKE_CONFIG.jsonUrl)
+        if (!res.ok) throw new Error('Network response was not ok')
+        const jsonData = await res.json()
+        jikeAllItems = parseJSON(jsonData)
+        jikeCurrentPage = 0
+
+        if (jikeAllItems.length === 0) {
+          memoGrid.innerHTML = '<div class="memo-error">暂无动态</div>'
+          loadMoreContainer.innerHTML = ''
+          return
+        }
+
+        await loadMoreJikeItems()
+
+        if (jikeAllItems.length > jikeItemsPerPage) {
+          initJikeLoadMoreBtn()
+        } else {
+          loadMoreContainer.innerHTML = ''
+        }
+      } catch (err) {
+        console.error('加载失败:', err)
+        memoGrid.innerHTML = '<div class="memo-error">加载失败，请检查网络</div>'
+        loadMoreContainer.innerHTML = ''
+      } finally {
+        jikeIsLoading = false
+      }
+    }
+
+    // ==================== Web (Gitee Issue) ====================
+    const WEB_CONFIG = {
+      custom: {
+        avatar: CUSTOM_AVATAR,
+        name: CUSTOM_NAME,
+      },
+      dom: {
+        gridContainer: '#web-grid',
+        template: '#web-item-template',
+        loadMore: '#web-load-more-container',
+      },
+    }
+
+    let webCurrentPage = 1
+    let webHasMore = true
+    let webIsLoading = false
+
+    function renderMarkdownBasic(text) {
+      if (!text) return ''
+      let s = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+      // 代码块
+      s = s.replace(
+        /```([\s\S]*?)```/g,
+        (_, code) => `<pre><code>${code.replace(/&/g, '&amp;')}</code></pre>`,
+      )
+      // 行内代码
+      s = s.replace(/`([^`]+)`/g, '<code>$1</code>')
+      // 标题
+      s = s
+        .replace(/^###\s+(.*)$/gm, '<h3>$1</h3>')
+        .replace(/^##\s+(.*)$/gm, '<h2>$1</h2>')
+        .replace(/^#\s+(.*)$/gm, '<h1>$1</h1>')
+      // 粗体斜体
+      s = s
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      // 图片
+      s = s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img alt="$1" src="$2" class="web-img" />')
+      // 链接
+      s = s.replace(
+        /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener noreferrer" class="web-link-text">$1</a>',
+      )
+      // 引用
+      s = s.replace(/^>\s+(.*)$/gm, '<blockquote>$1</blockquote>')
+      // 列表
+      s = s.replace(/^(?:-\s.*(?:\r?\n|$))+?/gm, (block) => {
+        const items = block
+          .trim()
+          .split(/\r?\n/)
+          .map((l) => l.replace(/^-+\s?/, '').trim())
+        const li = items
+          .filter(Boolean)
+          .map((i) => `<li>${i}</li>`)
+          .join('')
+        return `<ul>${li}</ul>`
+      })
+      // 段落
+      s = s
+        .split(/\n{2,}/)
+        .map((chunk) => {
+          if (/^\s*(<h\d|<ul|<pre|<blockquote|<img|<p)/.test(chunk)) return chunk
+          const lines = chunk
+            .split(/\n/)
+            .map((l) => l.trim())
+            .filter(Boolean)
+          if (!lines.length) return ''
+          return `<p>${lines.join('<br/>')}</p>`
+        })
+        .join('\n')
+
+      return s
+    }
+
+    function renderWebItem(issue) {
+      const template = document.querySelector(WEB_CONFIG.dom.template)
+      if (!template) return null
+      const frag = template.content.cloneNode(true)
+      const article = frag.firstElementChild
+      article.dataset.number = issue.number
+
+      // 头像
+      const avatar = frag.querySelector('.web-avatar')
+      avatar.src = WEB_CONFIG.custom.avatar || issue.user.avatar_url
+      avatar.alt = WEB_CONFIG.custom.name || issue.user.login
+
+      // 作者和时间
+      frag.querySelector('.web-author').textContent = WEB_CONFIG.custom.name || issue.user.login
+      frag.querySelector('.web-time').textContent = formatDate(issue.created_at)
+
+      // 内容
+      const contentEl = frag.querySelector('.web-content')
+      contentEl.innerHTML = renderMarkdownBasic(issue.body || issue.title)
+
+      // 标签
+      const labelsEl = frag.querySelector('.web-labels')
+      if (issue.labels && issue.labels.length > 0) {
+        issue.labels.forEach((label) => {
+          const span = document.createElement('span')
+          span.className = 'web-label'
+          span.style.backgroundColor = '#' + label.color
+          span.textContent = label.name
+          labelsEl.appendChild(span)
+        })
+      }
+
+      // 链接
+      const link = frag.querySelector('.web-link')
+      link.href = issue.html_url
+
+      return frag
+    }
+
+    async function fetchIssues(page = 1) {
+      // 使用本地 API 路由实时获取数据
+      const url = '/api/web-issues'
+      
+      const res = await fetch(url)
+      if (!res.ok) {
+        const text = await res.text()
+        console.error('API Error:', res.status, text)
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+      }
+      return res.json()
+    }
+
+    async function loadMoreIssues() {
+      if (webIsLoading || !webHasMore) return
+      webIsLoading = true
+
+      const loadMore = document.querySelector(WEB_CONFIG.dom.loadMore)
+      const grid = document.querySelector(WEB_CONFIG.dom.gridContainer)
+
+      try {
+        const issues = await fetchIssues(webCurrentPage)
+        
+        if (issues.length === 0) {
+          webHasMore = false
+          loadMore.innerHTML = '<div class="web-end">没有更多了</div>'
+          return
+        }
+
+        issues.forEach((issue) => {
+          const rendered = renderWebItem(issue)
+          if (rendered) grid.appendChild(rendered)
+        })
+
+        // JSON 数据源一次性返回所有数据，不需要分页
+        webHasMore = false
+        loadMore.innerHTML = '<div class="web-end">没有更多了</div>'
+      } catch (err) {
+        console.error('加载失败:', err)
+        loadMore.innerHTML = '<button class="load-btn button-load">加载失败，重试</button>'
+        const btn = loadMore.querySelector('.button-load')
+        btn.addEventListener('click', () => {
+          if (webIsLoading) return
+          btn.textContent = '加载中…'
+          loadMoreIssues()
+        })
+      } finally {
+        webIsLoading = false
+      }
+    }
+
+    async function initWeb() {
+      const grid = document.querySelector(WEB_CONFIG.dom.gridContainer)
+      const loadMore = document.querySelector(WEB_CONFIG.dom.loadMore)
+      if (!grid || !loadMore) return
+
+      grid.innerHTML = ''
+      loadMore.innerHTML = '<div class="memo-loading">加载中…</div>'
+      webCurrentPage = 1
+      webHasMore = true
+      webIsLoading = false
+
+      await loadMoreIssues()
+    }
+
+    // ==================== Initialize ====================
+    if (!window.__SHUOSHUO_INITED__) {
+      window.__SHUOSHUO_INITED__ = true
+      // 默认显示日记，不自动加载其他数据
+    }
+  </script>
+</PageLayout>
+
+<style is:inline>
+  :root {
+    --text-primary: rgb(var(--color-text-primary));
+    --text-secondary: rgb(var(--color-text-secondary));
+    --line-divider: rgb(var(--color-border-primary));
+    --content-pane-bg: rgb(var(--color-bg-primary));
+    --text-link: rgb(var(--color-accent));
+    --theme-color: rgb(var(--color-accent));
+    --tag-bg: rgb(var(--color-accent) / 0.08);
+    --color-border: var(--line-divider);
+    --color-bg-1: var(--content-pane-bg);
+    --text-muted: var(--text-secondary);
+    --color-link: var(--text-link);
+    --grid-gap: 16px;
+    --card-min-width: 220px;
+  }
+
+  .dark {
+    --color-border: var(--line-divider);
+    --color-bg-1: var(--content-pane-bg);
+    --text-muted: var(--text-secondary);
+    --color-link: var(--text-link);
+  }
+
+  /* Banner 样式 */
+  .diary-banner {
+    background: linear-gradient(135deg, rgb(var(--color-accent)) 0%, rgb(var(--color-accent) / 0.8) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .diary-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+
+  .diary-banner > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* 切换按钮样式 */
+  .source-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-1);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .source-btn:hover {
+    border-color: var(--color-link);
+    color: var(--color-link);
+  }
+
+  .source-btn.active {
+    background: var(--theme-color);
+    border-color: var(--theme-color);
+    color: white;
+  }
+
+  .shuoshuo-container.hidden {
+    display: none;
+  }
+
+  /* 日记筛选标签样式 */
+  .diary-filter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .diary-filter-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-1);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .diary-filter-tab:hover {
+    border-color: var(--color-link);
+    color: var(--color-link);
+  }
+
+  .diary-filter-tab.active {
+    background: var(--theme-color);
+    border-color: var(--theme-color);
+    color: white;
+  }
+
+  .diary-filter-tab .count {
+    opacity: 0.7;
+  }
+
+  /* 日记卡片筛选 */
+  .moment-card.filtered-out {
+    display: none;
+  }
+
+  /* Memos (Jike) 样式 */
+  .memos-scope {
+    width: 100%;
+  }
+
+  .memos-list {
+    margin-top: 0.4rem;
+  }
+
+  .memos-grid {
+    column-count: 2;
+    column-gap: var(--grid-gap);
+    width: 100%;
+    column-width: var(--card-min-width);
+  }
+
+  .memos-item {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    background: var(--color-bg-1);
+    transition: box-shadow 0.2s ease;
+    break-inside: avoid;
+    margin-bottom: var(--grid-gap);
+  }
+
+  .memos-item:hover {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  }
+
+  .memos-content.prose {
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    color: var(--text-primary) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex: 1;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-all !important;
+    white-space: normal !important;
+  }
+
+  .memos-content.prose h1,
+  .memos-content.prose h2,
+  .memos-content.prose h3 {
+    margin: 0.3rem 0 0.15rem !important;
+    font-size: 1.1rem !important;
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+  }
+
+  .memos-content.prose p {
+    margin: 0.2rem 0 !important;
+  }
+
+  .memos-content.prose ul {
+    margin: 0.2rem 0 0.3rem 0.4rem !important;
+    padding-left: 1.2rem !important;
+    margin-left: 0 !important;
+  }
+
+  .memos-content.prose li {
+    margin: 0.1rem 0 !important;
+    font-size: 0.86rem !important;
+    line-height: 1.45 !important;
+    text-indent: -0.5em !important;
+    padding-left: 0.5em !important;
+  }
+
+  .memos-content.prose li::marker {
+    font-size: 0.9em !important;
+  }
+
+  .memos-content.prose blockquote {
+    margin: 0.3rem 0 !important;
+    padding: 0.2rem 0.5rem !important;
+    font-size: 0.84rem !important;
+  }
+
+  .memos-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 0.5rem !important;
+    border-top: 1px solid var(--color-border);
+    line-height: 1 !important;
+  }
+
+  .memos-time {
+    font-size: 0.7rem !important;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .memos-link {
+    font-size: 0.7rem !important;
+    color: var(--color-link);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .memos-link:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+  }
+
+  /* Web (Gitee) 样式 */
+  .web-scope {
+    width: 100%;
+  }
+
+  .web-grid {
+    column-count: 2;
+    column-gap: var(--grid-gap);
+    width: 100%;
+  }
+
+  .web-item {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 14px;
+    background: var(--color-bg-1);
+    transition: box-shadow 0.2s ease;
+    break-inside: avoid;
+    margin-bottom: var(--grid-gap);
+  }
+
+  .web-item:hover {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  }
+
+  .web-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .web-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .web-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .web-author {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .web-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .web-content.prose {
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+    color: var(--text-primary) !important;
+    margin: 0 0 10px 0 !important;
+    padding: 0 !important;
+    flex: 1;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-all !important;
+    white-space: normal !important;
+  }
+
+  .web-content.prose h1,
+  .web-content.prose h2,
+  .web-content.prose h3 {
+    margin: 0.4rem 0 0.2rem !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    line-height: 1.4 !important;
+  }
+
+  .web-content.prose p {
+    margin: 0.3rem 0 !important;
+  }
+
+  .web-content.prose ul {
+    margin: 0.3rem 0 0.4rem 0.4rem !important;
+    padding-left: 1.2rem !important;
+    margin-left: 0 !important;
+  }
+
+  .web-content.prose li {
+    margin: 0.1rem 0 !important;
+    font-size: 0.9rem !important;
+    line-height: 1.5 !important;
+  }
+
+  .web-content.prose blockquote {
+    margin: 0.4rem 0 !important;
+    padding: 0.3rem 0.6rem !important;
+    font-size: 0.9rem !important;
+    border-left: 3px solid var(--theme-color);
+    background: var(--tag-bg);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .web-img {
+    max-width: 100% !important;
+    height: auto !important;
+    border-radius: 6px !important;
+    margin: 0.4rem 0 !important;
+  }
+
+  .web-link-text {
+    color: var(--color-link) !important;
+    text-decoration: underline !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .web-labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .web-label {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: white;
+    font-weight: 500;
+  }
+
+  .web-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .web-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: var(--theme-color);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .web-link:hover {
+    opacity: 0.8;
+  }
+
+  /* 公共样式 */
+  .bb-load {
+    margin: 1rem 0 2rem;
+    column-span: all;
+  }
+
+  .button-load {
+    width: 100% !important;
+    font-size: 0.8rem;
+    background: none;
+    border-radius: 10px;
+    border: 1px solid var(--color-border);
+    padding: 10px 30px;
+    letter-spacing: 0.8rem;
+    text-align: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+
+  .button-load:hover {
+    border-color: var(--color-link);
+    color: var(--color-link);
+  }
+
+  .memo-loading {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 1rem;
+    font-size: 0.9rem;
+    column-span: all;
+  }
+
+  .memo-error {
+    text-align: center;
+    color: #ef4444;
+    padding: 1rem;
+    font-size: 0.9rem;
+    column-span: all;
+  }
+
+  .web-end {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 1rem;
+    font-size: 0.85rem;
+    column-span: all;
+  }
+
+  .d-none {
+    display: none !important;
+  }
+
+  .comment-global {
+    width: 100%;
+    margin: 0.6rem 0;
+    padding: 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-bg-1);
+    column-span: all;
+  }
+
+  /* 响应式适配 */
+  @media (max-width: 1024px) {
+    .memos-grid,
+    .web-grid {
+      column-count: 2;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .memos-grid,
+    .web-grid {
+      column-count: 1;
+    }
+
+    .memos-item,
+    .web-item {
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+
+    .memos-content.prose {
+      font-size: 0.86rem !important;
+    }
+
+    .memos-content.prose h1,
+    .memos-content.prose h2,
+    .memos-content.prose h3 {
+      font-size: 0.9rem !important;
+    }
+
+    .web-content.prose {
+      font-size: 0.9rem !important;
+    }
+
+    .source-btn {
+      padding: 6px 12px;
+      font-size: 0.85rem;
+    }
+  }
+</style>

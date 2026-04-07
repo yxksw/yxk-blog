@@ -13,6 +13,10 @@
     "twitterId": "@null",
     "avatar": "https://cn.cravatar.com/avatar/56cd72b5460ecaa08ddffea9562f5629?size=512"
   },
+  "shuoshuo": {
+    "customAvatar": "https://cn.cravatar.com/avatar/56cd72b5460ecaa08ddffea9562f5629?size=512",
+    "customName": "异飨客"
+  },
   "hero": {
     "name": "异飨客",
     "bio": "每一段旅行，都有终点。",
@@ -94,11 +98,6 @@
       "name": "友链",
       "link": "/friends",
       "icon": "icon-hearts"
-    },
-    {
-      "name": "日记",
-      "link": "/diary",
-      "icon": "ri:book-open-line"
     }
   ],
   "posts": {

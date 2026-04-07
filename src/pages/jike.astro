@@ -31,7 +31,7 @@ const title = '说说'
         if (!window.__JIKE_BOOT_FROM_LAYOUT__ && !window.__JIKE_PAGE_INITED__) {
           window.__JIKE_PAGE_INITED__ = true
           const CONFIG = {
-            rssUrl: '/api/jike-rss',
+            jsonUrl: '/api/jike-rss',
             limit: 10,
             dom: {
               gridContainer: '#memo-grid',
@@ -58,26 +58,19 @@ const title = '说说'
             return `${year}-${month}-${day} ${hour}:${minute}`
           }
 
-          function parseRSS(xmlText) {
-            const parser = new DOMParser()
-            const xmlDoc = parser.parseFromString(xmlText, 'text/xml')
-            const items = xmlDoc.querySelectorAll('item')
-            const result = []
-            items.forEach(item => {
-              const title = item.querySelector('title')?.textContent || ''
-              const description = item.querySelector('description')?.textContent || ''
-              const link = item.querySelector('link')?.textContent || ''
-              const pubDate = item.querySelector('pubDate')?.textContent || ''
-              const guid = item.querySelector('guid')?.textContent || ''
-              result.push({
-                title,
-                content: description,
-                link,
-                pubDate,
-                id: guid || link,
-              })
+          function parseJSON(jsonData) {
+            // 处理 RSS JSON 格式
+            if (!jsonData || !Array.isArray(jsonData.items)) return []
+            
+            return jsonData.items.map(item => {
+              return {
+                title: item.title || '',
+                content: item.description || item.title || '',
+                link: item.link || '',
+                pubDate: item.pubDate || new Date().toISOString(),
+                id: item.guid || item.link || '',
+              }
             })
-            return result
           }
 
           function renderMemoItem(item) {
@@ -139,10 +132,10 @@ const title = '说说'
             loadMoreContainer.innerHTML = '<div class="memo-loading">加载中…</div>'
 
             try {
-              const res = await fetch(CONFIG.rssUrl)
+              const res = await fetch(CONFIG.jsonUrl)
               if (!res.ok) throw new Error('Network response was not ok')
-              const xmlText = await res.text()
-              allItems = parseRSS(xmlText)
+              const jsonData = await res.json()
+              allItems = parseJSON(jsonData)
               currentPage = 0
 
               if (allItems.length === 0) {
