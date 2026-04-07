@@ -178,6 +178,7 @@ const menuIconMap: Record<string, string> = {
   'icon-hearts': 'ri:heart-2-line',
   'icon-film': 'ri:film-line',
   'icon-chat': 'ri:chat-1-line',
+  'icon-tools': 'lucide:tool-case',
 }
 
 function HeaderMenuItem({

@@ -3,16 +3,6 @@ import { createContext, useContext, useState, forwardRef } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import { Icon } from '@iconify/react'
-import {
-  riArchiveLine,
-  riChat1Line,
-  riFilmLine,
-  riGhostLine,
-  riHeart2Line,
-  riLinksLine,
-  riMenuLine,
-  riPantoneLine,
-} from '@/icons/ri'
 import { clsx } from 'clsx'
 
 const contentVariants: Variants = {
@@ -112,7 +102,7 @@ const TriggerButton = forwardRef<HTMLButtonElement>((props, ref) => {
       aria-label="Open menu"
       {...props}
     >
-      <Icon icon={riMenuLine} className="text-xl" />
+      <Icon icon="ri:menu-line" className="text-xl" />
     </button>
   )
 })
@@ -120,15 +110,27 @@ const TriggerButton = forwardRef<HTMLButtonElement>((props, ref) => {
 function DrawerContentImpl() {
   const { dismiss } = useContext(DrawerContext)
   const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set())
-  
-  const menuIconMap = {
-    'icon-pantone': riPantoneLine,
-    'icon-archive': riArchiveLine,
-    'icon-flask': riLinksLine,
-    'icon-ghost': riGhostLine,
-    'icon-hearts': riHeart2Line,
-    'icon-film': riFilmLine,
-    'icon-chat': riChat1Line,
+
+  const menuIconMap: Record<string, string> = {
+    'icon-pantone': 'ri:pantone-line',
+    'icon-archive': 'ri:archive-line',
+    'icon-flask': 'ri:flask-line',
+    'icon-ghost': 'ri:ghost-line',
+    'icon-hearts': 'ri:heart-2-line',
+    'icon-film': 'ri:film-line',
+    'icon-chat': 'ri:chat-1-line',
+    'icon-image': 'ri:image-line',
+  'icon-tools': 'lucide:tool-case',
+  }
+
+  // 获取图标，支持 iconify 格式和自定义映射
+  const getIcon = (icon: string): string => {
+    // 如果是 iconify 格式（如 ri:build-line）
+    if (icon.includes(':')) {
+      return icon
+    }
+    // 否则从映射表中获取
+    return menuIconMap[icon] || 'ri:links-line'
   }
 
   const toggleMenu = (menuName: string) => {
@@ -153,14 +155,16 @@ function DrawerContentImpl() {
                 onClick={() => toggleMenu(menu.name)}
               >
                 <div className="inline-flex items-center space-x-3">
-                  <Icon
-                    icon={menuIconMap[menu.icon as keyof typeof menuIconMap] ?? riLinksLine}
-                    className="text-[1em] leading-none"
-                  />
+                  <span className="w-6 h-6 flex items-center justify-center">
+                    <Icon
+                      icon={getIcon(menu.icon)}
+                      className="w-5 h-5"
+                    />
+                  </span>
                   <span>{menu.name}</span>
                 </div>
-                <Icon 
-                  icon={expandedMenus.has(menu.name) ? 'ri:arrow-down-s-line' : 'ri:arrow-right-s-line'} 
+                <Icon
+                  icon={expandedMenus.has(menu.name) ? 'ri:arrow-down-s-line' : 'ri:arrow-right-s-line'}
                   className="text-lg opacity-60"
                 />
               </button>
@@ -176,16 +180,18 @@ function DrawerContentImpl() {
                   >
                     <div className="pl-8 flex flex-col border-l border-border ml-4">
                       {menu.children.map((child) => (
-                        <a 
-                          key={child.name} 
+                        <a
+                          key={child.name}
                           className="inline-flex items-center p-2 space-x-3 text-secondary hover:text-accent transition-colors"
-                          href={child.link} 
+                          href={child.link}
                           onClick={dismiss}
                         >
-                          <Icon
-                            icon={menuIconMap[child.icon as keyof typeof menuIconMap] ?? riLinksLine}
-                            className="text-[1em] leading-none"
-                          />
+                          <span className="w-6 h-6 flex items-center justify-center">
+                            <Icon
+                              icon={getIcon(child.icon)}
+                              className="w-5 h-5"
+                            />
+                          </span>
                           <span>{child.name}</span>
                         </a>
                       ))}
@@ -196,10 +202,12 @@ function DrawerContentImpl() {
             </div>
           ) : (
             <a className="inline-flex items-center p-2 space-x-3" href={menu.link} onClick={dismiss}>
-              <Icon
-                icon={menuIconMap[menu.icon as keyof typeof menuIconMap] ?? riLinksLine}
-                className="text-[1em] leading-none"
-              />
+              <span className="w-6 h-6 flex items-center justify-center">
+                <Icon
+                  icon={getIcon(menu.icon)}
+                  className="w-5 h-5"
+                />
+              </span>
               <span>{menu.name}</span>
             </a>
           )}

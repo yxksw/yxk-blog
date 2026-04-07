@@ -199,6 +199,68 @@
   column-span: all;
 }
 
+/* 查看原文链接样式 - 优化版 */
+.memos-link {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  color: var(--theme-color);
+  background: linear-gradient(135deg, var(--tag-bg) 0%, transparent 100%);
+  border: 1px solid var(--theme-color);
+  padding: 6px 12px !important;
+  margin: 0 !important;
+  margin-left: auto !important;
+  border-radius: 20px !important;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  outline: none !important;
+  appearance: none !important;
+  text-decoration: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.memos-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--theme-color) 0%, rgba(var(--color-accent), 0.8) 100%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: -1;
+}
+
+.memos-link::after {
+  content: '→';
+  font-size: 0.8em;
+  transition: transform 0.25s ease;
+}
+
+.memos-link:hover {
+  color: #fff;
+  border-color: var(--theme-color);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(var(--color-accent), 0.25);
+}
+
+.memos-link:hover::before {
+  opacity: 1;
+}
+
+.memos-link:hover::after {
+  transform: translateX(2px);
+}
+
+.memos-link:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(var(--color-accent), 0.2);
+}
+
 @media (max-width: 1024px) {
   .memos-grid {
     column-count: 2;
@@ -223,5 +285,9 @@
   .memos-time,
   .memos-comments {
     font-size: 0.68rem !important;
+  }
+  .memos-link {
+    font-size: 0.7rem !important;
+    padding: 5px 10px !important;
   }
 }

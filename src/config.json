@@ -83,7 +83,7 @@
     {
       "name": "工具",
       "link": "/tools",
-      "icon": "ri:build-line"
+      "icon": "icon-tools"
     },
     {
       "name": "关于",
