@@ -7,6 +7,8 @@
 @import './callouts.css';
 @import './diary.css';
 @import './memos.css';
+@import './web.css';
+@import './shuoshuo.css';
 
 @font-face {
   font-family: 'Atkinson';
