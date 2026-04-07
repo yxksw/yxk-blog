@@ -53,25 +53,114 @@
     ]
   },
   "skills": {
-    "technical": [
-      "https://img02.anheyu.com/adminuploads/1/2022/09/25/633005bf0fd1e.jpg",
-      "https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647df7fa.png",
-      "https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647e1f10.png",
-      "https://img02.anheyu.com/adminuploads/1/2022/09/26/6330ff27e5c9b.png",
-      "https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647dea51.png",
-      "https://img02.anheyu.com/adminuploads/1/2023/05/09/645a45854e093.png",
-      "https://img02.anheyu.com/adminuploads/1/2022/09/25/633001374747b.png"
+    "title": "开启创造力",
+    "subtitle": "技能",
+    "icons": [
+      {
+        "id": "Astro",
+        "title": "Astro",
+        "image": "https://favicon.im/astro.build?larger=true",
+        "background": "#000"
+      },
+      {
+        "id": "docker",
+        "title": "Docker",
+        "image": "https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647df7fa.png",
+        "background": "#57b6e6"
+      },
+      {
+        "id": "nuxt",
+        "title": "Nuxt",
+        "image": "https://cdn.statically.io/gh/zsxcoder/picx-images-hosting@master/icon/SkillIconsNuxtjsLight.5moa7dnnr3.svg",
+        "background": "#fff"
+      },
+      {
+        "id": "node",
+        "title": "Node.js",
+        "image": "https://npm.elemecdn.com/anzhiyu-blog@2.1.1/img/svg/node-logo.svg",
+        "background": "#333"
+      },
+      {
+        "id": "webpack",
+        "title": "Webpack",
+        "image": "https://img02.anheyu.com/adminuploads/1/2022/09/26/6330ff27e5c9b.png",
+        "background": "#2e3a41"
+      },
+      {
+        "id": "pinia",
+        "title": "Pinia",
+        "image": "https://npm.elemecdn.com/anzhiyu-blog@2.0.8/img/svg/pinia-logo.svg",
+        "background": "#fff"
+      },
+      {
+        "id": "python",
+        "title": "Python",
+        "image": "https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647dea51.png",
+        "background": "#fff"
+      },
+      {
+        "id": "vite",
+        "title": "Vite",
+        "image": "https://npm.elemecdn.com/anzhiyu-blog@2.0.8/img/svg/vite-logo.svg",
+        "background": "#937df7"
+      },
+      {
+        "id": "flutter",
+        "title": "Flutter",
+        "image": "https://img02.anheyu.com/adminuploads/1/2023/05/09/645a45854e093.png",
+        "background": "#4499e4"
+      },
+      {
+        "id": "vue",
+        "title": "Vue.js",
+        "image": "https://img02.anheyu.com/adminuploads/1/2022/09/25/633001374747b.png",
+        "background": "#b8f0ae"
+      },
+      {
+        "id": "react",
+        "title": "React",
+        "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9Ii0xMS41IC0xMC4yMzE3NCAyMyAyMC40NjM0OCI+CiAgPHRpdGxlPlJlYWN0IExvZ288L3RpdGxlPgogIDxjaXJjbGUgY3g9IjAiIGN5PSIwIiByPSIyLjA1IiBmaWxsPSIjNjFkYWZiIi8+CiAgPGcgc3Ryb2tlPSIjNjFkYWZiIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiPgogICAgPGVsbGlwc2Ugcng9IjExIiByeT0iNC4yIi8+CiAgICA8ZWxsaXBzZSByeD0iMTEiIHJ5PSI0LjIiIHRyYW5zZm9ybT0icm90YXRlKDYwKSIvPgogICAgPGVsbGlwc2Ugcng9IjExIiByeT0iNC4yIiB0cmFuc2Zvcm09InJvdGF0ZSgxMjApIi8+CiAgPC9nPgo8L3N2Zz4K",
+        "background": "#222"
+      },
+      {
+        "id": "css3",
+        "title": "CSS3",
+        "image": "https://img02.anheyu.com/adminuploads/1/2022/09/25/633006cc55e07.png",
+        "background": "#2c51db"
+      },
+      {
+        "id": "javascript",
+        "title": "JavaScript",
+        "image": "https://img02.anheyu.com/adminuploads/1/2022/09/25/633006eee047b.png",
+        "background": "#f7cb4f"
+      },
+      {
+        "id": "html",
+        "title": "HTML",
+        "image": "https://img02.anheyu.com/adminuploads/1/2022/09/25/633006f9ab27d.png",
+        "background": "#e9572b"
+      },
+      {
+        "id": "git",
+        "title": "Git",
+        "image": "https://img02.anheyu.com/adminuploads/1/2023/04/11/6434a635e9726.webp",
+        "background": "#df5b40"
+      },
+      {
+        "id": "typescript",
+        "title": "Typescript",
+        "image": "https://cdn.statically.io/gh/zsxcoder/picx-images-hosting@master/icon/DeviconTypescript.6f15p6gbm4.svg",
+        "background": "#00B1D0"
+      }
     ],
-    "general": [
-      "https://img02.anheyu.com/adminuploads/1/2022/09/25/633006cc55e07.png",
-      "https://img02.anheyu.com/adminuploads/1/2022/09/25/633006eee047b.png",
-      "https://img02.anheyu.com/adminuploads/1/2022/09/25/633006f9ab27d.png",
-      "https://img02.anheyu.com/adminuploads/1/2023/04/11/6434a635e9726.webp",
-      "https://img02.anheyu.com/adminuploads/1/2022/09/25/633007087a4dc.webp",
-      "https://img02.anheyu.com/adminuploads/1/2022/09/25/633005bf0fd1e.jpg",
-      "https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647df7fa.png",
-      "https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647e1f10.png",
-      "https://img02.anheyu.com/adminuploads/1/2022/09/26/6330ff27e5c9b.png"
+    "careers": [
+      {
+        "id": "1",
+        "name": "ATA，自动化技术与应用专业",
+        "period": "2023-2027",
+        "description": "南京工业职业技术大学",
+        "color": "#357ef5"
+      }
     ],
     "learning": "正在持续学习中"
   },

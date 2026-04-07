@@ -106,47 +106,108 @@ function isIconifyIcon(icon: string): boolean {
       </div>
     </section>
 
-    <!-- Skills and Projects -->
-    <section class="skills-and-projects">
-      <div class="skills card">
-        <h2 class="section-title">技能</h2>
-        <div class="skills-grid">
-          <div class="skill-category">
-            {aboutData.skills.technical.map((skill) => (
-              <div class="skill-card">
-                <img 
-                  src={skill} 
-                  onerror="this.onerror=null;this.src='https://gravatar.loli.net/avatar/57d8260dfb55501c37dde588e7c3852c'" 
-                  alt="技术图标"
-                />
+    <!-- Skills and Careers -->
+    <section class="skills-careers-container">
+      <!-- 技能展示 -->
+      <div class="skills card author-content-item">
+        <div class="card-content">
+          <div class="author-content-item-tips">{aboutData.skills.subtitle}</div>
+          <span class="author-content-item-title">{aboutData.skills.title}</span>
+          <div class="skills-style-group">
+            <!-- 滚动技能图标 -->
+            <div id="skills-tags-group-all">
+              <div class="tags-group-wrapper">
+                {Array.from({ length: Math.ceil(aboutData.skills.icons.length / 2) }).map((_, index) => {
+                  const skill1 = aboutData.skills.icons[index * 2]
+                  const skill2 = aboutData.skills.icons[index * 2 + 1]
+                  return (
+                    <div class="tags-group-icon-pair">
+                      {skill1 && (
+                        <div class="tags-group-icon" style={`background: ${skill1.background}`} title={skill1.title}>
+                          <img class="no-lightbox" src={skill1.image} alt={skill1.title} />
+                        </div>
+                      )}
+                      {skill2 && (
+                        <div class="tags-group-icon" style={`background: ${skill2.background}`} title={skill2.title}>
+                          <img class="no-lightbox" src={skill2.image} alt={skill2.title} />
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+                {/* 复制一份用于无限滚动 */}
+                {Array.from({ length: Math.ceil(aboutData.skills.icons.length / 2) }).map((_, index) => {
+                  const skill1 = aboutData.skills.icons[index * 2]
+                  const skill2 = aboutData.skills.icons[index * 2 + 1]
+                  return (
+                    <div class="tags-group-icon-pair">
+                      {skill1 && (
+                        <div class="tags-group-icon" style={`background: ${skill1.background}`} title={skill1.title}>
+                          <img class="no-lightbox" src={skill1.image} alt={skill1.title} />
+                        </div>
+                      )}
+                      {skill2 && (
+                        <div class="tags-group-icon" style={`background: ${skill2.background}`} title={skill2.title}>
+                          <img class="no-lightbox" src={skill2.image} alt={skill2.title} />
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
-            ))}
-          </div>
-          <div class="skill-category category-2">
-            {aboutData.skills.general.map((skill) => (
-              <div class="skill-card">
-                <img 
-                  src={skill} 
-                  onerror="this.onerror=null;this.src='https://gravatar.loli.net/avatar/57d8260dfb55501c37dde588e7c3852c'" 
-                  alt="通用图标"
-                />
-              </div>
-            ))}
+            </div>
+
+            <!-- 技能列表（悬停时显示） -->
+            <div class="skills-list">
+              {aboutData.skills.icons.slice(0, 16).map((skill) => (
+                <div class="skill-info">
+                  <div class="skill-icon" style={`background: ${skill.background}`}>
+                    <img class="no-lightbox" src={skill.image} alt={skill.title} />
+                  </div>
+                  <div class="skill-name">
+                    <span>{skill.title}</span>
+                  </div>
+                </div>
+              ))}
+              <div class="etc">...</div>
+            </div>
           </div>
         </div>
-        <p class="learning">{aboutData.skills.learning}</p>
       </div>
+
+      <!-- 生涯经历 -->
+      <div class="careers card author-content-item">
+        <div class="card-content">
+          <div class="author-content-item-tips">生涯</div>
+          <span class="author-content-item-title">无限进步</span>
+          <div class="careers-group">
+            {aboutData.skills.careers.map((career) => (
+              <div class="careers-item">
+                <div class="circle" style={`background: ${career.color}`}></div>
+                <div class="name">{career.name}</div>
+              </div>
+            ))}
+          </div>
+          <img class="author-content-img no-lightbox" alt="生涯" src="https://mcy.zsxcoder.top/sy.png" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Projects -->
+    <section class="projects-section">
       <div class="projects card">
         <h2 class="section-title">项目</h2>
-        <div class="projects-grid">
-          {aboutData.projects.map((project) => (
-            <div class="project">
-              <a href={project.url} target="_blank" rel="noopener noreferrer">
-                <h3>{project.name}</h3>
-                <p>{project.description}</p>
-              </a>
-            </div>
-          ))}
+        <div class="projects-scroll-container">
+          <div class="projects-grid">
+            {aboutData.projects.map((project) => (
+              <div class="project">
+                <a href={project.url} target="_blank" rel="noopener noreferrer">
+                  <h3>{project.name}</h3>
+                  <p>{project.description}</p>
+                </a>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
