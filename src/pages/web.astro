@@ -177,9 +177,9 @@ const CUSTOM_NAME = config.shuoshuo?.customName || ''
         }
 
         async function fetchIssues(page = 1) {
-          // 使用本地 API 路由实时获取数据
-          const url = '/api/web-issues'
-          
+          // 使用本地 API 路由实时获取数据，添加时间戳防止缓存
+          const url = '/api/web-issues?t=' + Date.now()
+
           const res = await fetch(url)
           if (!res.ok) {
             const text = await res.text()
