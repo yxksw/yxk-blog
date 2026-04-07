@@ -13,7 +13,7 @@ import Outdate from '@/components/post/Outdate.astro'
 import PostNav from '@/components/post/PostNav.astro'
 import { Comments } from '@/components/comment'
 import { ActionAside } from '@/components/post/ActionAside'
-import { PostCopyright } from '@/components/post/PostCopyright'
+import PostCopyright from '@/components/post/PostCopyright.astro'
 import AiSummary from '@/components/post/AiSummary.astro'
 import { getDiffInDays } from '@/utils/date'
 import { render } from 'astro:content'
@@ -129,7 +129,7 @@ const shouldShowAiSummary = current.data.aiSummary
     </div>
     <div class="lg:col-start-2" data-pagefind-ignore>
       <section class="space-y-6">
-        <PostCopyright title={current.data.title} slug={mdSlug} date={current.data.date as Date} lastMod={current.data.lastMod} client:visible />
+        <PostCopyright title={current.data.title} slug={currentSlug} date={current.data.date as Date} lastMod={current.data.lastMod} />
         <PostNav prev={prev} next={next} />
         {current.data.comments && <Comments />}
       </section>

@@ -1,0 +1,349 @@
+---
+import { Icon } from 'astro-icon/components'
+import License from './License.astro'
+import config from '@/config.json'
+import { formatPostDateForDisplay } from '@/utils/date-utils'
+import gitHistory from '@/data/git-history.json'
+
+interface Props {
+  title: string
+  slug: string
+  date: Date
+  lastMod?: Date
+}
+
+const { title, slug, date, lastMod } = Astro.props
+
+// 获取 Git 历史
+const normalizedSlug = slug.replace(/\\/g, '/')
+const history = ((gitHistory as unknown) as Record<string, Array<{hash: string, date: string, message: string}>>)[normalizedSlug] || []
+
+// 获取提交 URL
+function getCommitUrl(hash: string): string {
+  const gitHubEdit = config.gitHubEdit
+  if (!gitHubEdit.enable || !gitHubEdit.baseUrl) {
+    return '#'
+  }
+  const blobIndex = gitHubEdit.baseUrl.indexOf('/blob/')
+  if (blobIndex !== -1) {
+    const repoRoot = gitHubEdit.baseUrl.substring(0, blobIndex)
+    return `${repoRoot}/commit/${hash}`
+  }
+  return `${gitHubEdit.baseUrl}/../../commit/${hash}`
+}
+---
+
+{config.license.enable && (
+  <div class="post-copyright-wrapper">
+    <!-- 反馈区域 -->
+    <div class="feedback-section">
+      <div class="flex items-center gap-3">
+        <div class="icon-box">
+          <Icon name="ri:question-line" class="icon-svg" />
+        </div>
+        <p class="feedback-text">这篇文章是否对你有帮助？</p>
+      </div>
+      <div class="flex gap-2">
+        <a href="/posts/pin/" class="btn-secondary">
+          <Icon name="ri:mail-line" class="btn-icon" />
+          联系
+        </a>
+        <a href="/donate/" class="btn-primary">
+          <Icon name="ri:heart-line" class="btn-icon" />
+          赞助
+        </a>
+      </div>
+    </div>
+
+    {config.gitHubEdit.enable && (
+      <>
+        <!-- GitHub编辑区域 -->
+        <div class="edit-section">
+          <div class="flex items-start gap-3">
+            <div class="icon-box">
+              <Icon name="ri:edit-line" class="icon-svg" />
+            </div>
+            <div class="flex-1">
+              <p class="edit-text">发现错误或想要改进这篇文章？</p>
+              <a
+                href={`${config.gitHubEdit.baseUrl}/${slug}.md`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="edit-link"
+              >
+                <Icon name="ri:github-fill" class="link-icon" />
+                在 GitHub 上编辑此页
+                <Icon name="ri:external-link-line" class="external-icon" />
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 修订历史 -->
+        {history.length > 0 && (
+          <div id="revision-history" class="history-section">
+            <div class="flex items-start gap-3">
+              <div class="icon-box">
+                <Icon name="ri:history-line" class="icon-svg" />
+              </div>
+              <div class="flex-1">
+                <p class="history-text">文章修订历史 ({history.length} 次)</p>
+                <details class="history-details">
+                  <summary>查看变更记录</summary>
+                  <div class="history-list">
+                    {history.map((commit) => (
+                      <div class="history-item">
+                        <div class="history-item-header">
+                          <span>{formatPostDateForDisplay(new Date(commit.date))}</span>
+                          <a href={getCommitUrl(commit.hash)} target="_blank" class="commit-hash">
+                            {commit.hash.substring(0, 7)}
+                          </a>
+                        </div>
+                        <p class="commit-message">{commit.message}</p>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    )}
+  </div>
+)}
+
+{config.license.enable && (
+  <License title={title} slug={slug} pubDate={date} class="mb-6 rounded-xl license-container onload-animation" />
+)}
+
+<style>
+  .post-copyright-wrapper {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background-color: rgba(var(--color-bg-secondary), 0.5);
+    border: 1px solid rgb(var(--color-border-primary));
+    animation: slideIn 0.5s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .icon-box {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 0.25rem;
+    background-color: rgb(var(--color-accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .icon-box :global(svg) {
+    width: 0.875rem !important;
+    height: 0.875rem !important;
+    color: rgba(0, 0, 0, 0.7);
+  }
+
+  /* 反馈区域 */
+  .feedback-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .feedback-text {
+    font-size: 0.875rem;
+    color: rgb(var(--color-text-primary));
+  }
+
+  .btn-secondary,
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .btn-secondary {
+    background-color: rgb(var(--color-bg-tertiary));
+    color: rgb(var(--color-text-primary));
+    border: 1px solid rgb(var(--color-border-primary));
+  }
+
+  .btn-secondary:hover {
+    background-color: rgb(var(--color-bg-hover));
+  }
+
+  .btn-primary {
+    background-color: rgb(var(--color-accent));
+    color: rgba(0, 0, 0, 0.8);
+  }
+
+  .btn-primary:hover {
+    filter: brightness(1.1);
+  }
+
+  .btn-secondary :global(svg),
+  .btn-primary :global(svg) {
+    width: 0.875rem !important;
+    height: 0.875rem !important;
+  }
+
+  /* 编辑区域 */
+  .edit-section {
+    padding-top: 0.75rem;
+    border-top: 1px solid rgb(var(--color-border-primary));
+  }
+
+  .edit-text {
+    font-size: 0.875rem;
+    color: rgb(var(--color-text-primary));
+    margin-bottom: 0.25rem;
+  }
+
+  .edit-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgb(var(--color-accent));
+    transition: opacity 0.2s ease;
+  }
+
+  .edit-link:hover {
+    opacity: 0.8;
+  }
+
+  .edit-link :global(svg) {
+    width: 0.875rem !important;
+    height: 0.875rem !important;
+  }
+
+  .edit-link :global(.external-icon) {
+    width: 0.75rem !important;
+    height: 0.75rem !important;
+  }
+
+  /* 历史区域 */
+  .history-section {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgb(var(--color-border-primary));
+  }
+
+  .history-text {
+    font-size: 0.875rem;
+    color: rgb(var(--color-text-primary));
+    margin-bottom: 0.25rem;
+  }
+
+  .history-details summary {
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgb(var(--color-accent));
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .history-details summary::before {
+    content: '▶';
+    font-size: 0.625rem;
+    transition: transform 0.2s ease;
+  }
+
+  .history-details[open] summary::before {
+    transform: rotate(90deg);
+  }
+
+  .history-details summary:hover {
+    text-decoration: underline;
+  }
+
+  .history-list {
+    margin-top: 0.5rem;
+    max-height: 12rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .history-item {
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    background-color: rgba(var(--color-bg-tertiary), 0.5);
+  }
+
+  .history-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+  }
+
+  .history-item-header span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgb(var(--color-text-secondary));
+  }
+
+  .commit-hash {
+    font-size: 0.75rem;
+    font-family: monospace;
+    color: rgb(var(--color-accent));
+  }
+
+  .commit-hash:hover {
+    text-decoration: underline;
+  }
+
+  .commit-message {
+    font-size: 0.75rem;
+    color: rgb(var(--color-text-secondary));
+    word-break: break-all;
+    margin: 0;
+  }
+
+  /* 滚动条样式 */
+  .history-list::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .history-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .history-list::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--color-border-primary));
+    border-radius: 2px;
+  }
+
+  /* 响应式 */
+  @media (max-width: 640px) {
+    .feedback-section {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+  }
+</style>

@@ -1,0 +1,15 @@
+{
+  "_comment": "Git 提交历史数据，由构建脚本自动生成",
+  "example-post": [
+    {
+      "hash": "abc1234",
+      "date": "2024-01-15T10:30:00Z",
+      "message": "Initial commit"
+    },
+    {
+      "hash": "def5678",
+      "date": "2024-01-16T14:20:00Z",
+      "message": "Update content"
+    }
+  ]
+}
