@@ -1,4 +1,4 @@
-﻿---
+---
 import type { GetStaticPaths } from 'astro'
 import { getCollection, render } from 'astro:content'
 import { getColumnsFromFolder, getEntryPath } from '@/utils/content'
@@ -57,7 +57,7 @@ function num(n?: string) {
 const groups = Object.values(
   itemsTyped.reduce(
     (acc, it) => {
-      const [a, b, c] = (it.index || '').split('.')
+      const [a, b] = (it.index || '').split('.')
       const k1 = a || 'others'
       if (!acc[k1])
         acc[k1] = {

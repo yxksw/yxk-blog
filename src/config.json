@@ -94,6 +94,11 @@
       "name": "友链",
       "link": "/friends",
       "icon": "icon-hearts"
+    },
+    {
+      "name": "日记",
+      "link": "/diary",
+      "icon": "ri:book-open-line"
     }
   ],
   "posts": {

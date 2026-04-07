@@ -1,7 +1,7 @@
 <script lang="ts">
   import type {
     ParsedTimetableData,
-    TimetableCourseArrangement,
+    TimetableSchedule,
     TimetableViewModel,
   } from '@/types/timetable';
   import { buildTimetableViewModel } from '@/utils/timetable-normalizer';
@@ -62,7 +62,7 @@
   };
 
   let arrangementCards: ArrangementCardGroup[] = [];
-  let selectedArrangement: TimetableCourseArrangement | null = null;
+  let selectedArrangement: TimetableSchedule | null = null;
   let selectedCourseName = '';
   let newCourseDraft = createNewCourseDraft();
 
@@ -243,7 +243,7 @@
     value: string,
   ) {
     if (field === 'courseName' || field === 'teacher' || field === 'room') {
-      (newCourseDraft as Record<string, string>)[field] = value;
+      (newCourseDraft as unknown as Record<string, string>)[field] = value;
       return;
     }
 
@@ -251,7 +251,7 @@
     if (!Number.isFinite(nextValue)) {
       return;
     }
-    (newCourseDraft as Record<string, number>)[field] = Math.floor(nextValue);
+    (newCourseDraft as unknown as Record<string, number>)[field] = Math.floor(nextValue);
   }
 
   function submitCreateCourse() {
@@ -334,13 +334,13 @@
     }
 
     if (field === 'teacher' || field === 'room') {
-      arrangement[field] = value;
+      (arrangement as unknown as Record<string, string>)[field] = value;
     } else {
       const nextValue = Number(value);
       if (!Number.isFinite(nextValue)) {
         return;
       }
-      (arrangement as Record<string, unknown>)[field] = Math.floor(nextValue);
+      (arrangement as unknown as Record<string, number>)[field] = Math.floor(nextValue);
     }
 
     afterDraftChange();

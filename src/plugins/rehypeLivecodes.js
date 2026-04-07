@@ -60,7 +60,7 @@ function escapeJsonString(value) {
   return JSON.stringify(value).replace(/</g, '\\u003c')
 }
 
-function buildFiles({ template, lang, code }) {
+function buildFiles({ template, lang }) {
   const t = String(template)
   const l = String(lang || '').toLowerCase()
 

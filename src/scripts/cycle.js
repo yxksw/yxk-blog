@@ -1,5 +1,4 @@
 // 朋友圈 JS 代码
-let isInitialized = false
 let boundary = 15
 let error_img = 'https://fastly.jsdelivr.net/gh/Rock-Candy-Tea/Friend-Circle-Frontend/logo.png'
 

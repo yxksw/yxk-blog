@@ -281,7 +281,7 @@ export default function runMemos() {
     }
   }
 
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', () => {
     // placeholder
   })
   if ((window as any).__memosDocClick) {

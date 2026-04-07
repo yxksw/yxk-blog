@@ -2,7 +2,6 @@ import type { APIContext } from 'astro'
 import rss from '@astrojs/rss'
 import { site } from '@/config.json'
 import { getSortedPosts, getEntrySlug } from '@/utils/content'
-import { render } from 'astro:content'
 
 export async function GET(context: APIContext) {
   const sortedPosts = await getSortedPosts()
@@ -10,7 +9,6 @@ export async function GET(context: APIContext) {
 
   const items = await Promise.all(
     filteredPosts.map(async (post) => {
-      const { Content } = await render(post)
       // Get the rendered HTML content
       const content = typeof post.body === 'string' ? post.body : ''
 

@@ -117,8 +117,6 @@ export function initLivecodes() {
       } else {
         // For scripting languages like Python/JS/TS, we want to see console output
         // if it's not a frontend framework
-        const isScript = true
-
         config = {
           ...config,
           activeEditor: 'script',

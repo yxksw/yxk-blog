@@ -152,11 +152,20 @@ for (const day of dayIndexes) {
 
   .timetable-scroll-content {
     width: max(900px, calc(120px + var(--day-count) * 180px));
+    box-sizing: border-box;
   }
 
   .timetable-header-grid,
   .timetable-row-grid {
     display: grid;
     grid-template-columns: 120px repeat(var(--day-count), minmax(180px, 1fr));
+  }
+
+  /* 确保最后一列的右边框显示 */
+  .timetable-header-grid > div:last-child,
+  .timetable-row-grid > div:last-child {
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-right-color: rgb(var(--color-border-primary));
   }
 </style>

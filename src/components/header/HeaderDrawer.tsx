@@ -3,7 +3,6 @@ import { createContext, useContext, useState, forwardRef } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import { Icon } from '@iconify/react'
-import { clsx } from 'clsx'
 
 const contentVariants: Variants = {
   hidden: {

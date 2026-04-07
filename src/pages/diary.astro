@@ -1,0 +1,174 @@
+---
+import PageLayout from '@/layouts/PageLayout.astro'
+import Highlight from '@/components/Highlight.astro'
+import { MomentCard } from '@/components/diary'
+import { getDiaryList, getAllTags } from '@/data/diary'
+import { Icon } from '@iconify/react'
+
+const moments = getDiaryList()
+const allTags = getAllTags()
+
+const filterTabs = [
+  {
+    value: 'all',
+    label: '全部',
+    icon: 'ri:apps-line',
+    count: moments.length,
+  },
+  ...allTags.map((tag) => ({
+    value: tag,
+    label: tag,
+    count: moments.filter((m) => m.tags && m.tags.includes(tag)).length,
+  })),
+]
+
+const title = '日记'
+const subtitle = '记录生活中的点滴瞬间'
+---
+
+<PageLayout title={title}>
+  <div class="px-4 py-16">
+    <div class="max-w-[800px] mx-auto">
+      <!-- Header -->
+      <header class="mb-10">
+        <div class="diary-banner rounded-xl p-6 sm:p-8 mb-6">
+          <div class="flex items-center justify-between gap-4">
+            <div class="min-w-0">
+              <h1 class="text-2xl sm:text-3xl font-bold text-white mb-1 drop-shadow-sm">
+                <Highlight class="text-white">{title}</Highlight>
+              </h1>
+              <p class="text-sm sm:text-base text-white/80">
+                {subtitle}
+              </p>
+            </div>
+            <div class="shrink-0 text-center">
+              <span class="block text-2xl sm:text-3xl font-bold text-white drop-shadow-sm">
+                {moments.length}
+              </span>
+              <span class="block text-xs sm:text-sm text-white/70">
+                篇日记
+              </span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Filter Tabs -->
+      {
+        moments.length > 0 && allTags.length > 0 && (
+          <div class="mb-8">
+            <div class="diary-filter-tabs">
+              {filterTabs.map((tab) => (
+                <button
+                  class="diary-filter-tab"
+                  data-filter={tab.value}
+                  type="button"
+                >
+                  {'icon' in tab && tab.icon && (
+                    <Icon icon={tab.icon} className="w-4 h-4" client:load />
+                  )}
+                  <span>{tab.label}</span>
+                  <span class="count">({tab.count})</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      <!-- Diary List -->
+      <div id="diary-list" class="space-y-4">
+        {
+          moments.map((moment, index) => (
+            <MomentCard
+              moment={moment}
+              index={index}
+              minutesAgo="分钟前"
+              hoursAgo="小时前"
+              daysAgo="天前"
+            />
+          ))
+        }
+      </div>
+
+      <!-- No Results -->
+      <div id="no-results" class="hidden text-center py-16">
+        <Icon
+          icon="ri:file-list-line"
+          className="text-6xl text-neutral-300 dark:text-neutral-700 mb-4"
+          client:load
+        />
+        <p class="text-neutral-500 dark:text-neutral-500 text-lg">
+          没有找到匹配的日记
+        </p>
+      </div>
+
+      <!-- Empty State -->
+      {
+        moments.length === 0 && (
+          <div class="text-center py-16">
+            <Icon
+              icon="ri:file-list-line"
+              className="text-6xl text-neutral-300 dark:text-neutral-700 mb-4"
+              client:load
+            />
+            <h3 class="text-lg font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+              还没有日记
+            </h3>
+            <p class="text-neutral-500 dark:text-neutral-500">
+              在 src/data/diary.ts 中添加你的第一篇日记吧
+            </p>
+          </div>
+        )
+      }
+
+      <!-- Tips -->
+      <div class="text-center mt-8 text-neutral-500 dark:text-neutral-500 text-sm italic">
+        记录生活，留下回忆
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    // 筛选功能
+    document.addEventListener('DOMContentLoaded', () => {
+      const filterButtons = document.querySelectorAll('.diary-filter-tab')
+      const diaryCards = document.querySelectorAll('.moment-card')
+      const noResults = document.getElementById('no-results')
+
+      filterButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const filter = button.getAttribute('data-filter')
+
+          // 更新按钮状态
+          filterButtons.forEach((btn) => btn.classList.remove('active'))
+          button.classList.add('active')
+
+          // 筛选卡片
+          let visibleCount = 0
+          diaryCards.forEach((card) => {
+            const tags = card.getAttribute('data-tags') || ''
+            if (filter === 'all' || tags.includes(filter)) {
+              card.classList.remove('filtered-out')
+              visibleCount++
+            } else {
+              card.classList.add('filtered-out')
+            }
+          })
+
+          // 显示/隐藏无结果提示
+          if (visibleCount === 0) {
+            noResults?.classList.remove('hidden')
+          } else {
+            noResults?.classList.add('hidden')
+          }
+        })
+      })
+
+      // 默认选中第一个
+      if (filterButtons.length > 0) {
+        filterButtons[0].classList.add('active')
+      }
+    })
+  </script>
+</PageLayout>

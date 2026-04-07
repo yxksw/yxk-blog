@@ -1,0 +1,95 @@
+---
+import type { MomentCardProps } from './types'
+import { Icon } from '@iconify/react'
+import { getRelativeTime } from '@/utils/date'
+
+const { moment, index } = Astro.props as MomentCardProps
+
+// 获取相对时间
+const relativeTime = getRelativeTime(new Date(moment.date)) || moment.date
+
+// 图片布局类名
+const getImagesClass = (count: number) => {
+  if (count === 1) return 'diary-images diary-images-single'
+  if (count === 2) return 'diary-images diary-images-double'
+  if (count === 3) return 'diary-images diary-images-triple'
+  return 'diary-images diary-images-grid'
+}
+---
+
+<div
+  class="moment-card group relative bg-transparent rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+  data-tags={moment.tags?.join(',') || ''}
+>
+  <div class="p-5">
+    <!-- Content -->
+    <p class="text-sm md:text-base text-neutral-900 dark:text-neutral-100 leading-relaxed mb-3">
+      {moment.content}
+    </p>
+
+    <!-- Images -->
+    {
+      moment.images && moment.images.length > 0 && (
+        <div class={getImagesClass(moment.images.length)}>
+          {moment.images.map((image, imgIndex) => (
+            <div class="relative rounded-lg overflow-hidden aspect-square cursor-pointer">
+              <a
+                href={image}
+                data-fancybox={`diary-${index}-${imgIndex}`}
+                class="block w-full h-full"
+              >
+                <img
+                  src={image}
+                  alt="diary moment image"
+                  class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+            </div>
+          ))}
+        </div>
+      )
+    }
+
+    <!-- Tags -->
+    {
+      moment.tags && moment.tags.length > 0 && (
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          {moment.tags.map((tag: string) => (
+            <span class="px-2 py-0.5 text-xs rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )
+    }
+
+    <!-- Divider -->
+    <hr class="border-t border-neutral-200 dark:border-neutral-700 my-3" />
+
+    <!-- Footer -->
+    <div class="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400 flex-wrap gap-2">
+      <div class="flex items-center gap-1.5">
+        <Icon icon="ri:time-line" className="text-xs w-3.5 h-3.5" client:load />
+        <time datetime={moment.date}>{relativeTime}</time>
+      </div>
+
+      <div class="flex items-center gap-3">
+        {
+          moment.location && (
+            <span class="flex items-center gap-1">
+              <Icon icon="ri:map-pin-line" className="text-xs w-3.5 h-3.5" client:load />
+              {moment.location}
+            </span>
+          )
+        }
+        {moment.mood && <span>{moment.mood}</span>}
+      </div>
+    </div>
+  </div>
+
+  <!-- Hover gradient overlay -->
+  <div class="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl">
+  </div>
+</div>
