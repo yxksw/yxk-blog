@@ -215,18 +215,18 @@ function isIconifyIcon(icon: string): boolean {
     <!-- Hobbies and Evaluation -->
     <section class="hobbies-and-evaluation">
       <div class="hobbies card">
-        <h2 class="section-title">爱好</h2>
         <ul class="hobbies-list">
           {aboutData.hobbies.map((hobby) => (
             <li>{hobby}</li>
           ))}
         </ul>
+        <h2 class="section-title">爱好</h2>
       </div>
       <div class="self-evaluation card">
-        <h2 class="section-title">评价</h2>
         <p><strong>思想:</strong> {aboutData.self_evaluation.thoughts}</p>
         <p><strong>工作:</strong> {aboutData.self_evaluation.work}</p>
         <p class="summary"><strong>总结:</strong> {aboutData.self_evaluation.summary}</p>
+        <h2 class="section-title">评价</h2>
       </div>
     </section>
 
