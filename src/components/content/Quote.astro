@@ -1,0 +1,65 @@
+---
+import { Icon } from 'astro-icon/components'
+
+interface Props {
+  icon?: string
+}
+
+const { icon = 'tabler:message-2' } = Astro.props
+---
+
+<div class="quote">
+  <div class="icon-line">
+    <slot name="icon">
+      <Icon name={icon} />
+    </slot>
+  </div>
+  <slot />
+</div>
+
+<style>
+  .quote {
+    font-size: 1.2rem;
+    line-height: 1.5;
+    color: rgb(var(--color-text-2));
+    isolation: isolate;
+    margin: 1.5rem 0;
+  }
+
+  .quote :global(p) {
+    margin: 0;
+  }
+
+  .icon-line {
+    position: relative;
+    opacity: 0.5;
+    min-height: 0.5em;
+    margin-bottom: -0.5em;
+    mask-image: linear-gradient(#FFF, transparent);
+    -webkit-mask-image: linear-gradient(#FFF, transparent);
+    font-size: 4rem;
+    transition: all 0.2s;
+    z-index: -1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    color: rgb(var(--color-text-2));
+  }
+
+  .icon-line :global(svg) {
+    width: 1em;
+    height: 1em;
+  }
+
+  /* 鼠标悬停在 .quote 上时，让 .icon-line 高亮 */
+  .quote:hover .icon-line {
+    opacity: 1;
+    transform: translateY(-0.5rem);
+  }
+
+  @media (max-width: 768px) {
+    .icon-line {
+      font-size: 3rem;
+    }
+  }
+</style>

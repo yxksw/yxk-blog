@@ -21,7 +21,7 @@
     "school": "南京工业职业技术大学",
     "grade": "二〇二三级",
     "major": "自动化技术与应用",
-    "email": "yxksw@foxmail.com",
+    "email": "3813596020@qq.com",
     "QQ": "3813596020",
     "birthday": "2005/08/15",
     "bottom_img": "https://cdn.jsdmirror.com/gh/zsxcoder/github-img@main/img/umami.avif"
@@ -38,17 +38,32 @@
       {
         "platform": "GitHub",
         "url": "https://github.com/yxksw",
-        "icon": "https://p.liiiu.cn/i/2024/07/27/66a461a3098aa.webp"
+        "icon": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/socials/github.svg"
       },
       {
         "platform": "Gitee",
-        "url": "https://gitee.com/willow-god",
-        "icon": "https://p.liiiu.cn/i/2024/07/27/66a461c3dea80.webp"
+        "url": "https://gitee.com/kemiaoshiwo",
+        "icon": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/socials/gitee.svg"
       },
       {
         "platform": "QQ",
-        "url": "https://qm.qq.com/cgi-bin/qm_share/open_source_page?uin=3162475700&jump_from=webapi",
-        "icon": "https://p.liiiu.cn/i/2024/07/27/66a461b627dc2.webp"
+        "url": "https://qm.qq.com/q/kz5EuEimk0",
+        "icon": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/socials/qq.svg"
+      },
+      {
+        "platform": "BliBili",
+        "url": "https://space.bilibili.com/3546643173477234",
+        "icon": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/socials/bilibili.svg"
+      },
+      {
+        "platform": "Telegram",
+        "url": "https://t.me/yxksw",
+        "icon": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/socials/telegram.svg"
+      },
+      {
+        "platform": "即刻",
+        "url": "https://web.okjike.com/u/07152f0c-0f65-4501-855b-031f3e20e4a5",
+        "icon": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/socials/jike.svg"
       }
     ]
   },
@@ -59,7 +74,7 @@
       {
         "id": "Astro",
         "title": "Astro",
-        "image": "https://favicon.im/astro.build?larger=true",
+        "image": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/skills/astro.svg",
         "background": "#000"
       },
       {
@@ -71,25 +86,25 @@
       {
         "id": "nuxt",
         "title": "Nuxt",
-        "image": "https://cdn.statically.io/gh/zsxcoder/picx-images-hosting@master/icon/SkillIconsNuxtjsLight.5moa7dnnr3.svg",
+        "image": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/skills/nuxt.svg",
         "background": "#fff"
       },
       {
-        "id": "node",
-        "title": "Node.js",
-        "image": "https://npm.elemecdn.com/anzhiyu-blog@2.1.1/img/svg/node-logo.svg",
+        "id": "next",
+        "title": "Next.js",
+        "image": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/skills/nextjs.svg",
         "background": "#333"
       },
       {
-        "id": "webpack",
-        "title": "Webpack",
-        "image": "https://img02.anheyu.com/adminuploads/1/2022/09/26/6330ff27e5c9b.png",
+        "id": "css",
+        "title": "CSS",
+        "image": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/skills/css.svg",
         "background": "#2e3a41"
       },
       {
-        "id": "pinia",
-        "title": "Pinia",
-        "image": "https://npm.elemecdn.com/anzhiyu-blog@2.0.8/img/svg/pinia-logo.svg",
+        "id": "markdown",
+        "title": "Markdown",
+        "image": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/skills/markdown.svg",
         "background": "#fff"
       },
       {
@@ -105,15 +120,15 @@
         "background": "#937df7"
       },
       {
-        "id": "flutter",
-        "title": "Flutter",
-        "image": "https://img02.anheyu.com/adminuploads/1/2023/05/09/645a45854e093.png",
+        "id": "php",
+        "title": "PhP",
+        "image": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/skills/php.svg",
         "background": "#4499e4"
       },
       {
         "id": "vue",
         "title": "Vue.js",
-        "image": "https://img02.anheyu.com/adminuploads/1/2022/09/25/633001374747b.png",
+        "image": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/skills/vue.svg",
         "background": "#b8f0ae"
       },
       {
@@ -123,33 +138,33 @@
         "background": "#222"
       },
       {
-        "id": "css3",
-        "title": "CSS3",
-        "image": "https://img02.anheyu.com/adminuploads/1/2022/09/25/633006cc55e07.png",
+        "id": "Node",
+        "title": "Node.js",
+        "image": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/skills/nodejs.svg",
         "background": "#2c51db"
       },
       {
         "id": "javascript",
         "title": "JavaScript",
-        "image": "https://img02.anheyu.com/adminuploads/1/2022/09/25/633006eee047b.png",
-        "background": "#f7cb4f"
+        "image": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/skills/js.svg",
+        "background": "#ffffff"
       },
       {
         "id": "html",
         "title": "HTML",
-        "image": "https://img02.anheyu.com/adminuploads/1/2022/09/25/633006f9ab27d.png",
-        "background": "#e9572b"
+        "image": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/skills/html.svg",
+        "background": "#ffffff"
       },
       {
         "id": "git",
         "title": "Git",
-        "image": "https://img02.anheyu.com/adminuploads/1/2023/04/11/6434a635e9726.webp",
-        "background": "#df5b40"
+        "image": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/skills/git.svg",
+        "background": "#ffffff"
       },
       {
         "id": "typescript",
         "title": "Typescript",
-        "image": "https://cdn.statically.io/gh/zsxcoder/picx-images-hosting@master/icon/DeviconTypescript.6f15p6gbm4.svg",
+        "image": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/skills/ts.svg",
         "background": "#00B1D0"
       }
     ],
@@ -176,7 +191,7 @@
       "url": "https://github.com/willow-god/hexo-safego"
     }
   ],
-  "hobbies": ["阅读", "写作", "编程", "摄影"],
+  "hobbies": ["阅读", "小说", "编程", "魔改"],
   "self_evaluation": {
     "thoughts": "思想上乐观开朗，乐于助人，具有团队协作精神及创新意识。",
     "work": "工作上极富责任心与信念感，对待工作认真负责，有较强的组织管理及动手能力。",

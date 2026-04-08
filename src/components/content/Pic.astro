@@ -1,0 +1,200 @@
+---
+// Pic 组件 - 图片展示组件
+// 支持说明文字、点击后打开灯箱缩放
+
+interface Props {
+  src: string
+  alt?: string
+  caption?: string
+  width?: number | string
+  height?: number | string
+  zoom?: boolean
+}
+
+const { src, alt, caption, width, height, zoom = true } = Astro.props
+
+const displayCaption = caption || alt
+---
+
+<figure class="pic">
+  <img
+    class="pic-image"
+    src={src}
+    alt={alt || caption}
+    width={width}
+    height={height}
+    loading="lazy"
+    data-zoom={zoom}
+  />
+  {displayCaption && (
+    <figcaption class="pic-caption">
+      <slot name="caption">{displayCaption}</slot>
+    </figcaption>
+  )}
+</figure>
+
+<!-- 灯箱遮罩层 -->
+<div class="pic-lightbox" id="pic-lightbox">
+  <div class="pic-lightbox-backdrop"></div>
+  <div class="pic-lightbox-content">
+    <img class="pic-lightbox-image" src="" alt="" />
+    <div class="pic-lightbox-caption"></div>
+  </div>
+  <button class="pic-lightbox-close" aria-label="关闭">&times;</button>
+</div>
+
+<script>
+  // 灯箱功能
+  const lightbox = document.getElementById('pic-lightbox')
+  const lightboxImage = lightbox?.querySelector('.pic-lightbox-image') as HTMLImageElement
+  const lightboxCaption = lightbox?.querySelector('.pic-lightbox-caption') as HTMLDivElement
+  const lightboxClose = lightbox?.querySelector('.pic-lightbox-close') as HTMLButtonElement
+  const lightboxBackdrop = lightbox?.querySelector('.pic-lightbox-backdrop') as HTMLDivElement
+
+  function openLightbox(src: string, caption: string, alt: string) {
+    if (!lightbox || !lightboxImage) return
+    lightboxImage.src = src
+    lightboxImage.alt = alt
+    if (lightboxCaption) {
+      lightboxCaption.textContent = caption
+    }
+    lightbox.classList.add('active')
+    document.body.style.overflow = 'hidden'
+  }
+
+  function closeLightbox() {
+    if (!lightbox) return
+    lightbox.classList.remove('active')
+    document.body.style.overflow = ''
+  }
+
+  // 为所有 Pic 组件的图片添加点击事件
+  document.querySelectorAll('.pic-image[data-zoom="true"]').forEach((img) => {
+    img.addEventListener('click', () => {
+      const src = img.getAttribute('src') || ''
+      const alt = img.getAttribute('alt') || ''
+      const caption = img.closest('.pic')?.querySelector('.pic-caption')?.textContent || alt
+      openLightbox(src, caption, alt)
+    })
+  })
+
+  // 关闭按钮
+  lightboxClose?.addEventListener('click', closeLightbox)
+  lightboxBackdrop?.addEventListener('click', closeLightbox)
+
+  // ESC 键关闭
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox?.classList.contains('active')) {
+      closeLightbox()
+    }
+  })
+</script>
+
+<style>
+  .pic {
+    margin: 1.5rem auto;
+    max-width: 100%;
+  }
+
+  .pic-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    cursor: zoom-in;
+    transition: transform 0.2s;
+  }
+
+  .pic-image[data-zoom="false"] {
+    cursor: default;
+  }
+
+  .pic-image:hover {
+    transform: scale(1.01);
+  }
+
+  .pic-image[data-zoom="false"]:hover {
+    transform: none;
+  }
+
+  .pic-caption {
+    margin-top: 0.5rem;
+    font-size: 0.85em;
+    text-align: center;
+    color: rgb(var(--color-text-secondary));
+    line-height: 1.4;
+  }
+
+  /* 灯箱样式 */
+  .pic-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+  }
+
+  .pic-lightbox.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .pic-lightbox-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.9);
+    cursor: zoom-out;
+  }
+
+  .pic-lightbox-content {
+    position: relative;
+    z-index: 1;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .pic-lightbox-image {
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 0.25rem;
+  }
+
+  .pic-lightbox-caption {
+    margin-top: 1rem;
+    color: #fff;
+    font-size: 0.9em;
+    text-align: center;
+    opacity: 0.8;
+  }
+
+  .pic-lightbox-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 2;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .pic-lightbox-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+</style>

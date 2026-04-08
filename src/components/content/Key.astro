@@ -1,0 +1,215 @@
+---
+// Key 组件 - 键盘按键显示组件
+// 支持按下高亮、点击事件、修饰键组合
+
+interface Props {
+  text?: string
+  /** https://developer.mozilla.org/zh-CN/docs/Web/API/KeyboardEvent/key */
+  code?: string
+  /** 仅 macOS 默认显示图标 */
+  icon?: boolean
+  ctrl?: boolean
+  shift?: boolean
+  alt?: boolean
+  meta?: boolean
+  win?: boolean
+  /** 智能适配：Windows用Ctrl，macOS用Cmd */
+  cmd?: boolean
+  prevent?: boolean
+}
+
+const { text, code, icon, ctrl, shift, alt, meta, win, cmd, prevent } = Astro.props
+
+// 检测是否为 macOS
+const isMac = typeof navigator !== 'undefined' && /mac ?os/i.test(navigator.userAgent)
+const useSymbol = isMac ? icon !== false : icon
+const keyJoiner = useSymbol ? '' : '+'
+
+// 显示映射
+const displayMap: Record<string, string> = {
+  ' ': 'Space',
+  'ArrowDown': '↓',
+  'ArrowLeft': '←',
+  'ArrowRight': '→',
+  'ArrowUp': '↑',
+  'Control': 'Ctrl',
+  'Delete': 'Del',
+  'Escape': 'Esc',
+  'Meta': isMac ? 'Cmd' : 'Win',
+}
+
+// 符号映射（macOS 风格）
+const symbolMap: Record<string, string> = {
+  ' ': '␣',
+  'Alt': '⌥',
+  'Backspace': '⌫',
+  'Control': '⌃',
+  'Delete': '⌦',
+  'Enter': '↵',
+  'Escape': '⎋',
+  'Meta': isMac ? '⌘' : '⊞',
+  'Shift': '⇧',
+  'Tab': '⇥',
+  'Win': '⊞',
+}
+
+function normalizeCodeDisplay(keyCode?: string): string {
+  if (!keyCode) return ''
+  if (useSymbol && keyCode in symbolMap) return symbolMap[keyCode]
+  if (keyCode in displayMap) return displayMap[keyCode]
+  return keyCode
+}
+
+// 构建显示文本
+let codeDisplay = text || ''
+if (!text) {
+  const keyConfigs = [
+    { condition: cmd, code: isMac ? 'Meta' : 'Control' },
+    { condition: ctrl && !cmd, code: 'Control' },
+    { condition: shift, code: 'Shift' },
+    { condition: alt, code: 'Alt' },
+    { condition: meta && !cmd, code: 'Meta' },
+    { condition: win && !meta, code: 'Win' },
+    { condition: code, code },
+  ]
+  codeDisplay = keyConfigs
+    .filter(config => config.condition)
+    .map(config => normalizeCodeDisplay(config.code))
+    .join(keyJoiner)
+}
+
+// 构建 data 属性用于客户端脚本
+const dataAttrs: Record<string, string | boolean | undefined> = {
+  'data-code': code,
+  'data-cmd': cmd,
+  'data-ctrl': ctrl && !cmd,
+  'data-shift': shift,
+  'data-alt': alt,
+  'data-meta': meta && !cmd,
+  'data-prevent': prevent,
+}
+---
+
+<kbd class="key" {...dataAttrs}>
+  <slot>{codeDisplay}</slot>
+</kbd>
+
+<script>
+  // 客户端脚本：处理键盘事件和点击
+  document.querySelectorAll('.key').forEach((kbd) => {
+    const code = kbd.getAttribute('data-code')
+    const cmd = kbd.hasAttribute('data-cmd')
+    const ctrl = kbd.hasAttribute('data-ctrl')
+    const shift = kbd.hasAttribute('data-shift')
+    const alt = kbd.hasAttribute('data-alt')
+    const meta = kbd.hasAttribute('data-meta')
+    const prevent = kbd.hasAttribute('data-prevent')
+
+    const isMac = /mac ?os/i.test(navigator.userAgent)
+
+    // 修饰键状态
+    let ctrlState = false
+    let shiftState = false
+    let altState = false
+    let metaState = false
+
+    function updateModifierStates(e: KeyboardEvent) {
+      ctrlState = e.ctrlKey
+      shiftState = e.shiftKey
+      altState = e.altKey
+      metaState = e.metaKey
+    }
+
+    function modifiersMatch(): boolean {
+      const cmdMatch = cmd ? (isMac ? metaState : ctrlState) : true
+      return cmdMatch
+        && (!ctrl || ctrlState)
+        && (!shift || shiftState)
+        && (!alt || altState)
+        && (!meta || metaState)
+    }
+
+    function matchKeyEvent(e: KeyboardEvent): boolean {
+      if (code && e.key?.toLowerCase() !== code.toLowerCase()) return false
+      return modifiersMatch()
+    }
+
+    // 键盘按下事件
+    document.addEventListener('keydown', (e) => {
+      updateModifierStates(e)
+      if (matchKeyEvent(e)) {
+        kbd.classList.add('active')
+        kbd.dispatchEvent(new CustomEvent('keypress'))
+        if (prevent) e.preventDefault()
+      }
+    })
+
+    // 键盘释放事件
+    document.addEventListener('keyup', (e) => {
+      updateModifierStates(e)
+      if (matchKeyEvent(e) || !modifiersMatch()) {
+        kbd.classList.remove('active')
+      }
+    })
+
+    // 失去焦点时重置
+    window.addEventListener('blur', () => {
+      kbd.classList.remove('active')
+    })
+
+    // 点击事件
+    kbd.addEventListener('click', (e) => {
+      e.stopPropagation()
+      kbd.classList.add('active')
+      kbd.dispatchEvent(new CustomEvent('keypress'))
+      setTimeout(() => kbd.classList.remove('active'), 150)
+    })
+  })
+</script>
+
+<style>
+  .key {
+    display: inline-block;
+    margin: 0.1em 0.2em;
+    padding: 0.2em 0.5em;
+    border-radius: 4px;
+    box-shadow: inset 0 -2px 0 #0000001a;
+    background-color: #f0f0f0;
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 0.85em;
+    line-height: 1.4;
+    color: #555;
+    transition: all 0.1s;
+    user-select: none;
+    cursor: pointer;
+    border: 1px solid #d0d0d0;
+    min-width: 1.5em;
+    text-align: center;
+  }
+
+  :global([data-theme='dark']) .key {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #aaa;
+    box-shadow: inset 0 -2px 0 #00000040;
+  }
+
+  .key:active,
+  .key.active {
+    box-shadow: inset 0 -1px 0 var(--color-accent, #3b82f6);
+    background-color: var(--color-accent-soft, #3b82f620);
+    color: var(--color-accent, #3b82f6);
+    transform: translateY(1px);
+    border-color: var(--color-accent, #3b82f6);
+  }
+
+  .key:hover {
+    color: #333;
+    background-color: #e5e5e5;
+  }
+
+  :global([data-theme='dark']) .key:hover {
+    color: #ddd;
+    background-color: #333;
+  }
+</style>

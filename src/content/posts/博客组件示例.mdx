@@ -1,0 +1,836 @@
+---
+title: 组件示例
+description: 记录一些组件的使用方法
+date: 2026-04-08T18:43:00+08:00
+categories:
+  - 博客
+tags:
+  - 博客
+  - 组件
+slug: zu-jian-shi-li
+aiSummary: true
+comments: true
+draft: false
+---
+
+import ProseA from '@/components/content/ProseA.astro'
+import Alert from '@/components/content/Alert.astro'
+import Badge from '@/components/content/Badge.astro'
+import BlogHeader from '@/components/content/BlogHeader.astro'
+import Blur from '@/components/content/Blur.astro'
+import Chat from '@/components/content/Chat.astro'
+import ChatItem from '@/components/content/ChatItem.astro'
+import Folding from '@/components/content/Folding.astro'
+import Key from '@/components/content/Key.astro'
+import LinkBanner from '@/components/content/LinkBanner.astro'
+import LinkCard from '@/components/content/LinkCard.astro'
+import Pic from '@/components/content/Pic.astro'
+import Poetry from '@/components/content/Poetry.astro'
+import Quote from '@/components/content/Quote.astro'
+import Tab from '@/components/content/Tab.astro'
+
+## 选项卡 Tab
+
+<Tab tabs={['组件', '语法']}>
+  <div slot="tab1">
+    这是组件选项卡的内容。
+  </div>
+  <div slot="tab2">
+    这是语法选项卡的内容。
+  </div>
+</Tab>
+
+<Tab tabs={['一个简单的', 'Tab']} center>
+  <div slot="tab1">
+
+```markdown
+# 一个简单的 Tab
+```
+
+  </div>
+  <div slot="tab2">
+    这是第二个选项卡的内容。
+  </div>
+</Tab>
+
+<Tab tabs={['当当当', '高级交互！', '就是藏得有点深']} center active={2}>
+  <div slot="tab1">
+    这个组件设置了居中（自动调整而不是占满宽度）和默认显示第二个选项卡。
+  </div>
+  <div slot="tab2">
+    是这样。
+  </div>
+  <div slot="tab3">
+    你找到我了吗？
+  </div>
+</Tab>
+
+### 组件语法
+
+```mdx
+import Tab from '@/components/content/Tab.astro'
+
+<!-- 基础用法 -->
+<Tab tabs={['选项卡1', '选项卡2']}>
+  <div slot="tab1">选项卡1的内容</div>
+  <div slot="tab2">选项卡2的内容</div>
+</Tab>
+
+<!-- 居中显示 -->
+<Tab tabs={['选项卡1', '选项卡2']} center>
+  <div slot="tab1">居中显示的选项卡</div>
+  <div slot="tab2">内容</div>
+</Tab>
+
+<!-- 默认激活第二个选项卡 -->
+<Tab tabs={['选项卡1', '选项卡2', '选项卡3']} active={2}>
+  <div slot="tab1">第一个</div>
+  <div slot="tab2">默认显示这个</div>
+  <div slot="tab3">第三个</div>
+</Tab>
+```
+
+### 属性说明
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `tabs` | `string[]` | **必填** | 选项卡标题数组 |
+| `center` | `boolean` | `false` | 是否居中显示（自动调整宽度） |
+| `active` | `string \| number` | `1` | 默认激活的选项卡下标（从1开始） |
+
+### 特性
+
+- **插槽命名**：使用 `slot="tab1"`、`slot="tab2"` 等对应选项卡内容
+- **客户端切换**：点击选项卡按钮可切换显示内容
+- **居中布局**：设置 `center` 属性可使选项卡居中显示
+- **默认激活**：通过 `active` 属性设置默认显示的选项卡
+
+## 引用 Quote
+
+<Quote>有时候，有些话，有点意思。</Quote>
+
+<Quote icon="ri:file-text-line">令图标有所指，引用亦有中心。</Quote>
+
+<Quote><span slot="icon">ヾ(•ω•`)o</span>图标插槽也可以是 Emoji 或颜文字，或者英文装饰。</Quote>
+
+### 组件语法
+
+```mdx
+import Quote from '@/components/content/Quote.astro'
+
+<!-- 基础用法 -->
+<Quote>有时候，有些话，有点意思。</Quote>
+
+<!-- 自定义图标 -->
+<Quote icon="ri:file-text-line">令图标有所指，引用亦有中心。</Quote>
+
+<!-- 使用 Emoji/颜文字 -->
+<Quote><span slot="icon">ヾ(•ω•`)o</span>图标插槽也可以是 Emoji 或颜文字。</Quote>
+```
+
+### 属性说明
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `icon` | `string` | `'tabler:message-2'` | Iconify 图标名 |
+
+### 特性
+
+- **默认图标**：使用 `tabler:message-2` 作为默认图标
+- **图标插槽**：支持通过 `slot="icon"` 传入 Iconify 图标组件或 Emoji/颜文字
+- **悬浮效果**：鼠标悬浮时图标会上浮并增强不透明度
+- **渐变遮罩**：图标底部有渐变遮罩效果
+
+## 链接 ProseA
+
+这是<ProseA href="/">内部链接</ProseA>。<ProseA href="https://github.com">外部链接</ProseA>默认在新标签页打开，并在鼠标悬浮时展示域名。
+
+还会根据域名展示图标，例如 <ProseA href="https://docs.microsoft.com">微软文档</ProseA>、<ProseA href="https://github.com">GitHub</ProseA>、<ProseA href="https://www.bilibili.com">Bilibili</ProseA>、<ProseA href="https://qq.com">QQ 官网</ProseA>、<ProseA href="https://mp.weixin.qq.com">微信公众号</ProseA> 等。
+
+### 自定义图标
+
+你可以将 `icon` 属性指定 Iconify 图标名，例如 <ProseA href="https://example.com" icon="ri:link">自定义图标链接</ProseA>。图标可在 [Iconify](https://iconify.design/) 或 [Yesicon](https://yesicon.app/) 搜索。
+
+### 组件语法
+
+```mdx
+import ProseA from '@/components/content/ProseA.astro'
+
+<!-- 内部链接 -->
+<ProseA href="/posts/hello-world">内部链接</ProseA>
+
+<!-- 外部链接（自动识别并添加图标） -->
+<ProseA href="https://github.com">GitHub</ProseA>
+
+<!-- 自定义图标 -->
+<ProseA href="https://example.com" icon="ri:link">自定义图标</ProseA>
+```
+
+### 为更多站点匹配图标
+
+你可以在 `/src/utils/icon.ts` 分别为主域名或专门域名（优先级高）添加匹配规则来为更多站点匹配图标。
+
+```typescript
+// 专门域名匹配（优先级高）
+const specificDomainIcons: Record<string, string> = {
+  'docs.microsoft.com': 'logos:microsoft-icon',
+  'github.com': 'ri:github-fill',
+  // ...
+}
+
+// 主域名匹配
+const domainIcons: Record<string, string> = {
+  'github': 'ri:github-fill',
+  'bilibili': 'ri:bilibili-line',
+  // ...
+}
+```
+
+## 提示 Alert
+
+<Alert type="success">你好</Alert>
+
+<Alert type="question">默认插槽的 <ProseA href="https://example.com">超链接</ProseA> **粗体** `Inline code`</Alert>
+
+<Alert type="info" title="自定义标题">默认插槽的 <ProseA href="https://example.com">超链接</ProseA> **粗体** `Inline code`</Alert>
+
+<Alert type="warning" variant="card"><span slot="title">卡片风格 标题插槽的 <ProseA href="https://example.com">超链接</ProseA> **粗体** `Inline code`</span>默认插槽的 <ProseA href="https://example.com">超链接</ProseA> **粗体** `Inline code`</Alert>
+
+<Alert type="error" variant="flat"><span slot="title">扁平风格 标题插槽的 <ProseA href="https://example.com">超链接</ProseA> **粗体** `Inline code`</span>默认插槽的 <ProseA href="https://example.com">超链接</ProseA> **粗体** `Inline code`</Alert>
+
+<Alert type="info" icon="ri:time-line" title="仅标题，并且自定义图标和颜色" />
+
+### 组件语法
+
+```mdx
+import Alert from '@/components/content/Alert.astro'
+
+<!-- 基础用法 -->
+<Alert type="success">你好</Alert>
+
+<!-- 带标题 -->
+<Alert type="question" title="问题标题">内容</Alert>
+
+<!-- 卡片风格 -->
+<Alert type="warning" variant="card">警告内容</Alert>
+
+<!-- 扁平风格 -->
+<Alert type="error" variant="flat">错误内容</Alert>
+
+<!-- 自定义图标 -->
+<Alert type="info" icon="ri:time-line" title="自定义图标" />
+
+<!-- 标题插槽 -->
+<Alert type="warning">
+  <span slot="title">标题插槽的 **粗体** `code`</span>
+  默认插槽内容
+</Alert>
+```
+
+### 属性说明
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `type` | `'info' \| 'success' \| 'warning' \| 'error' \| 'question'` | `'info'` | 提示类型，决定颜色和默认图标 |
+| `title` | `string` | - | 标题文字 |
+| `icon` | `string` | - | 自定义 Iconify 图标名 |
+| `variant` | `'card' \| 'flat'` | `'card'` | 样式变体：卡片风格或扁平风格 |
+
+## 徽章 Badge
+
+<Badge href="https://github.com">普通带链接</Badge>
+<Badge text="纯文本" round />
+<Badge text="纯文本" square />
+<Badge img="https://github.com/yxksw.png">带个图</Badge>
+
+外部域名自动获取站点图标 <Badge href="https://www.zhilu.site">纸鹿</Badge>，<Badge href="https://gug.thisis.host/">古怪杂记本</Badge>，GitHub 链接能自动识别头像 <Badge href="https://github.com/KazariEX">KazariEX</Badge>，也可指定方形 <Badge href="https://github.com/isYangs/GioPic" square>isYangs/GioPic</Badge>。
+
+<Alert type="success">
+  <span slot="title">在其他组件中使用 <Badge href="https://github.com">带链接</Badge></span>
+  <Badge img="https://github.com/yxksw.png">指定圆形</Badge> 背景色 可以 <Badge href="https://github.com">动态变化</Badge> 使用
+</Alert>
+
+### 组件语法
+
+```mdx
+import Badge from '@/components/content/Badge.astro'
+
+<!-- 普通带链接 -->
+<Badge href="https://github.com">GitHub</Badge>
+
+<!-- 纯文本 -->
+<Badge text="纯文本" />
+
+<!-- 纯文本指定圆形 -->
+<Badge text="圆形" round />
+
+<!-- 纯文本指定方形 -->
+<Badge text="方形" square />
+
+<!-- 带图片（默认圆形） -->
+<Badge img="https://example.com/avatar.png">用户名</Badge>
+
+<!-- 带图片指定方形 -->
+<Badge img="https://example.com/avatar.png" square>用户名</Badge>
+
+<!-- GitHub 链接自动获取头像 -->
+<Badge href="https://github.com/username">用户名</Badge>
+```
+
+### 属性说明
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `href` | `string` | - | 链接地址，有则渲染为 `<a>` 标签 |
+| `text` | `string` | - | 文本内容（无 slot 时使用） |
+| `img` | `string` | - | 图片 URL |
+| `round` | `boolean` | `false` | 是否圆形（无图时默认方形，有图时默认圆形） |
+| `square` | `boolean` | `false` | 是否方形（强制方形，优先级高于 round） |
+
+### 样式逻辑
+
+- **有图片时**：默认为圆形，除非指定 `square`
+- **无图片时**：默认为方形，除非指定 `round`
+
+## 博客头部 BlogHeader
+
+<BlogHeader />
+
+鼠标悬浮时的动画 Emoji 🦌🍂🐟🌊 对应"塔罗会"的汉字，在 `config.json` 中配置，字体由阿里妈妈方圆体分割而来。
+
+### 组件语法
+
+```mdx
+import BlogHeader from '@/components/content/BlogHeader.astro'
+
+<!-- 默认用法 -->
+<BlogHeader />
+
+<!-- 指定标题标签 -->
+<BlogHeader tag="h1" />
+```
+
+### 配置说明
+
+在 `config.json` 中添加 `header` 配置：
+
+```json
+{
+  "header": {
+    "logo": "https://example.com/avatar.png",
+    "title": "博客标题",
+    "subtitle": "博客副标题",
+    "emojiTail": ["🦌", "🍂", "🐟", "🌊"],
+    "showTitle": true,
+    "font": {
+      "family": "AlimamaFangYuanTi, 'Noto Sans SC', sans-serif",
+      "url": "https://chinese-font.netlify.app/packages/alimamafangyuanti/dist/AlimamaFangYuanTi/result.woff2"
+    }
+  }
+}
+```
+
+### 属性说明
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `tag` | `string` | `'div'` | 标题标签名，如 `h1`、`h2` 等 |
+
+### 特性
+
+- **悬浮动画**：鼠标悬浮时标题文字会有字重和倒角动画
+- **Emoji 背景**：悬浮时背景 Emoji 会有浮动动画
+- **字体效果**：使用阿里妈妈方圆体，支持可变字体动画
+
+## 模糊文本 Blur
+
+这是一段<Blur>模糊文本，鼠标移上去查看内容</Blur>，可以用来隐藏剧透或敏感信息。
+
+也可以<Blur text="直接使用 text 属性" />来显示内容。
+
+<Alert type="info">
+  <span slot="title">在段落中使用</span>
+  这是一段包含<Blur>隐藏内容</Blur>的文本，鼠标悬浮在模糊区域即可查看。
+</Alert>
+
+### 组件语法
+
+```mdx
+import Blur from '@/components/content/Blur.astro'
+
+<!-- 使用插槽 -->
+<Blur>模糊文本内容</Blur>
+
+<!-- 使用 text 属性 -->
+<Blur text="模糊文本内容" />
+```
+
+### 属性说明
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `text` | `string` | - | 文本内容（无 slot 时使用） |
+
+### 特性
+
+- **默认模糊**：文本默认带有 4px 的模糊效果
+- **悬浮显示**：鼠标悬浮时模糊效果消失，过渡动画 0.2s
+- **轻量简单**：仅使用 CSS filter 实现，无需 JavaScript
+
+## 聊天对话 Chat
+
+<Chat>
+  <ChatItem type="system">2024-11-09 23:39:30</ChatItem>
+  <ChatItem type="right">也许</ChatItem>
+  <ChatItem type="right">我们可以聊聊天</ChatItem>
+  <ChatItem type="right" name="纸鹿">我还可以有名字</ChatItem>
+  <ChatItem type="system">纸鹿撤回了一条消息</ChatItem>
+  <ChatItem type="left" name="用户 1">有趣</ChatItem>
+  <ChatItem type="left" name="用户 1">我学到了。</ChatItem>
+</Chat>
+
+### 组件语法
+
+```mdx
+import Chat from '@/components/content/Chat.astro'
+import ChatItem from '@/components/content/ChatItem.astro'
+
+<Chat>
+  <!-- 系统消息：时间戳 -->
+  <ChatItem type="system">2024-11-09 23:39:30</ChatItem>
+  
+  <!-- 右侧消息（自己发送） -->
+  <ChatItem type="right">也许</ChatItem>
+  <ChatItem type="right">我们可以聊聊天</ChatItem>
+  
+  <!-- 右侧消息带名字 -->
+  <ChatItem type="right" name="纸鹿">我还可以有名字</ChatItem>
+  
+  <!-- 系统消息：撤回提示 -->
+  <ChatItem type="system">纸鹿撤回了一条消息</ChatItem>
+  
+  <!-- 左侧消息（他人发送） -->
+  <ChatItem type="left" name="用户 1">有趣</ChatItem>
+  <ChatItem type="left" name="用户 1">我学到了。</ChatItem>
+</Chat>
+```
+
+### ChatItem 属性说明
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `type` | `'left' \| 'right' \| 'system'` | `'left'` | 消息类型：左侧他人消息、右侧自己消息、系统消息 |
+| `name` | `string` | - | 发送者名称 |
+
+### 样式特点
+
+- **左侧消息**：灰色背景，左下角圆角较小
+- **右侧消息**：主题色背景，右下角圆角较小
+- **系统消息**：居中显示，灰色文字，无背景
+- **气泡样式**：圆角气泡，类似 QQ/微信聊天界面
+
+## 折叠面板 Folding
+
+折叠组件，支持折叠和展开，可以嵌套使用。
+
+<Folding title="可以通过 title 属性设置标题">
+默认插槽的 <ProseA href="https://example.com">超链接</ProseA> **粗体** `Inline code`
+
+<Folding title="折叠还可以嵌套" open>
+默认展开的折叠。
+
+<Alert type="warning">
+在嵌套使用的组件内部使用 MDC 的 `#slotname` 插槽语法必须缩进，否则会报错。
+</Alert>
+</Folding>
+</Folding>
+
+<Folding open>
+  <span slot="title">也可以通过标题插槽传值 <ProseA href="https://example.com">超链接</ProseA> **粗体** `Inline code`</span>
+
+默认展开的折叠。
+
+```markdown
+- 默认展开的折叠。
+```
+</Folding>
+
+### 组件语法
+
+```mdx
+import Folding from '@/components/content/Folding.astro'
+
+<!-- 基础用法 -->
+<Folding title="折叠标题">
+  折叠内容
+</Folding>
+
+<!-- 默认展开 -->
+<Folding title="默认展开" open>
+  默认展开的内容
+</Folding>
+
+<!-- 使用标题插槽（支持富文本） -->
+<Folding>
+  <span slot="title">带 **粗体** 和 <ProseA href="/">链接</ProseA> 的标题</span>
+  内容
+</Folding>
+
+<!-- 嵌套使用 -->
+<Folding title="外层折叠">
+  外层内容
+  <Folding title="内层折叠">
+    内层内容
+  </Folding>
+</Folding>
+```
+
+### 属性说明
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `title` | `string` | - | 标题文字（无 title 插槽时使用） |
+| `open` | `boolean` | `false` | 是否默认展开 |
+
+### 特性
+
+- **原生实现**：使用 HTML5 `<details>` 元素，无需 JavaScript
+- **展开/收起按钮**：右侧显示"展开"/"收起"文字提示
+- **标题插槽**：支持通过 `slot="title"` 传入富文本标题
+- **嵌套支持**：支持多层嵌套使用
+- **平滑过渡**：展开时标题加粗并改变颜色
+
+## 键盘按键 Key
+
+按下键时会亮，可以通过 <Key text="@press" /> 配置触发事件，鼠标点击也会触发事件，博客全站搜索框的按键提示使用了这个组件。
+
+- 纯 Code
+
+<Key code="Escape" /> <Key code="F2" /> <Key code="Control" /> <Key code="a" /> <Key code=" " /> <Key code="Tab" /> <Key code="Enter" />
+
+- 指定修饰符、图标、文本（macOS 自动使用图标）
+
+<Key shift /> <Key alt /> <Key meta /> <Key text="空格" /> <Key code="Tab" /> <Key code="Enter" />
+
+- 组合键
+
+<Key cmd shift code="a" /> <Key shift alt /> <Key shift alt meta />
+
+热血组合技 <Key code="ArrowUp" /> <Key code="ArrowUp" /> <Key code="ArrowDown" /> <Key code="ArrowDown" /> <Key code="ArrowLeft" /> <Key code="ArrowRight" /> <Key code="ArrowLeft" /> <Key code="ArrowRight" /> <Key code="b" /> <Key code="a" />
+
+### 组件语法
+
+```mdx
+import Key from '@/components/content/Key.astro'
+
+<!-- 纯按键 -->
+<Key code="Escape" />
+<Key code="Enter" />
+
+<!-- 自定义文本 -->
+<Key text="空格" />
+
+<!-- 修饰键（macOS 自动显示图标） -->
+<Key shift />
+<Key alt />
+<Key ctrl />
+<Key meta />
+
+<!-- 智能适配 cmd：Windows用Ctrl，macOS用Cmd -->
+<Key cmd code="k" />
+
+<!-- 组合键 -->
+<Key cmd shift code="a" />
+<Key ctrl alt code="Delete" />
+
+<!-- 强制使用/禁用图标 -->
+<Key code="Control" icon />      <!-- 强制使用图标 -->
+<Key code="Control" icon={false} />  <!-- 禁用图标 -->
+```
+
+### 属性说明
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `text` | `string` | - | 自定义显示文本 |
+| `code` | `string` | - | 按键代码（KeyboardEvent.key） |
+| `icon` | `boolean` | `undefined` | 是否使用图标（macOS 默认 true） |
+| `ctrl` | `boolean` | `false` | 是否包含 Ctrl 键 |
+| `shift` | `boolean` | `false` | 是否包含 Shift 键 |
+| `alt` | `boolean` | `false` | 是否包含 Alt 键 |
+| `meta` | `boolean` | `false` | 是否包含 Meta 键（Cmd/Win） |
+| `win` | `boolean` | `false` | 是否包含 Win 键 |
+| `cmd` | `boolean` | `false` | 智能适配：Windows用Ctrl，macOS用Cmd |
+| `prevent` | `boolean` | `false` | 是否阻止默认事件 |
+
+### 特性
+
+- **按键高亮**：按下对应键时按键会高亮显示
+- **点击触发**：鼠标点击也会触发高亮效果
+- **平台适配**：macOS 自动使用图标符号（⌘⌥⇧等）
+- **组合键支持**：支持多键组合显示
+- **自定义事件**：可通过 `keypress` 事件监听按键触发
+
+## 链接横幅 LinkBanner
+
+<LinkBanner
+  banner="https://picsum.photos/800/400"
+  title="标题"
+  description="这是一行描述，如果不提供描述会展示域名"
+  link="https://example.com"
+/>
+
+<LinkBanner
+  title="没有图片的横幅"
+  link="https://github.com"
+/>
+
+### 组件语法
+
+```mdx
+import LinkBanner from '@/components/content/LinkBanner.astro'
+
+<!-- 完整用法 -->
+<LinkBanner
+  banner="https://example.com/image.jpg"
+  title="标题"
+  description="描述文字"
+  link="https://example.com"
+/>
+
+<!-- 不填描述时自动显示域名 -->
+<LinkBanner
+  banner="https://example.com/image.jpg"
+  title="GitHub"
+  link="https://github.com"
+/>
+
+<!-- 无图片 -->
+<LinkBanner
+  title="纯文字横幅"
+  link="https://example.com"
+/>
+```
+
+### 属性说明
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `banner` | `string` | - | 横幅图片 URL |
+| `title` | `string` | **必填** | 标题 |
+| `description` | `string` | - | 描述文字（不提供时显示域名） |
+| `link` | `string` | **必填** | 链接地址 |
+
+### 特性
+
+- **图片遮罩**：图片底部有渐变遮罩，与文字区域自然过渡
+- **自动提取域名**：不填描述时自动从链接提取域名显示
+- **悬停效果**：鼠标悬停时卡片上浮并显示阴影
+- **新标签打开**：链接默认在新标签页打开
+
+## 链接卡片 LinkCard
+
+<LinkCard
+  title="标题"
+  description="这是一行描述，如果不提供描述会展示域名"
+  icon="https://picsum.photos/200/200"
+  link="https://example.com"
+/>
+
+<LinkCard
+  title="GitHub"
+  link="https://github.com"
+/>
+
+### 组件语法
+
+```mdx
+import LinkCard from '@/components/content/LinkCard.astro'
+
+<!-- 完整用法 -->
+<LinkCard
+  title="标题"
+  description="描述文字"
+  icon="https://example.com/icon.jpg"
+  link="https://example.com"
+/>
+
+<!-- 不填描述时自动显示域名 -->
+<LinkCard
+  title="GitHub"
+  icon="https://github.com/favicon.ico"
+  link="https://github.com"
+/>
+
+<!-- 无图标 -->
+<LinkCard
+  title="纯文字卡片"
+  link="https://example.com"
+/>
+
+<!-- 使用插槽自定义图标 -->
+<LinkCard title="自定义图标" link="https://example.com">
+  <Icon name="ri:github-fill" slot="icon" />
+</LinkCard>
+```
+
+### 属性说明
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `title` | `string` | **必填** | 标题 |
+| `description` | `string` | - | 描述文字（不提供时显示域名） |
+| `icon` | `string` | - | 图标/图片 URL |
+| `link` | `string` | **必填** | 链接地址 |
+
+### 特性
+
+- **水平布局**：左侧文字，右侧图标
+- **溢出省略**：标题最多显示2行，描述单行省略
+- **自动提取域名**：不填描述时自动从链接提取域名显示
+- **悬停效果**：鼠标悬停时卡片上浮并显示阴影
+- **新标签打开**：链接默认在新标签页打开
+- **图标插槽**：支持通过 `slot="icon"` 传入自定义图标
+
+## 图片展示 Pic
+
+<Pic
+  src="https://picsum.photos/800/400"
+  caption="说明文字，还支持通过 width 或 height 属性指定尺寸"
+/>
+
+<Pic
+  src="https://picsum.photos/400/300"
+  alt="美丽的风景"
+  width={400}
+/>
+
+### 组件语法
+
+```mdx
+import Pic from '@/components/content/Pic.astro'
+
+<!-- 基础用法 -->
+<Pic
+  src="https://example.com/image.jpg"
+  caption="图片说明文字"
+/>
+
+<!-- 使用 alt 作为说明 -->
+<Pic
+  src="https://example.com/image.jpg"
+  alt="图片描述"
+/>
+
+<!-- 指定尺寸 -->
+<Pic
+  src="https://example.com/image.jpg"
+  caption="指定宽度"
+  width={400}
+/>
+
+<Pic
+  src="https://example.com/image.jpg"
+  caption="指定高度"
+  height={300}
+/>
+
+<!-- 禁用灯箱功能 -->
+<Pic
+  src="https://example.com/image.jpg"
+  caption="点击不会放大"
+  zoom={false}
+/>
+
+<!-- 使用插槽自定义说明 -->
+<Pic src="https://example.com/image.jpg">
+  <span slot="caption">支持 <strong>富文本</strong> 说明</span>
+</Pic>
+```
+
+### 属性说明
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `src` | `string` | **必填** | 图片 URL |
+| `alt` | `string` | - | 图片替代文本（也用作说明） |
+| `caption` | `string` | - | 图片说明文字（优先级高于 alt） |
+| `width` | `number \| string` | - | 图片宽度 |
+| `height` | `number \| string` | - | 图片高度 |
+| `zoom` | `boolean` | `true` | 是否启用点击放大（灯箱） |
+
+### 特性
+
+- **灯箱功能**：点击图片可在遮罩层中放大查看
+- **说明文字**：支持 caption 属性或 alt 属性显示说明
+- **富文本说明**：支持通过插槽传入富文本说明
+- **尺寸控制**：支持 width 和 height 属性指定尺寸
+- **关闭方式**：点击遮罩层、关闭按钮或按 ESC 键关闭灯箱
+
+## 诗词 Poetry
+
+<Poetry
+  title="诗有诗的标题"
+  author="一名作者"
+  footer="可选的落款"
+>
+如你所见，
+我，
+是一首——
+诗。
+</Poetry>
+
+<Poetry title="静夜思" author="李白">
+床前明月光，
+疑是地上霜。
+举头望明月，
+低头思故乡。
+</Poetry>
+
+### 组件语法
+
+```mdx
+import Poetry from '@/components/content/Poetry.astro'
+
+<!-- 完整用法 -->
+<Poetry
+  title="诗有诗的标题"
+  author="一名作者"
+  footer="可选的落款"
+>
+如你所见，
+我，
+是一首——
+诗。
+</Poetry>
+
+<!-- 仅标题和内容 -->
+<Poetry title="静夜思" author="李白">
+床前明月光，
+疑是地上霜。
+举头望明月，
+低头思故乡。
+</Poetry>
+
+<!-- 仅内容 -->
+<Poetry>
+这是一首
+没有标题的
+小诗。
+</Poetry>
+```
+
+### 属性说明
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `title` | `string` | - | 诗词标题 |
+| `author` | `string` | - | 作者名称 |
+| `footer` | `string` | - | 落款/备注 |
+
+### 特性
+
+- **居中布局**：诗词内容自动居中显示
+- **保留换行**：支持使用换行符控制诗句格式
+- **优雅排版**：标题、作者、内容、落款层次分明
+- **自适应宽度**：根据内容自动调整宽度

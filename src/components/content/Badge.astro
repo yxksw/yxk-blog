@@ -1,0 +1,144 @@
+---
+// 工具函数
+function getGithubUsername(url?: string): string | null {
+  if (!url) return null
+  const match = url.match(/github\.com\/([^\/]+)/)
+  return match ? match[1] : null
+}
+
+function getGithubAvatar(username: string): string {
+  return `https://github.com/${username}.png`
+}
+
+function getFaviconUrl(domain: string): string {
+  return `https://www.google.com/s2/favicons?domain=${domain}&sz=32`
+}
+
+function getDomain(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '')
+  } catch {
+    return url
+  }
+}
+
+function isExtLink(url: string): boolean {
+  return url.startsWith('http')
+}
+
+interface Props {
+  img?: string
+  text?: string
+  href?: string
+  round?: boolean
+  square?: boolean
+}
+
+const {
+  img: customImg,
+  text,
+  href,
+  round: forceRound,
+  square: forceSquare,
+} = Astro.props
+
+// 计算图片 URL
+let imgUrl = customImg
+if (!imgUrl && href) {
+  const ghUsername = getGithubUsername(href)
+  if (ghUsername) {
+    imgUrl = getGithubAvatar(ghUsername)
+  } else if (isExtLink(href)) {
+    // 外部链接获取站点 favicon
+    imgUrl = getFaviconUrl(getDomain(href))
+  }
+}
+
+// 有图时默认为圆形样式，除非指定为方形
+// 无图时默认为方形样式，除非指定为圆形
+const isRound = imgUrl ? !forceSquare : forceRound
+
+// 计算提示文本
+const tip = href ? (isExtLink(href) ? getDomain(href) : decodeURIComponent(href)) : ''
+---
+
+{
+  href ? (
+    <a
+      href={href}
+      class:list={['badge', { round: isRound }]}
+      title={tip}
+      target={isExtLink(href) ? '_blank' : undefined}
+      rel={isExtLink(href) ? 'noopener noreferrer' : undefined}
+    >
+      {imgUrl && <img class="badge-icon" src={imgUrl} alt="" loading="lazy" />}
+      <span class="badge-text"><slot>{text}</slot></span>
+    </a>
+  ) : (
+    <span class:list={['badge', { round: isRound }]} title={tip}>
+      {imgUrl && <img class="badge-icon" src={imgUrl} alt="" loading="lazy" />}
+      <span class="badge-text"><slot>{text}</slot></span>
+    </span>
+  )
+}
+
+<style>
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    margin: 0.1em;
+    padding: 0.15em 0.4em;
+    border: 1px solid hsl(var(--border));
+    border-radius: 4px;
+    box-sizing: content-box;
+    background-color: hsl(var(--secondary));
+    font-size: 0.875em;
+    line-height: 1.4;
+    color: hsl(var(--foreground) / 0.8);
+    text-decoration: none;
+    transition: color 0.2s;
+    vertical-align: middle;
+  }
+
+  @supports (color: color-mix(in srgb, transparent, transparent)) {
+    .badge {
+      border-color: color-mix(in srgb, currentcolor 10%, transparent);
+      background-color: color-mix(in srgb, currentcolor 5%, transparent);
+      color: color-mix(in srgb, currentcolor 80%, transparent);
+    }
+  }
+
+  .badge[href]:hover {
+    color: hsl(var(--foreground));
+  }
+
+  .badge.round,
+  .badge.round > .badge-icon {
+    border-radius: 50%;
+  }
+
+  .badge-icon {
+    height: 14px;
+    width: 14px;
+    min-height: 14px;
+    min-width: 14px;
+    max-height: 14px;
+    max-width: 14px;
+    border-radius: 2px;
+    object-fit: cover;
+    flex-shrink: 0;
+    display: block;
+  }
+
+  .badge-icon + .badge-text {
+    margin-left: 0.3em;
+  }
+
+  .badge-text {
+    line-height: 1.4;
+  }
+
+  .badge-text:empty {
+    display: none;
+  }
+</style>

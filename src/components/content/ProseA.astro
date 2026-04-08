@@ -1,0 +1,92 @@
+---
+import { Icon } from 'astro-icon/components'
+import { getIconByUrl, isExternalLink, getDomainText } from '@/utils/icon'
+
+interface Props {
+  href: string
+  icon?: string
+  class?: string
+}
+
+const { href, icon: customIcon, class: className } = Astro.props
+
+// 判断是否为外部链接
+const isExternal = isExternalLink(href)
+
+// 获取图标
+const iconName = customIcon || (isExternal ? getIconByUrl(href) : undefined)
+
+// 获取域名文本（用于悬浮提示）
+const domainText = isExternal ? getDomainText(href) : undefined
+---
+
+<a
+  href={href}
+  class:list={['prose-a', className]}
+  target={isExternal ? '_blank' : undefined}
+  rel={isExternal ? 'noopener noreferrer' : undefined}
+  data-domain={domainText}
+>
+  {iconName && <Icon name={iconName} class="prose-a-icon" />}
+  <slot />
+</a>
+
+<style>
+  .prose-a {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: hsl(var(--accent));
+    text-decoration: none;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .prose-a:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+  }
+
+  .prose-a-icon {
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+  }
+
+  /* 外部链接悬浮提示域名 */
+  .prose-a[data-domain]::after {
+    content: attr(data-domain);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    padding: 4px 8px;
+    background-color: hsl(var(--secondary));
+    border: 1px solid hsl(var(--border));
+    border-radius: 4px;
+    font-size: 12px;
+    color: hsl(var(--foreground));
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .prose-a[data-domain]:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-8px);
+  }
+
+  /* 内部链接样式 */
+  .prose-a:not([data-domain]) {
+    color: hsl(var(--foreground));
+    border-bottom: 1px dashed hsl(var(--muted-foreground));
+  }
+
+  .prose-a:not([data-domain]):hover {
+    border-bottom-style: solid;
+  }
+</style>

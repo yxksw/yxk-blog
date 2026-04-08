@@ -1,0 +1,165 @@
+---
+import { Icon } from 'astro-icon/components'
+
+interface Props {
+  type?: 'info' | 'success' | 'warning' | 'error' | 'question'
+  title?: string
+  icon?: string
+  variant?: 'card' | 'flat'
+}
+
+const {
+  type = 'info',
+  title,
+  icon: customIcon,
+  variant = 'card',
+} = Astro.props
+
+// 默认图标映射
+const defaultIcons: Record<string, string> = {
+  info: 'ri:information-line',
+  success: 'ri:checkbox-circle-line',
+  warning: 'ri:alert-line',
+  error: 'ri:close-circle-line',
+  question: 'ri:question-line',
+}
+
+// 默认标题映射
+const defaultTitles: Record<string, string> = {
+  info: '信息',
+  success: '提醒',
+  warning: '警告',
+  error: '错误',
+  question: '问题',
+}
+
+const iconName = customIcon || defaultIcons[type]
+const displayTitle = title || defaultTitles[type]
+---
+
+<div class:list={['alert', `alert-${type}`, `alert-${variant}`]}>
+  <div class="alert-header">
+    <Icon name={iconName} class="alert-icon" />
+    <span class="alert-title"><slot name="title">{displayTitle}</slot></span>
+  </div>
+  <div class="alert-content">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .alert {
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+  }
+
+  .alert-card {
+    background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--accent) / 0.05) 100%);
+    border: 1px solid hsl(var(--border));
+  }
+
+  .alert-flat {
+    background: transparent;
+    border: 1px solid currentColor;
+  }
+
+  .alert-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .alert-icon {
+    width: 1.2em;
+    height: 1.2em;
+    flex-shrink: 0;
+  }
+
+  .alert-title {
+    font-size: 14px;
+  }
+
+  .alert-content {
+    font-size: 14px;
+    line-height: 1.6;
+    color: hsl(var(--foreground));
+  }
+
+  .alert-content :global(a) {
+    color: inherit;
+    text-decoration: underline;
+    font-weight: 500;
+  }
+
+  .alert-content :global(code) {
+    background: hsl(var(--secondary));
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+  /* Info - 灰色 */
+  .alert-info {
+    color: hsl(var(--muted-foreground));
+  }
+  .alert-info .alert-icon {
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* Success - 绿色 */
+  .alert-success {
+    color: hsl(142 76% 36%);
+    background: linear-gradient(135deg, hsl(142 76% 36% / 0.1) 0%, hsl(142 76% 36% / 0.05) 100%);
+  }
+  .alert-success .alert-icon {
+    color: hsl(142 76% 36%);
+  }
+
+  /* Warning - 橙色 */
+  .alert-warning {
+    color: hsl(24 95% 53%);
+    background: linear-gradient(135deg, hsl(24 95% 53% / 0.1) 0%, hsl(24 95% 53% / 0.05) 100%);
+  }
+  .alert-warning .alert-icon {
+    color: hsl(24 95% 53%);
+  }
+
+  /* Error - 红色 */
+  .alert-error {
+    color: hsl(0 84% 60%);
+    background: linear-gradient(135deg, hsl(0 84% 60% / 0.1) 0%, hsl(0 84% 60% / 0.05) 100%);
+  }
+  .alert-error .alert-icon {
+    color: hsl(0 84% 60%);
+  }
+
+  /* Question - 蓝色 */
+  .alert-question {
+    color: hsl(217 91% 60%);
+    background: linear-gradient(135deg, hsl(217 91% 60% / 0.1) 0%, hsl(217 91% 60% / 0.05) 100%);
+  }
+  .alert-question .alert-icon {
+    color: hsl(217 91% 60%);
+  }
+
+  /* Flat variant overrides */
+  .alert-flat.alert-success {
+    background: transparent;
+    border-color: hsl(142 76% 36%);
+  }
+  .alert-flat.alert-warning {
+    background: transparent;
+    border-color: hsl(24 95% 53%);
+  }
+  .alert-flat.alert-error {
+    background: transparent;
+    border-color: hsl(0 84% 60%);
+  }
+  .alert-flat.alert-question {
+    background: transparent;
+    border-color: hsl(217 91% 60%);
+  }
+</style>

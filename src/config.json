@@ -8,6 +8,17 @@
     "favicon": "/favicon.ico",
     "appleTouchIcon": "/apple-touch-icon.png"
   },
+  "header": {
+    "logo": "https://cn.cravatar.com/avatar/56cd72b5460ecaa08ddffea9562f5629?size=512",
+    "title": "塔罗会",
+    "subtitle": "异飨客的博客，记录生活、技术与分享",
+    "emojiTail": ["🦌", "🍂", "🐟", "🌊"],
+    "showTitle": true,
+    "font": {
+      "family": "AlimamaFangYuanTi, 'Noto Sans SC', sans-serif",
+      "url": "https://chinese-font.netlify.app/packages/alimamafangyuanti/dist/AlimamaFangYuanTi/result.woff2"
+    }
+  },
   "author": {
     "name": "异飨客",
     "twitterId": "@null",
@@ -108,10 +119,10 @@
     "startTime": "2024-11-01T12:00:00Z"
   },
   "comment": {
-    "provider": "giscus"
+    "provider": "waline"
   },
   "waline": {
-    "serverURL": "https://waline.lxchapu.com"
+    "serverURL": "https://waline-yxk-blog.050815.xyz"
   },
   "artalk": {
     "server": "https://artalk.blueke.top",

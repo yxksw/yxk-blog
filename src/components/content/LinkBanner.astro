@@ -1,0 +1,91 @@
+---
+// LinkBanner 组件 - 链接横幅组件
+// 显示图片、标题和描述，点击可跳转
+
+interface Props {
+  banner?: string
+  title: string
+  description?: string
+  link: string
+}
+
+const { banner, title, description, link } = Astro.props
+
+// 提取域名
+function getDomain(url: string): string {
+  try {
+    const urlObj = new URL(url)
+    return urlObj.hostname
+  } catch {
+    return url
+  }
+}
+
+const displayDescription = description || getDomain(link)
+---
+
+<a href={link} class="link-banner" target="_blank" rel="noopener noreferrer" title={`${title} - ${displayDescription}`}>
+  {banner && (
+    <img class="link-banner-bg" src={banner} alt={title} loading="lazy" />
+  )}
+  <div class="link-banner-info">
+    <div class="link-banner-title">{title}</div>
+    <div class="link-banner-desc">{displayDescription}</div>
+  </div>
+</a>
+
+<style>
+  .link-banner {
+    display: block;
+    line-height: 1.4;
+    text-decoration: none;
+    border-radius: 0.5em;
+    overflow: hidden;
+    background-color: rgb(var(--color-bg-secondary));
+    border: 1px solid rgb(var(--color-border-primary));
+    transition: all 0.2s;
+    max-width: 600px;
+    margin: 1.5rem auto;
+  }
+
+  .link-banner:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: rgb(var(--color-primary));
+  }
+
+  :global([data-theme='dark']) .link-banner:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .link-banner-bg {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2.4;
+    margin-bottom: -5%;
+    mask-image: linear-gradient(#fff 50%, transparent);
+    -webkit-mask-image: linear-gradient(#fff 50%, transparent);
+    object-fit: cover;
+  }
+
+  .link-banner-info {
+    padding: 0.8em 1em;
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(to bottom, transparent, rgb(var(--color-bg-secondary)) 20%);
+  }
+
+  .link-banner-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: rgb(var(--color-text-primary));
+    line-height: 1.3;
+  }
+
+  .link-banner-desc {
+    margin-top: 0.4em;
+    font-size: 0.85em;
+    color: rgb(var(--color-text-secondary));
+    line-height: 1.4;
+  }
+</style>

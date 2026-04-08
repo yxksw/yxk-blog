@@ -1,0 +1,127 @@
+---
+// Folding 组件 - 可折叠展开的手风琴组件
+// 支持嵌套使用
+
+interface Props {
+  title?: string
+  open?: boolean
+}
+
+const { title, open = false } = Astro.props
+---
+
+<details class="folding" {open}>
+  <summary>
+    <span class="folding-arrow"></span>
+    <span class="folding-title">
+      <slot name="title">{title}</slot>
+    </span>
+    <span class="folding-toggle"></span>
+  </summary>
+  <div class="folding-content">
+    <slot />
+  </div>
+</details>
+
+<style>
+  .folding {
+    margin: 1em 0;
+    border: 1px solid rgb(var(--color-border-primary));
+    border-radius: 0.5em;
+    background-color: rgb(var(--color-bg-secondary));
+    font-size: 0.9em;
+    overflow: hidden;
+  }
+
+  .folding[open] > summary {
+    font-weight: bold;
+    color: rgb(var(--color-text-primary));
+    border-bottom: 1px solid rgb(var(--color-border-primary));
+  }
+
+  .folding[open] > summary .folding-arrow {
+    transform: rotate(0deg);
+  }
+
+  .folding[open] > summary .folding-toggle::after {
+    content: "收起";
+  }
+
+  .folding > summary {
+    display: flex;
+    align-items: center;
+    padding: 0.6em 0.8em;
+    color: rgb(var(--color-text-secondary));
+    transition: all 0.2s;
+    cursor: pointer;
+    list-style: none;
+    gap: 0.5em;
+  }
+
+  .folding > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .folding > summary::marker {
+    display: none;
+  }
+
+  .folding-arrow {
+    flex-shrink: 0;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid currentColor;
+    transform: rotate(-90deg);
+    transition: transform 0.2s;
+    opacity: 0.7;
+  }
+
+  .folding-title {
+    flex: 1;
+  }
+
+  .folding-title :global(p) {
+    display: inline;
+    margin: 0;
+  }
+
+  .folding-toggle {
+    flex-shrink: 0;
+    font-weight: normal;
+    opacity: 0.5;
+    transition: color 0.2s;
+    font-size: 0.85em;
+  }
+
+  .folding-toggle::after {
+    content: "展开";
+  }
+
+  .folding > summary:hover {
+    color: rgb(var(--color-text-primary));
+  }
+
+  .folding > summary:hover .folding-toggle {
+    opacity: 0.8;
+  }
+
+  .folding-content {
+    color: rgb(var(--color-text-primary));
+    padding: 0.8em;
+  }
+
+  .folding-content :global(> *:first-child) {
+    margin-top: 0;
+  }
+
+  .folding-content :global(> *:last-child) {
+    margin-bottom: 0;
+  }
+
+  /* 嵌套折叠组件样式 */
+  .folding-content :global(.folding) {
+    margin: 0.5em 0;
+  }
+</style>

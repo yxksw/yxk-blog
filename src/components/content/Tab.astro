@@ -1,0 +1,150 @@
+---
+interface Props {
+  /** tab 下标从 1 开始 */
+  tabs: string[]
+  center?: boolean
+  active?: string | number
+}
+
+const { tabs, center = false, active = 1 } = Astro.props
+const activeTab = Number(active) || 1
+---
+
+<div class:list={['tab-container', { center }]} data-tab-container data-active={activeTab}>
+  <div class="tabs">
+    {tabs.map((tab, index) => (
+      <button
+        class={activeTab === index + 1 ? 'active' : ''}
+        data-tab-index={index + 1}
+        type="button"
+      >
+        {tab}
+      </button>
+    ))}
+  </div>
+  <div class="tab-content" data-tab-content="1" style={activeTab === 1 ? 'display: block;' : 'display: none;'}>
+    <slot name="tab1" />
+  </div>
+  <div class="tab-content" data-tab-content="2" style={activeTab === 2 ? 'display: block;' : 'display: none;'}>
+    <slot name="tab2" />
+  </div>
+  <div class="tab-content" data-tab-content="3" style={activeTab === 3 ? 'display: block;' : 'display: none;'}>
+    <slot name="tab3" />
+  </div>
+  <div class="tab-content" data-tab-content="4" style={activeTab === 4 ? 'display: block;' : 'display: none;'}>
+    <slot name="tab4" />
+  </div>
+  <div class="tab-content" data-tab-content="5" style={activeTab === 5 ? 'display: block;' : 'display: none;'}>
+    <slot name="tab5" />
+  </div>
+</div>
+
+<script>
+  // 客户端切换 Tab
+  document.querySelectorAll('[data-tab-container]').forEach(container => {
+    const buttons = container.querySelectorAll('[data-tab-index]')
+    const contents = container.querySelectorAll('[data-tab-content]')
+
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        const tabIndex = button.getAttribute('data-tab-index')
+
+        // 更新按钮状态
+        buttons.forEach(btn => btn.classList.remove('active'))
+        button.classList.add('active')
+
+        // 更新内容显示
+        contents.forEach(content => {
+          const contentEl = content as HTMLElement
+          const contentIndex = contentEl.getAttribute('data-tab-content')
+          if (contentIndex === tabIndex) {
+            contentEl.style.display = 'block'
+          } else {
+            contentEl.style.display = 'none'
+          }
+        })
+      })
+    })
+  })
+</script>
+
+<style>
+  .tab-container {
+    margin: 1.5rem 0;
+  }
+
+  .tab-container.center {
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5em;
+    position: relative;
+    width: fit-content;
+    margin: 0 auto;
+    font-size: 0.9em;
+    line-height: 1.4;
+  }
+
+  .tabs button {
+    position: relative;
+    margin-bottom: 0.5em;
+    padding: 0.3em 0.5em;
+    border-radius: 0.4em;
+    color: rgb(var(--color-text-2));
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: inherit;
+    line-height: inherit;
+    transition: all 0.2s;
+    user-select: none;
+  }
+
+  .tabs button:hover {
+    background-color: rgb(var(--color-bg-soft));
+    color: rgb(var(--color-text));
+  }
+
+  .tabs button:active {
+    transform: scale(0.95);
+  }
+
+  .tabs button::before,
+  .tabs button::after {
+    display: block;
+    position: absolute;
+    inset-inline: 0.8em;
+    bottom: -0.5em;
+    height: 2px;
+    border-radius: 1em;
+    pointer-events: none;
+  }
+
+  .tabs button::after {
+    content: "";
+    inset-inline: -0.8em;
+    background-color: rgb(var(--color-border));
+  }
+
+  .tabs button.active {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1);
+    background-color: rgb(var(--color-bg-card));
+    color: rgb(var(--color-text));
+  }
+
+  .tabs button.active::before {
+    content: "";
+    background-color: rgb(var(--color-primary));
+    z-index: 1;
+  }
+
+  .tab-content {
+    margin: 1em 0;
+  }
+</style>

@@ -1,0 +1,61 @@
+---
+// Chat 组件 - 类似 QQ 聊天界面
+// 使用方式：
+// {用户名} - 普通消息（左侧）
+// {.用户名} - 自己发送的消息（右侧）
+// {:系统消息} - 系统消息（居中）
+---
+
+<dl class="chat">
+  <slot />
+</dl>
+
+<style>
+  .chat {
+    margin-inline: 2vw;
+    font-size: 0.9em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+  }
+
+  .chat :global(.chat-caption) {
+    opacity: 0.8;
+    font-size: 0.9em;
+    color: rgb(var(--color-text-2));
+    margin-bottom: 0.25em;
+  }
+
+  .chat :global(.chat-body) {
+    overflow: hidden;
+    width: fit-content;
+    max-width: 90%;
+    margin-bottom: 0.5em;
+    padding: 0.6em 1em;
+    border-radius: 1em;
+    border-start-start-radius: 0.2em;
+    background-color: rgb(var(--color-bg-2));
+    color: rgb(var(--color-text-1));
+    line-height: 1.5;
+  }
+
+  .chat :global(.chat-system) {
+    margin-bottom: 0.5em;
+    text-align: center;
+    color: rgb(var(--color-text-3));
+    font-size: 0.85em;
+  }
+
+  .chat :global(.chat-myself) {
+    text-align: end;
+    color: rgb(var(--color-text-2));
+  }
+
+  .chat :global(.chat-myself) + :global(.chat-body) {
+    margin-inline-start: auto;
+    border-radius: 1em;
+    border-start-end-radius: 0.2em;
+    background-color: rgb(var(--color-primary-soft));
+    color: rgb(var(--color-primary));
+  }
+</style>

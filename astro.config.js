@@ -24,6 +24,7 @@ import swup from '@swup/astro'
 import rehypeCallouts from 'rehype-callouts'
 
 import icon from 'astro-icon'
+import mdx from '@astrojs/mdx'
 
 // https://astro.build/config
 export default defineConfig({
@@ -39,6 +40,7 @@ export default defineConfig({
       morph: ['[component-export="Provider"]'],
     }),
     icon(),
+    mdx(),
   ],
   markdown: {
     syntaxHighlight: false,
