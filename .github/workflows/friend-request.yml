@@ -25,7 +25,7 @@ jobs:
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
-        run: node .github/scripts/process-friend-request.js
+        run: node .github/scripts/process-friend-request.cjs
 
       - name: Comment on issue (success)
         if: steps.process.outputs.result == 'success'

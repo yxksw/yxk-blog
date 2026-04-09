@@ -1,59 +1,59 @@
 name: Friend Health Check
 
 on:
-  schedule:
-    # 每天凌晨 4 点运行
-    - cron: '0 20 * * *'
-  workflow_dispatch:
+    schedule:
+        # 每天凌晨 4 点运行
+        - cron: "0 20 * * *"
+    workflow_dispatch:
 
 jobs:
-  check-friends-health:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      issues: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    check-friends-health:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            issues: write
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
 
-      - name: Check friends health
-        id: check
-        run: node .github/scripts/check-friends-health.js
+            - name: Check friends health
+              id: check
+              run: node .github/scripts/check-friends-health.cjs
 
-      - name: Create issue for removed friends
-        if: steps.check.outputs.removed_count > 0
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const removed = '${{ steps.check.outputs.removed }}'.split(', ');
-            const details = `${{ steps.check.outputs.details }}`;
-            
-            const body = `## 友链健康检测 - 移除通知\n\n以下友链因无法访问已被自动移除（已重试3次）：\n\n${details.split('\n').map(d => '- ' + d).join('\n')}\n\n---\n\n检测时间: ${new Date().toISOString()}`;
-            
-            github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `🚨 友链健康检测 - ${removed.length} 个友链被移除`,
-              body: body,
-              labels: ['失联', '友链检测']
-            });
+            - name: Create issue for removed friends
+              if: steps.check.outputs.removed_count > 0
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      const removed = '${{ steps.check.outputs.removed }}'.split(', ');
+                      const details = `${{ steps.check.outputs.details }}`;
 
-      - name: Commit changes
-        if: steps.check.outputs.removed_count > 0
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add src/content/friends/friends.ts
-          git commit -m "Remove unhealthy friends: ${{ steps.check.outputs.removed }}" || echo "No changes to commit"
-          git push
+                      const body = `## 友链健康检测 - 移除通知\n\n以下友链因无法访问已被自动移除（已重试3次）：\n\n${details.split('\n').map(d => '- ' + d).join('\n')}\n\n---\n\n检测时间: ${new Date().toISOString()}`;
 
-      - name: Summary
-        run: |
-          echo "=== Friend Health Check Summary ==="
-          echo "Removed: ${{ steps.check.outputs.removed_count }}"
-          echo "Details: ${{ steps.check.outputs.details }}"
+                      github.rest.issues.create({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        title: `🚨 友链健康检测 - ${removed.length} 个友链被移除`,
+                        body: body,
+                        labels: ['失联', '友链检测']
+                      });
+
+            - name: Commit changes
+              if: steps.check.outputs.removed_count > 0
+              run: |
+                  git config --global user.name 'github-actions[bot]'
+                  git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+                  git add src/content/friends/friends.ts
+                  git commit -m "Remove unhealthy friends: ${{ steps.check.outputs.removed }}" || echo "No changes to commit"
+                  git push
+
+            - name: Summary
+              run: |
+                  echo "=== Friend Health Check Summary ==="
+                  echo "Removed: ${{ steps.check.outputs.removed_count }}"
+                  echo "Details: ${{ steps.check.outputs.details }}"
