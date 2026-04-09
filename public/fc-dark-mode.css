@@ -1,0 +1,318 @@
+/* 友链朋友圈深色模式适配 - 适配博客的 [data-theme='dark'] */
+
+/* ========== 基础变量覆盖 ========== */
+[data-theme='dark'] {
+  /* 友链朋友圈变量 */
+  --lmm-background: #1e1e1e !important;
+  --lmm-fontcolor: #e0e0e0 !important;
+  --lmm-floorcolor: #909399 !important;
+  --lmm-hover: #409eff !important;
+  --lmm-dack-background: #1e1e1e !important;
+  --lmm-dark-fontcolor: #e0e0e0 !important;
+  --lmm-dark-floorcolor: #909399 !important;
+
+  /* Element Plus 变量 */
+  --el-bg-color: #141414 !important;
+  --el-bg-color-overlay: #1e1e1e !important;
+  --el-text-color-primary: #e0e0e0 !important;
+  --el-text-color-regular: #e0e0e0 !important;
+  --el-text-color-secondary: #909399 !important;
+  --el-border-color: #4a4a4a !important;
+  --el-border-color-light: #4a4a4a !important;
+  --el-border-color-lighter: #5a5a5a !important;
+  --el-fill-color: #2c2c2c !important;
+  --el-fill-color-light: #3c3c3c !important;
+  --el-fill-color-extra-light: #4a4a4a !important;
+  --el-fill-color-blank: #1e1e1e !important;
+  --el-color-primary: #409eff !important;
+  --el-color-success: #67c23a !important;
+  --el-color-warning: #e6a23c !important;
+  --el-color-danger: #f56c6c !important;
+  --el-color-info: #909399 !important;
+}
+
+/* ========== 文章卡片 ========== */
+[data-theme='dark'] .cf-article {
+  background: #1e1e1e !important;
+  border-color: #4a4a4a !important;
+}
+
+[data-theme='dark'] .cf-article:hover {
+  background: #2c2c2c !important;
+}
+
+[data-theme='dark'] .cf-article-floor {
+  color: #909399 !important;
+}
+
+[data-theme='dark'] .cf-article-title {
+  color: #e0e0e0 !important;
+}
+
+[data-theme='dark'] .cf-article-author {
+  color: #e0e0e0 !important;
+}
+
+[data-theme='dark'] .cf-article-time {
+  color: #909399 !important;
+}
+
+/* ========== 统计区域 ========== */
+[data-theme='dark'] #cf-state {
+  background: #1e1e1e !important;
+}
+
+[data-theme='dark'] .cf-data-friends,
+[data-theme='dark'] .cf-data-article,
+[data-theme='dark'] .cf-data-active {
+  background: transparent !important;
+}
+
+[data-theme='dark'] .cf-label {
+  color: #909399 !important;
+}
+
+[data-theme='dark'] .cf-message {
+  color: #e0e0e0 !important;
+}
+
+/* ========== 弹窗/浮层 (cf-overshow) ========== */
+[data-theme='dark'] .cf-overshow {
+  background: #1e1e1e !important;
+  color: #e0e0e0 !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme='dark'] .cf-overshow-head a {
+  color: #409eff !important;
+}
+
+[data-theme='dark'] .cf-overshow p a.cf-article-title {
+  color: #e0e0e0 !important;
+}
+
+[data-theme='dark'] .cf-overshow p a.cf-article-title:hover {
+  color: #409eff !important;
+}
+
+[data-theme='dark'] .cf-overshow p span {
+  color: #909399 !important;
+}
+
+[data-theme='dark'] .cf-overshow-content:hover,
+[data-theme='dark'] .cf-overshow-content-tail:hover {
+  background-color: #2c2c2c !important;
+}
+
+/* ========== 无文章提示 ========== */
+[data-theme='dark'] .cf-no-articles-content h4 {
+  color: #e0e0e0 !important;
+}
+
+[data-theme='dark'] .cf-no-articles-content p {
+  color: #909399 !important;
+}
+
+[data-theme='dark'] .cf-no-articles-content small {
+  color: #909399 !important;
+}
+
+/* ========== 加载更多按钮 ========== */
+[data-theme='dark'] #cf-more {
+  background: #2c2c2c !important;
+  color: #e0e0e0 !important;
+  border-color: #4a4a4a !important;
+}
+
+[data-theme='dark'] #cf-more:hover {
+  background: #3c3c3c !important;
+}
+
+/* ========== 页脚 ========== */
+[data-theme='dark'] #cf-footer {
+  color: #909399 !important;
+}
+
+[data-theme='dark'] #cf-footer a {
+  color: #409eff !important;
+}
+
+/* ========== 遮罩层 ========== */
+[data-theme='dark'] #cf-overlay {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* ========== 头像 ========== */
+[data-theme='dark'] .cf-img-avatar {
+  border-color: #4a4a4a !important;
+  background: #1e1e1e !important;
+}
+
+[data-theme='dark'] .cf-overshow img.cf-img-avatar {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ========== 时间标签 ========== */
+[data-theme='dark'] .cf-time-updated,
+[data-theme='dark'] .cf-time-created {
+  color: #909399 !important;
+}
+
+/* ========== Created/Updated 标签 ========== */
+[data-theme='dark'] #cf-change {
+  color: #909399 !important;
+}
+
+[data-theme='dark'] #cf-change .cf-change-now {
+  color: #409eff !important;
+}
+
+/* ========== 按钮深色模式适配 ========== */
+[data-theme='dark'] .el-button {
+  background-color: #2c2c2c !important;
+  border-color: #4a4a4a !important;
+  color: #e0e0e0 !important;
+}
+
+[data-theme='dark'] .el-button:hover {
+  background-color: #3c3c3c !important;
+  border-color: #5a5a5a !important;
+  color: #fff !important;
+}
+
+[data-theme='dark'] .el-button--primary {
+  background-color: #409eff !important;
+  border-color: #409eff !important;
+  color: #fff !important;
+}
+
+[data-theme='dark'] .el-button--primary:hover {
+  background-color: #66b1ff !important;
+  border-color: #66b1ff !important;
+}
+
+[data-theme='dark'] .el-button--danger {
+  background-color: #f56c6c !important;
+  border-color: #f56c6c !important;
+  color: #fff !important;
+}
+
+[data-theme='dark'] .el-button--danger:hover {
+  background-color: #f78989 !important;
+  border-color: #f78989 !important;
+}
+
+[data-theme='dark'] .el-button--success {
+  background-color: #67c23a !important;
+  border-color: #67c23a !important;
+  color: #fff !important;
+}
+
+[data-theme='dark'] .el-button--success:hover {
+  background-color: #85ce61 !important;
+  border-color: #85ce61 !important;
+}
+
+[data-theme='dark'] .el-button--warning {
+  background-color: #e6a23c !important;
+  border-color: #e6a23c !important;
+  color: #fff !important;
+}
+
+[data-theme='dark'] .el-button--warning:hover {
+  background-color: #ebb563 !important;
+  border-color: #ebb563 !important;
+}
+
+[data-theme='dark'] .el-button--info {
+  background-color: #909399 !important;
+  border-color: #909399 !important;
+  color: #fff !important;
+}
+
+[data-theme='dark'] .el-button--info:hover {
+  background-color: #a6a9ad !important;
+  border-color: #a6a9ad !important;
+}
+
+/* ========== Element Plus 弹窗/对话框 ========== */
+[data-theme='dark'] .el-dialog {
+  background: #1e1e1e !important;
+}
+
+[data-theme='dark'] .el-dialog__title {
+  color: #e0e0e0 !important;
+}
+
+[data-theme='dark'] .el-dialog__body {
+  color: #e0e0e0 !important;
+}
+
+[data-theme='dark'] .el-dialog__headerbtn .el-dialog__close {
+  color: #909399 !important;
+}
+
+[data-theme='dark'] .el-dialog__headerbtn:hover .el-dialog__close {
+  color: #e0e0e0 !important;
+}
+
+/* ========== Element Plus 消息框 ========== */
+[data-theme='dark'] .el-message-box {
+  background: #1e1e1e !important;
+  border-color: #4a4a4a !important;
+}
+
+[data-theme='dark'] .el-message-box__title {
+  color: #e0e0e0 !important;
+}
+
+[data-theme='dark'] .el-message-box__content {
+  color: #e0e0e0 !important;
+}
+
+[data-theme='dark'] .el-message-box__message p {
+  color: #e0e0e0 !important;
+}
+
+/* ========== Element Plus 通知 ========== */
+[data-theme='dark'] .el-notification {
+  background: #1e1e1e !important;
+  border-color: #4a4a4a !important;
+}
+
+[data-theme='dark'] .el-notification__title {
+  color: #e0e0e0 !important;
+}
+
+[data-theme='dark'] .el-notification__content {
+  color: #909399 !important;
+}
+
+/* ========== Element Plus 下拉菜单 ========== */
+[data-theme='dark'] .el-dropdown-menu {
+  background: #1e1e1e !important;
+  border-color: #4a4a4a !important;
+}
+
+[data-theme='dark'] .el-dropdown-menu__item {
+  color: #e0e0e0 !important;
+}
+
+[data-theme='dark'] .el-dropdown-menu__item:hover {
+  background: #2c2c2c !important;
+  color: #409eff !important;
+}
+
+/* ========== Element Plus 输入框 ========== */
+[data-theme='dark'] .el-input__wrapper {
+  background: #2c2c2c !important;
+  border-color: #4a4a4a !important;
+}
+
+[data-theme='dark'] .el-input__inner {
+  color: #e0e0e0 !important;
+}
+
+[data-theme='dark'] .el-input__inner::placeholder {
+  color: #909399 !important;
+}

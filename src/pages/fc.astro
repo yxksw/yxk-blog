@@ -1,0 +1,30 @@
+---
+import PageLayout from '@/layouts/PageLayout.astro'
+---
+
+<PageLayout title='友链朋友圈' description='聚合展示友链博客的最新文章动态'>
+  <div class="max-w-5xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8 text-center">友链朋友圈</h1>
+    
+    <div id="friend-circle-container" class="not-prose min-h-[200px] flex items-center justify-center text-muted-foreground">
+      与主机通讯中……
+    </div>
+  </div>
+
+  <script is:inline>
+    if (typeof UserConfig === 'undefined') {
+      window.UserConfig = {
+        // hexo-circle-of-friends 后端 API 地址
+        private_api_url: 'https://fc.268682.xyz/',
+        // 每次点击"加载更多"时加载的文章数量，默认 24
+        page_turning_number: 24,
+        // 头像加载失败时的默认图片
+        error_img: 'https://fastly.jsdelivr.net/gh/Rock-Candy-Tea/Friend-Circle-Frontend/logo.png',
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="/yyyz.min.css">
+  <link rel="stylesheet" href="/fc-dark-mode.css">
+  <script is:inline src="https://fastly.jsdelivr.net/gh/Rock-Candy-Tea/Friend-Circle-Frontend/hexo-theme-butterfly/yyyz.min.js"></script>
+</PageLayout>
