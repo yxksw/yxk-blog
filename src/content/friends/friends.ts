@@ -6,7 +6,7 @@ export const items = [
     link: 'https://blog.liushen.fun/',
     rss: 'https://blog.liushen.fun/atom.xml',
     tags: ['友链'],
-  }
+  },
   {
     title: '张洪heo',
     avatar: 'https://img.zhheo.com/i/67d8fa75943e4.webp',
