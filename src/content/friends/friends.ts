@@ -15,4 +15,12 @@ export const items = [
     rss: 'https://blog.zhheo.com/rss.xml',
     tags: ['友链'],
   },
+  {
+    title: '纸鹿摸鱼处',
+    avatar: 'https://www.zhilu.site/api/avatar.png',
+    description: '纸鹿至麓不知路，支炉制露不止漉',
+    link: 'https://blog.zhilu.site/',
+    rss: 'https://blog.zhilu.site/atom.xml',
+    tags: ['友链'],
+  },
 ]
