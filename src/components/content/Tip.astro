@@ -1,0 +1,105 @@
+---
+import { Icon } from 'astro-icon/components'
+
+interface Props {
+  text?: string
+  tip?: string
+  icon?: string | boolean
+  copy?: boolean
+}
+
+const { text, tip: tipText, icon: iconProp, copy = false } = Astro.props
+
+// 确定要显示的图标
+let iconName: string | undefined
+if (typeof iconProp === 'string') {
+  iconName = iconProp
+} else if (iconProp === true) {
+  iconName = copy ? 'tabler:copy' : undefined
+} else if (iconProp !== false && copy) {
+  iconName = 'tabler:copy'
+}
+
+const displayText = text || Astro.slots.has('default') ? undefined : ''
+const tooltipContent = tipText || (copy ? '点击复制' : '')
+---
+
+<span
+  class="tip"
+  tabindex="0"
+  data-tip={tooltipContent}
+  data-copy={copy ? 'true' : 'false'}
+>
+  <slot>{text}</slot>
+  {iconName && <Icon name={iconName} class="tip-icon" />}
+</span>
+
+<script>
+  // 初始化 tooltip 和复制功能
+  document.querySelectorAll('.tip[data-copy="true"]').forEach(el => {
+    el.addEventListener('click', () => {
+      const text = el.textContent?.trim() || ''
+      navigator.clipboard.writeText(text).then(() => {
+        // 临时显示复制成功提示
+        const originalTip = el.getAttribute('data-tip') || ''
+        el.setAttribute('data-tip', '已复制！')
+        setTimeout(() => {
+          el.setAttribute('data-tip', originalTip)
+        }, 1500)
+      })
+    })
+  })
+</script>
+
+<style>
+  .tip {
+    position: relative;
+    text-decoration: underline dashed rgb(var(--color-text-3));
+    cursor: pointer;
+    text-underline-offset: 4px;
+    color: rgb(var(--color-text));
+  }
+
+  .tip:hover {
+    text-decoration-color: rgb(var(--color-primary));
+  }
+
+  .tip-icon {
+    display: inline-block;
+    font-size: 1em;
+    vertical-align: top;
+    margin-left: 0.25em;
+  }
+
+  .tip-icon :global(svg) {
+    width: 1em;
+    height: 1em;
+  }
+
+  /* 简单的 tooltip 样式 */
+  .tip[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    padding: 0.4em 0.8em;
+    background-color: rgb(var(--color-bg-card));
+    color: rgb(var(--color-text));
+    font-size: 0.85em;
+    border-radius: 0.4em;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgb(var(--color-border));
+    z-index: 100;
+  }
+
+  .tip[data-tip]:hover::after,
+  .tip[data-tip]:focus::after {
+    opacity: 1;
+    visibility: visible;
+  }
+</style>

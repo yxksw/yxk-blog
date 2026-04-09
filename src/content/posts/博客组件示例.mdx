@@ -28,6 +28,93 @@ import Pic from '@/components/content/Pic.astro'
 import Poetry from '@/components/content/Poetry.astro'
 import Quote from '@/components/content/Quote.astro'
 import Tab from '@/components/content/Tab.astro'
+import Timeline from '@/components/content/Timeline.astro'
+import Tip from '@/components/content/Tip.astro'
+
+## 时间线 Timeline
+
+<Timeline>
+  <dt class="timeline-caption">前天</dt>
+  <dd class="timeline-body">看到了小兔</dd>
+  <dt class="timeline-caption">昨天</dt>
+  <dd class="timeline-body">是小鹿</dd>
+  <dt class="timeline-caption">今天</dt>
+  <dd class="timeline-body">是你。</dd>
+</Timeline>
+
+<Timeline>
+  <dt class="timeline-caption">今日无事</dt>
+  <dt class="timeline-caption">今日依旧无事</dt>
+  <dt class="timeline-caption">然后——</dt>
+  <dd class="timeline-body">一件事</dd>
+  <dd class="timeline-body">两件事。</dd>
+  <dd class="timeline-body">再添一笔。</dd>
+</Timeline>
+
+### 组件语法
+
+```mdx
+import Timeline from '@/components/content/Timeline.astro'
+
+<Timeline>
+  <dt class="timeline-caption">时间标题</dt>
+  <dd class="timeline-body">内容描述</dd>
+  <dt class="timeline-caption">另一个时间</dt>
+  <dd class="timeline-body">另一段内容</dd>
+</Timeline>
+```
+
+### 使用说明
+
+- 使用 `<dt class="timeline-caption">` 作为时间节点标题
+- 使用 `<dd class="timeline-body">` 作为时间线内容
+- 可以混合使用多个标题和内容
+- 左侧有垂直时间线和圆点标记
+
+### 特性
+
+- **时间线样式**：左侧有垂直线和圆点标记
+- **灵活组合**：支持多个标题和内容混合排列
+- **卡片样式**：内容区域使用卡片样式展示
+- **适配明暗模式**：使用 CSS 变量适配主题
+
+## 提示 Tip
+
+我是一条<Tip tip="提示的内容是提示">小提示</Tip>，我<Tip icon={false} tip="或许也可以没有内容">没有图标</Tip>，<Tip copy>+v 点击就能复制，太方便了！</Tip>
+
+### 组件语法
+
+```mdx
+import Tip from '@/components/content/Tip.astro'
+
+<!-- 基础用法 -->
+<Tip tip="提示的内容">小提示</Tip>
+
+<!-- 没有图标 -->
+<Tip icon={false} tip="提示内容">没有图标</Tip>
+
+<!-- 点击复制 -->
+<Tip copy>点击复制这段文字</Tip>
+
+<!-- 自定义图标 -->
+<Tip tip="自定义提示" icon="ri:information-line">带图标的提示</Tip>
+```
+
+### 属性说明
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `text` | `string` | - | 提示文字内容 |
+| `tip` | `string` | - | 鼠标悬浮时显示的提示内容 |
+| `icon` | `string \| boolean` | - | 图标名，或设为 `false` 隐藏图标 |
+| `copy` | `boolean` | `false` | 是否启用点击复制功能 |
+
+### 特性
+
+- **下划线样式**：默认带有虚线下划线，表示可交互
+- **悬浮提示**：鼠标悬浮时显示提示内容
+- **点击复制**：设置 `copy` 属性后点击可复制内容
+- **自定义图标**：支持自定义图标或隐藏图标
 
 ## 选项卡 Tab
 
