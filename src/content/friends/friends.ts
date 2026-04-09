@@ -7,4 +7,12 @@ export const items = [
     rss: 'https://blog.liushen.fun/atom.xml',
     tags: ['友链'],
   }
+  {
+    title: '张洪heo',
+    avatar: 'https://img.zhheo.com/i/67d8fa75943e4.webp',
+    description: '分享设计与科技生活',
+    link: 'https://blog.zhheo.com/',
+    rss: 'https://blog.zhheo.com/rss.xml',
+    tags: ['友链'],
+  },
 ]
