@@ -8,7 +8,8 @@ import Highlight from '@/components/Highlight.astro'
 import SectionBlock from '@/components/SectionBlock.astro'
 import MarkdownWrapper from '@/components/MarkdownWrapper.astro'
 import FriendList from '@/components/FriendList.astro'
-import FriendCircle from '@/components/FriendCircle.astro'
+// import FriendCircle from '@/components/FriendCircle.astro'
+import { Icon } from '@iconify/react'
 import ProjectList from '@/components/ProjectList.astro'
 import { ReadingProgress } from '@/components/post/ReadingProgress'
 import { PostToc } from '@/components/post/PostToc'
@@ -51,6 +52,18 @@ const isMdContentEmpty = typeof md.body === 'string' ? md.body.trim().length ===
         {specSlug === 'friends' && (
           <>
             <FriendList />
+            
+            {/* 友链朋友圈入口按钮 */}
+            <div class="flex justify-center mt-8">
+              <a 
+                href="/fc" 
+                class="source-btn inline-flex items-center gap-2 no-underline"
+              >
+                <Icon icon="ri:refresh-line" className="w-4 h-4" client:load />
+                <span>友链朋友圈</span>
+              </a>
+            </div>
+            
             {/* <FriendCircle /> */}
           </>
         )}

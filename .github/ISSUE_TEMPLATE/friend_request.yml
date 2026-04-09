@@ -1,0 +1,66 @@
+name: 友链申请
+about: 申请添加友链
+title: '[友链申请] '
+labels: ['友链申请']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 友链申请
+        请填写以下信息申请添加友链。
+
+  - type: input
+    id: title
+    attributes:
+      label: 网站名称
+      description: 你的网站名称
+      placeholder: 例如：我的博客
+    validations:
+      required: true
+
+  - type: input
+    id: avatar
+    attributes:
+      label: 头像链接
+      description: 网站头像图片链接（建议使用 HTTPS）
+      placeholder: 例如：https://example.com/avatar.png
+    validations:
+      required: true
+
+  - type: input
+    id: description
+    attributes:
+      label: 网站描述
+      description: 简短描述你的网站
+      placeholder: 例如：记录生活，分享技术
+    validations:
+      required: true
+
+  - type: input
+    id: link
+    attributes:
+      label: 网站链接
+      description: 你的网站链接（建议使用 HTTPS）
+      placeholder: 例如：https://example.com
+    validations:
+      required: true
+
+  - type: input
+    id: rss
+    attributes:
+      label: RSS 链接（可选）
+      description: 网站的 RSS 订阅链接
+      placeholder: 例如：https://example.com/rss.xml
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: agreement
+    attributes:
+      label: 确认事项
+      description: 请确认以下事项
+      options:
+        - label: 我已添加本站友链
+          required: true
+        - label: 我确认所填信息真实有效
+          required: true

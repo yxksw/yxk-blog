@@ -1,9 +1,22 @@
 ---
 import PageLayout from '@/layouts/PageLayout.astro'
+import { Icon } from '@iconify/react'
 ---
 
 <PageLayout title='友链朋友圈' description='聚合展示友链博客的最新文章动态'>
   <div class="max-w-5xl mx-auto px-4 py-8">
+    {/* 返回按钮 */}
+    <div class="mb-6">
+      <a 
+        href="/friends" 
+        class="source-btn inline-flex items-center gap-2 no-underline"
+        data-astro-reload
+      >
+        <Icon icon="ri:arrow-left-line" className="w-4 h-4" client:load />
+        <span>返回友链页面</span>
+      </a>
+    </div>
+    
     <h1 class="text-3xl font-bold mb-8 text-center">友链朋友圈</h1>
     
     <div id="friend-circle-container" class="not-prose min-h-[200px] flex items-center justify-center text-muted-foreground">
@@ -12,19 +25,59 @@ import PageLayout from '@/layouts/PageLayout.astro'
   </div>
 
   <script is:inline>
-    if (typeof UserConfig === 'undefined') {
-      window.UserConfig = {
-        // hexo-circle-of-friends 后端 API 地址
-        private_api_url: 'https://fc.268682.xyz/',
-        // 每次点击"加载更多"时加载的文章数量，默认 24
-        page_turning_number: 24,
-        // 头像加载失败时的默认图片
-        error_img: 'https://fastly.jsdelivr.net/gh/Rock-Candy-Tea/Friend-Circle-Frontend/logo.png',
-      }
+    // 配置必须在加载 yyyz.min.js 之前设置
+    window.UserConfig = {
+      // hexo-circle-of-friends 后端 API 地址
+      private_api_url: 'https://fc.268682.xyz/',
+      // 每次点击"加载更多"时加载的文章数量，默认 24
+      page_turning_number: 24,
+      // 头像加载失败时的默认图片
+      error_img: 'https://fastly.jsdelivr.net/gh/Rock-Candy-Tea/Friend-Circle-Frontend/logo.png',
     }
   </script>
 
   <link rel="stylesheet" href="/yyyz.min.css">
   <link rel="stylesheet" href="/fc-dark-mode.css">
-  <script is:inline src="https://fastly.jsdelivr.net/gh/Rock-Candy-Tea/Friend-Circle-Frontend/hexo-theme-butterfly/yyyz.min.js"></script>
+  <script is:inline src="/yyyz.min.js"></script>
+  
+  <script is:inline>
+    (function() {
+      // 初始化函数 - 检查并触发朋友圈加载
+      function initFriendCircle() {
+        var container = document.getElementById('friend-circle-container')
+        if (!container) return
+        
+        // 如果已经加载成功（内容不是初始文本），则不重新加载
+        if (container.textContent.trim() !== '与主机通讯中……') {
+          return
+        }
+        
+        // 重置容器
+        container.innerHTML = '与主机通讯中……'
+        
+        // 检查 yyyz 是否已经加载并初始化
+        // yyyz.min.js 加载后会自动查找 #friend-circle-container 并渲染
+        // 如果页面切换后没有自动渲染，尝试手动触发
+        setTimeout(function() {
+          if (container.textContent.trim() === '与主机通讯中……') {
+            // 如果仍然是初始状态，可能是脚本没有执行
+            // 尝试通过重新插入容器来触发
+            var parent = container.parentNode
+            var newContainer = container.cloneNode(true)
+            parent.replaceChild(newContainer, container)
+          }
+        }, 1000)
+      }
+      
+      // 监听 Astro 页面加载事件
+      document.addEventListener('astro:page-load', initFriendCircle)
+      
+      // 立即执行（首次加载）
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFriendCircle)
+      } else {
+        initFriendCircle()
+      }
+    })()
+  </script>
 </PageLayout>
