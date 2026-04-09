@@ -15,19 +15,10 @@ export interface DiaryItem {
 const diaryData: DiaryItem[] = [
   {
     id: 1,
-    content: '今天是一个美好的日子，开始了新的博客项目！',
-    date: '2025-04-07T10:30:00Z',
+    content: '今天完成了博客90%的修改，继续加油！',
+    date: '2025-04-09T23:00:00Z',
     tags: ['生活', '博客'],
     mood: '😊',
-  },
-  {
-    id: 2,
-    content: '刚刚完成了相册功能的开发，效果还不错~',
-    date: '2025-04-06T15:20:00Z',
-    images: ['https://picsum.photos/400/300'],
-    tags: ['开发', '相册'],
-    location: '家中',
-    mood: '🎉',
   },
 ]
 
