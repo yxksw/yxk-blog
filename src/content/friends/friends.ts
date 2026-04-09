@@ -23,13 +23,6 @@ export const items = [
     tags: ['友链'],
   },
   {
-    title: 'M次元',
-    avatar: 'https://cravatar.com/avatar/e067b11317af75ad0eff9db62d927096?s=80&d=blank',
-    description: '小声记录小事',
-    link: 'https://mmxza.com/',
-    tags: ['友链'],
-  },
-  {
     title: 'Mayx的博客',
     avatar: 'https://avatars0.githubusercontent.com/u/17966333',
     description: 'Mayx’s Home Page',
@@ -59,14 +52,6 @@ export const items = [
     description: '月光刚好，你在仰望，我们一起仰望',
     link: 'https://www.ccgxk.com',
     rss: 'https://www.ccgxk.com/rss.php',
-    tags: ['友链'],
-  },
-  {
-    title: '記緒漂流',
-    avatar: 'https://ttio.cc/favicon.svg',
-    description: '于记忆之川，泛思绪之舟',
-    link: 'https://ttio.cc',
-    rss: 'https://ttio.cc/feed.xml',
     tags: ['友链'],
   },
   {
@@ -102,14 +87,6 @@ export const items = [
     tags: ['友链'],
   },
   {
-    title: '蘇 SU',
-    avatar: 'https://suus.me/avatar.webp',
-    description: '在数字的海洋中，寻找属于自己的星辰。',
-    link: 'https://suus.me/',
-    rss: 'https://suus.me/rss.xml',
-    tags: ['友链'],
-  },
-  {
     title: 'Evilrabbit Blog',
     avatar: 'https://blog.yujiay.wang/images/site/BlogHsvg.png',
     description: '爱 Coding 爱生活',
@@ -132,20 +109,11 @@ export const items = [
     tags: ['友链'],
   },
   {
-    title: '懋和道人',
-    avatar:
-      'https://cn.cravatar.com/avatar/37d41e2b550633a30f5d41de61c1aa92?s=400&r=G&d=mp&ver=1754413756',
-    description: '李懋和，俗名李栋梁。书法、国画爱好者，互联网安全与前端建设者。',
-    link: 'https://www.dao.js.cn/',
-    rss: 'https://www.dao.js.cn/feed.php',
-    tags: ['友链'],
-  },
-  {
     title: '清羽飞扬',
     avatar: 'https://blog.liushen.fun/info/avatar.ico',
     description: '柳影曳曳，清酒孤灯，扬笔撒墨，心境如霜',
     link: 'https://blog.liushen.fun/',
     rss: 'https://blog.liushen.fun/atom.xml',
     tags: ['友链'],
-  },
+  }
 ]
