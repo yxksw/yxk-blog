@@ -36,7 +36,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `✅ 友链申请已通过！\n\n网站 **${{ steps.process.outputs.title }}** 已成功添加到友链列表。感谢你的申请！`
+              body: '✅ 友链申请已通过！\n\n网站 **${{ steps.process.outputs.title }}** 已成功添加到友链列表。感谢你的申请！'
             })
 
       - name: Comment on issue (unreachable)
@@ -48,10 +48,8 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `❌ 友链申请未通过\n\n以下链接无法访问（已重试3次）：\n${{ steps.process.outputs.errors }}\n\n请检查链接是否正确，修复后重新提交申请。`
+              body: '❌ 友链申请未通过\n\n以下链接无法访问（已重试3次）：\n${{ steps.process.outputs.errors }}\n\n请检查链接是否正确，修复后重新提交申请。'
             })
-            
-            // 重新打开 issue
             github.rest.issues.update({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -68,10 +66,8 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `⚠️ 表单验证失败\n\n${{ steps.process.outputs.errors }}\n\n请完善信息后重新提交。`
+              body: '⚠️ 表单验证失败\n\n${{ steps.process.outputs.errors }}\n\n请完善信息后重新提交。'
             })
-            
-            // 重新打开 issue
             github.rest.issues.update({
               issue_number: context.issue.number,
               owner: context.repo.owner,
