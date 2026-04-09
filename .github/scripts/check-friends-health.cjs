@@ -5,6 +5,14 @@ const http = require('http')
 
 const FRIENDS_FILE = path.join(process.cwd(), 'src/content/friends/friends.ts')
 
+// 设置输出到 GITHUB_OUTPUT 环境文件
+function setOutput(name, value) {
+  const outputFile = process.env.GITHUB_OUTPUT
+  if (outputFile) {
+    fs.appendFileSync(outputFile, `${name}=${value}\n`)
+  }
+}
+
 // 检查 URL 可达性（带重试）
 async function checkUrl(url, retries = 3) {
   for (let i = 0; i < retries; i++) {
@@ -177,8 +185,8 @@ async function main() {
 
     // 输出结果供工作流使用
     const removedTitles = unhealthyFriends.map((f) => f.title).join(', ')
-    console.log(`\n::set-output name=removed::${removedTitles}`)
-    console.log(`::set-output name=removed_count::${unhealthyFriends.length}`)
+    setOutput('removed', removedTitles)
+    setOutput('removed_count', unhealthyFriends.length.toString())
 
     // 输出详细信息
     const details = unhealthyFriends
@@ -188,11 +196,11 @@ async function main() {
       })
       .join('\n')
 
-    console.log(`::set-output name=details::${details}`)
+    setOutput('details', details)
   } else {
-    console.log('\n::set-output name=removed::')
-    console.log('::set-output name=removed_count::0')
-    console.log('::set-output name=details::All friends are healthy')
+    setOutput('removed', '')
+    setOutput('removed_count', '0')
+    setOutput('details', 'All friends are healthy')
   }
 }
 

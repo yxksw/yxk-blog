@@ -5,6 +5,14 @@ const http = require('http')
 
 const FRIENDS_FILE = path.join(process.cwd(), 'src/content/friends/friends.ts')
 
+// 设置输出到 GITHUB_OUTPUT 环境文件
+function setOutput(name, value) {
+  const outputFile = process.env.GITHUB_OUTPUT
+  if (outputFile) {
+    fs.appendFileSync(outputFile, `${name}=${value}\n`)
+  }
+}
+
 // 检查 URL 可达性（带重试）
 async function checkUrl(url, retries = 3) {
   for (let i = 0; i < retries; i++) {
@@ -195,8 +203,8 @@ async function main() {
   const validationErrors = validateData(data)
   if (validationErrors.length > 0) {
     console.log('Validation errors:', validationErrors)
-    console.log('::set-output name=result::invalid')
-    console.log('::set-output name=errors::' + validationErrors.join(', '))
+    setOutput('result', 'invalid')
+    setOutput('errors', validationErrors.join(', '))
     process.exit(0)
   }
 
@@ -209,8 +217,8 @@ async function main() {
     const errorMessages = failedChecks.map(
       (f) => `${f.field} (${f.url}): ${f.error}${f.statusCode ? ` (HTTP ${f.statusCode})` : ''}`,
     )
-    console.log('::set-output name=result::unreachable')
-    console.log('::set-output name=errors::' + errorMessages.join('; '))
+    setOutput('result', 'unreachable')
+    setOutput('errors', errorMessages.join('; '))
     process.exit(0)
   }
 
@@ -219,12 +227,12 @@ async function main() {
   try {
     addToFriends(data)
     console.log('Successfully added to friends.ts')
-    console.log('::set-output name=result::success')
-    console.log('::set-output name=title::' + data.title)
+    setOutput('result', 'success')
+    setOutput('title', data.title)
   } catch (error) {
     console.error('Failed to add to friends.ts:', error)
-    console.log('::set-output name=result::error')
-    console.log('::set-output name=errors::' + error.message)
+    setOutput('result', 'error')
+    setOutput('errors', error.message)
     process.exit(1)
   }
 }
