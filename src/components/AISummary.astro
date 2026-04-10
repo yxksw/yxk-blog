@@ -1,0 +1,163 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  summary?: string;
+}
+
+const { summary } = Astro.props;
+---
+
+{summary && (
+  <>
+    <style is:inline>
+      /* AISummary Styles - 完全复刻原始样式 */
+      .aisummary-container {
+        background: hsl(var(--muted) / 0.5);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        line-height: 1.5;
+        border: 1px solid hsl(var(--border) / 0.8);
+        margin: 1.25rem 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+      }
+
+      .aisummary-container:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+      }
+
+      @media screen and (max-width: 768px) {
+        .aisummary-container {
+          margin-top: 1.5rem;
+          padding: 0.875rem;
+        }
+      }
+
+      .aisummary-title {
+        display: flex;
+        color: hsl(var(--muted-foreground));
+        border-radius: 0.5rem;
+        align-items: center;
+        padding: 0 0.75rem;
+        cursor: default;
+        user-select: none;
+        font-family: var(--font-sans);
+      }
+
+      .aisummary-title-text {
+        font-weight: 600;
+        margin-left: 0.625rem;
+        line-height: 1.2;
+        letter-spacing: -0.01em;
+      }
+
+      .aisummary-explanation {
+        margin-top: 0.875rem;
+        padding: 0.75rem 1rem;
+        background: hsl(var(--background));
+        border-radius: 0.5rem;
+        border: 1px solid hsl(var(--border) / 0.6);
+        font-size: 0.9375rem;
+        line-height: 1.6;
+        display: block;
+        position: relative;
+        overflow: visible;
+        max-height: none !important;
+        will-change: contents;
+      }
+
+      .aisummary-explanation::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 3px;
+        background: hsl(var(--primary));
+      }
+
+      .aisummary-tag {
+        font-size: 0.75rem;
+        background-color: hsl(var(--primary) / 0.9);
+        color: hsl(var(--primary-foreground));
+        font-weight: 600;
+        border-radius: 0.25rem;
+        margin-left: auto;
+        line-height: 1;
+        padding: 0.375rem 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .aisummary-tag:hover {
+        background: hsl(var(--primary) / 1);
+        transform: scale(1.05);
+      }
+
+      .aisummary-title-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .aisummary-title-icon :global(svg) {
+        width: 1.25rem;
+        height: 1.25rem;
+        fill: hsl(var(--primary));
+      }
+
+      .aisummary-disclaimer {
+        font-size: 0.75rem;
+        color: hsl(var(--muted-foreground));
+        margin-top: 0.5rem;
+        padding: 0 0.5rem;
+      }
+
+      .blinking-cursor {
+        background-color: hsl(var(--primary));
+        width: 0.625rem;
+        height: 1rem;
+        display: inline-block;
+        vertical-align: middle;
+        animation: blinking-cursor 0.5s infinite;
+        -webkit-animation: blinking-cursor 0.5s infinite;
+        margin-left: 0.25rem;
+        border-radius: 1px;
+      }
+
+      @keyframes blinking-cursor {
+        0% { opacity: 1; }
+        40% { opacity: 1; }
+        50% { opacity: 0; }
+        90% { opacity: 0; }
+        100% { opacity: 1; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .blinking-cursor {
+          animation: none;
+          -webkit-animation: none;
+        }
+      }
+    </style>
+
+    <div class="aisummary-container">
+      <div class="aisummary-title">
+        <i class="aisummary-title-icon">
+          <Icon name="ri:robot-2-line" />
+        </i>
+        <div class="aisummary-title-text">AI 摘要</div>
+        <div class="aisummary-tag" id="aisummary-tag">AI</div>
+      </div>
+      <div class="aisummary-explanation" data-ai-summary={summary}>{summary}</div>
+      <div class="aisummary-disclaimer">本摘要由AI生成，仅供参考，内容准确性请以原文为准。</div>
+    </div>
+  </>
+)}

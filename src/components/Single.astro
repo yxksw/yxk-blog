@@ -14,25 +14,13 @@ if (aboutPost) {
 
 // 配置数据
 const singleData = {
-  tip: '关于博客',
-  title: '关于',
-  content: '一些介绍',
-  lishi: '致谢'
+  tip: '关于博客'
 }
 ---
 
 <div class="author-content-item single">
   <div class="author-content-item-tips">
     {singleData.tip}
-  </div>
-  <div class="author-content-item-title">
-    {singleData.title}
-  </div>
-  <p class="author-content-item-content">
-    {singleData.content}
-  </p>
-  <div class="lishi">
-    {singleData.lishi}
   </div>
   <div class="singlePost">
     {Content ? (
@@ -41,7 +29,7 @@ const singleData = {
       </div>
     ) : (
       <p class="text-center">
-        可于 about.md 配置补充说明。
+        可于 about.md 或 about.mdx 配置补充说明。
       </p>
     )}
   </div>
@@ -61,31 +49,6 @@ const singleData = {
     font-size: 12px;
     margin-bottom: 0.5rem;
     color: hsl(var(--muted-foreground));
-  }
-
-  .author-content-item-title {
-    font-size: 1.875rem;
-    line-height: 2.25rem;
-    font-weight: 700;
-    color: hsl(var(--foreground));
-    margin-bottom: 0.5rem;
-  }
-
-  .lishi {
-    font-size: 1.5rem;
-    line-height: 2rem;
-    font-weight: 600;
-    color: hsl(var(--foreground));
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .author-content-item-content {
-    margin-bottom: 1rem;
-    margin-top: 0.5rem;
-    vertical-align: middle;
-    color: hsl(var(--foreground));
-    line-height: 1.6;
   }
 
   .singlePost {

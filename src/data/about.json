@@ -138,12 +138,6 @@
         "background": "#222"
       },
       {
-        "id": "Node",
-        "title": "Node.js",
-        "image": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/skills/nodejs.svg",
-        "background": "#2c51db"
-      },
-      {
         "id": "javascript",
         "title": "JavaScript",
         "image": "https://cdn.jsdmirror.com/gh/yxksw/icons@main/skills/js.svg",

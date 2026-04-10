@@ -103,7 +103,7 @@ const projects = defineCollection({
 })
 
 const spec = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/spec' }),
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/spec' }),
   schema: z.object({
     title: z.string(),
     description: z.string(),

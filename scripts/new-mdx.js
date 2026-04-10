@@ -76,6 +76,7 @@ tags:
 ${tagsList}
 slug: ${fileName}
 aiSummary: true
+summary: 
 comments: true
 draft: false
 column: ${column}

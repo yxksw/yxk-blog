@@ -1,4 +1,4 @@
-﻿---
+---
 import Layout from './Layout.astro'
 import Footer from '@/components/footer/Footer.astro'
 import { Header } from '@/components/header/Header'
@@ -12,9 +12,11 @@ interface Props {
   mdTitle: string
   mdDescription: string
   mdSlug: string
+  aisummaryConfig?: string
+  aisummary?: string
 }
 
-const { title, description, image, mdTitle, mdDescription, mdSlug } = Astro.props
+const { title, description, image, mdTitle, mdDescription, mdSlug, aisummaryConfig, aisummary } = Astro.props
 ---
 
 <Layout title={title} description={description} image={image}>
@@ -38,5 +40,9 @@ const { title, description, image, mdTitle, mdDescription, mdSlug } = Astro.prop
     </div>
   </main>
   <Footer />
+
+  {/* AISummary 脚本 */}
+  {aisummaryConfig && <script src={aisummaryConfig} is:inline />}
+  {aisummary && <script src={aisummary} is:inline />}
 </Layout>
 

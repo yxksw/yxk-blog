@@ -1,0 +1,186 @@
+---
+import PageLayout from '@/layouts/PageLayout.astro'
+import Highlight from '@/components/Highlight.astro'
+import { Icon } from 'astro-icon/components'
+import sponsorsData from '@/data/sponsors.json'
+
+interface Sponsor {
+  name: string
+  avatar?: string
+  amount: string
+  date: string
+}
+
+const sponsors: Sponsor[] = sponsorsData.sponsors || []
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "首页",
+      item: Astro.site,
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "赞助支持",
+      item: new URL("/sponsor", Astro.site).toString(),
+    },
+  ],
+}
+---
+
+<PageLayout title="赞助支持" description="如果您觉得我的内容对您有帮助，欢迎支持我的创作">
+  <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)}></script>
+  
+  <div class="max-w-[800px] mx-auto px-4 py-16 space-y-8">
+    <header class="space-y-4 text-center">
+      <h1 class="text-4xl font-bold">
+        <Highlight>赞助支持</Highlight>
+      </h1>
+      <p class="text-muted-foreground">如果您觉得我的内容对您有帮助，欢迎通过以下方式支持我的创作</p>
+    </header>
+
+    <!-- 支持说明 -->
+    <div class="bg-secondary/50 border border-border rounded-lg p-6">
+      <p class="text-lg mb-3">
+        您的每一份支持都是我持续创作的动力！
+      </p>
+      <p class="text-sm text-muted-foreground">
+        所有赞助将用于网站维护、服务器费用以及内容创作。
+      </p>
+    </div>
+
+    <!-- 支付方式 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- 支付宝 -->
+      <div class="bg-secondary border border-border rounded-lg p-6 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-lg bg-blue-500 flex items-center justify-center">
+            <Icon name="ri:alipay-line" class="text-xl text-white" />
+          </div>
+          <div>
+            <h3 class="text-lg font-bold">支付宝</h3>
+            <p class="text-sm text-muted-foreground">扫码支付</p>
+          </div>
+        </div>
+        <div class="flex justify-center">
+          <div class="relative w-48 h-48 rounded-lg overflow-hidden bg-white">
+            <img 
+              src="https://cdn.jsdmirror.com/gh/zsxcoder/github-img@main/img/alp.avif" 
+              alt="支付宝二维码" 
+              class="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- 微信支付 -->
+      <div class="bg-secondary border border-border rounded-lg p-6 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-lg bg-green-500 flex items-center justify-center">
+            <Icon name="ri:wechat-pay-line" class="text-xl text-white" />
+          </div>
+          <div>
+            <h3 class="text-lg font-bold">微信支付</h3>
+            <p class="text-sm text-muted-foreground">扫码支付</p>
+          </div>
+        </div>
+        <div class="flex justify-center">
+          <div class="relative w-48 h-48 rounded-lg overflow-hidden bg-white">
+            <img 
+              src="https://cdn.jsdmirror.com/gh/zsxcoder/github-img@main/img/weixin.avif" 
+              alt="微信支付二维码" 
+              class="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 其他支持方式 -->
+    <div class="bg-secondary/50 border border-border rounded-lg p-6">
+      <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+        <Icon name="ri:heart-fill" class="text-accent" />
+        <span>其他支持方式</span>
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-secondary border border-border rounded-lg p-4 text-center hover:border-accent/50 transition-colors">
+          <div class="flex justify-center mb-2">
+            <Icon name="ri:share-line" class="text-2xl text-accent" />
+          </div>
+          <h4 class="font-semibold mb-1">分享推荐</h4>
+          <p class="text-sm text-muted-foreground">将我的博客分享给更多朋友</p>
+        </div>
+
+        <div class="bg-secondary border border-border rounded-lg p-4 text-center hover:border-accent/50 transition-colors">
+          <div class="flex justify-center mb-2">
+            <Icon name="ri:message-3-line" class="text-2xl text-accent" />
+          </div>
+          <h4 class="font-semibold mb-1">留言互动</h4>
+          <p class="text-sm text-muted-foreground">在文章下方留下您的想法</p>
+        </div>
+
+        <div class="bg-secondary border border-border rounded-lg p-4 text-center hover:border-accent/50 transition-colors">
+          <div class="flex justify-center mb-2">
+            <Icon name="ri:rss-line" class="text-2xl text-accent" />
+          </div>
+          <h4 class="font-semibold mb-1">关注订阅</h4>
+          <p class="text-sm text-muted-foreground">订阅 RSS 获取最新内容</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 赞助者名单 -->
+    {sponsors.length > 0 && (
+      <div class="bg-secondary/50 border border-border rounded-lg p-6">
+        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <Icon name="ri:group-line" class="text-accent" />
+          <span>已赞助的小伙伴</span>
+          <a
+            href="https://github.com/yxksw/yxk-blog/issues/new?template=sponsor_request.yml"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="ml-auto text-sm font-normal text-accent hover:underline"
+          >
+            点此添加赞助信息
+          </a>
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {sponsors.map((sponsor) => (
+            <div class="bg-secondary border border-border rounded-lg p-4 flex items-center gap-3 hover:border-accent/50 transition-colors">
+              <div class="w-10 h-10 rounded-full overflow-hidden bg-muted flex-shrink-0">
+                {sponsor.avatar ? (
+                  <img 
+                    src={sponsor.avatar} 
+                    alt={`${sponsor.name}的头像`} 
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                    onerror="this.onerror=null; this.src=''; this.parentElement.querySelector('.fallback-avatar')?.classList.remove('hidden');"
+                  />
+                  <div class="fallback-avatar hidden w-full h-full flex items-center justify-center text-muted-foreground absolute inset-0 bg-muted">
+                    <Icon name="ri:user-line" class="text-xl" />
+                  </div>
+                ) : (
+                  <div class="w-full h-full flex items-center justify-center text-muted-foreground">
+                    <Icon name="ri:user-line" class="text-xl" />
+                  </div>
+                )}
+              </div>
+              <div class="flex-1 min-w-0">
+                <h4 class="font-semibold text-sm truncate">{sponsor.name}</h4>
+                <p class="text-xs text-muted-foreground">{sponsor.date}</p>
+              </div>
+              <div class="text-sm text-accent font-medium">{sponsor.amount}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</PageLayout>

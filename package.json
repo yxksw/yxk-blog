@@ -12,7 +12,8 @@
     "lint": "prettier --write .",
     "new-friend": "node scripts/new-friend.js",
     "new-post": "node scripts/new-post.js",
-    "new-project": "node scripts/new-project.js"
+    "new-project": "node scripts/new-project.js",
+    "generate-summary": "tsx scripts/generateSummary.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",
@@ -73,10 +74,13 @@
     "@commitlint/config-conventional": "^20.5.0",
     "@iconify-json/ri": "^1.2.10",
     "@iconify/react": "^6.0.2",
+    "@iconify/svelte": "^5.2.1",
     "@iconify/types": "^2.0.0",
     "@inquirer/prompts": "^8.3.2",
     "@types/mdast": "^4.0.4",
     "astro-icon": "^1.1.5",
+    "glob": "^13.0.6",
+    "gray-matter": "^4.0.3",
     "lint-staged": "^16.4.0",
     "micromark-util-symbol": "^2.0.1",
     "prettier": "^3.8.1",

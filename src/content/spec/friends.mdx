@@ -1,0 +1,38 @@
+---
+title: 朋友们
+description: 我的小伙伴们和一些有趣的站点。
+comments: true
+---
+
+import Tab from '@/components/content/Tab.astro'
+
+## 怎么申请友链？
+
+想要交换友链的小伙伴们，欢迎在评论按格式留言或者[仓库](https://github.com/yxksw/yxk-blog/issues/new?template=friend_request.yml)添加议题(推荐)哦。审核通过后，就可以在这里展示啦。
+
+友链参考格式：
+
+<Tab tabs={['申请格式', '我的友链']} center>
+  <div slot="tab1">
+
+```json
+title: 网站名称
+description: 一句话介绍下你的网站或者你自己
+link: 网站地址
+avatar: 头像地址
+rss: 订阅地址
+```
+
+  </div>
+  <div slot="tab2">
+```json
+title:  YXK's Blog
+description: 每一段旅行，都有终点。
+link: https://blog.050815.xyz
+avatar: https://cn.cravatar.com/avatar/56cd72b5460ecaa08ddffea9562f5629?size=256
+rss: https://blog.050815.xyz/rss.xml
+```
+  </div>
+</Tab>
+
+推荐留下订阅地址，以便本站更好的展示你的内容。

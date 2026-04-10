@@ -13,7 +13,8 @@ import Lightbox from '@/components/Lightbox.astro'
 import FootnoteTooltip from '@/components/FootnoteTooltipInline.astro'
 import NewPostNotification from '@/components/NewPostNotification.astro'
 import PostChangeHighlighter from '@/components/PostChangeHighlighter.astro'
-import { site } from '@/config.json'
+import MusicPlayer from '@/components/MusicPlayer.svelte'
+import config from '@/config.json'
 import '@/styles/global.css'
 import livecodesScriptUrl from '@/scripts/livecodes.ts?url'
 
@@ -27,7 +28,7 @@ const { title, description, image } = Astro.props
 ---
 
 <!doctype html>
-<html lang={site.lang}>
+<html lang={config.site.lang}>
   <head>
     <CommonHead title={title} description={description} image={image} />
     <WebAnalytics />
@@ -48,6 +49,7 @@ const { title, description, image } = Astro.props
     <FootnoteTooltip />
     <NewPostNotification />
     <PostChangeHighlighter />
+    <MusicPlayer client:only="svelte" config={config.musicPlayer as any} />
     <script is:inline type="module" define:vars={{ livecodesScriptUrl }}>
       const { initLivecodes } = await import(livecodesScriptUrl)
       document.addEventListener('astro:page-load', () => initLivecodes())
