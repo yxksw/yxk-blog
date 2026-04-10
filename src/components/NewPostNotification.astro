@@ -5,8 +5,8 @@ import { Icon } from 'astro-icon/components'
 <style>
   #notification-panel {
     position: relative;
-    width: 3.75rem;
-    height: 3.75rem;
+    width: 2.5rem;
+    height: 2.5rem;
     border-radius: 50%;
     overflow: hidden;
     box-sizing: border-box;
@@ -21,11 +21,16 @@ import { Icon } from 'astro-icon/components'
     width: var(--np-open-width, min(20rem, calc(100vw - 2rem)));
     height: var(--np-open-height, min(70vh, 34rem));
     border-radius: 1rem;
+    display: block;
   }
   #notification-minimized {
     position: absolute;
     inset: 0;
     transition: opacity 160ms ease, transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-radius: 50%;
+  }
+  #notification-panel.is-open #notification-minimized {
+    border-radius: 1rem;
   }
   #notification-content {
     position: absolute;
@@ -47,13 +52,14 @@ import { Icon } from 'astro-icon/components'
   }
 </style>
 
-<div id="new-post-notification" class="fixed bottom-28 right-4 z-50 pointer-events-none">
+<div id="new-post-notification" class="fixed right-4 bottom-[8rem] z-50 pointer-events-none">
   <div
     id="notification-panel"
-    class="pointer-events-auto bg-[rgb(var(--color-bg-card))] border-2 border-[rgb(var(--color-primary))] text-[rgb(var(--color-primary))] shadow-lg transform translate-y-20 opacity-0"
+    class="pointer-events-auto size-10 rounded-full shadow-lg shadow-zinc-800/5 border border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-card))] text-[rgb(var(--color-primary))] transform translate-y-20 opacity-0 flex items-center justify-center cursor-pointer"
   >
-    <button id="notification-minimized" aria-label="New post notification" class="flex items-center justify-center">
-      <Icon name="lucide:bell" size={24} />
+    <Icon name="lucide:bell" size={20} />
+    <button id="notification-minimized" aria-label="New post notification" class="hidden">
+      <Icon name="lucide:bell" size={20} />
     </button>
 
     <div id="notification-content" class="flex flex-col p-5">
@@ -179,7 +185,7 @@ import { Icon } from 'astro-icon/components'
     const minimizeBtn = document.getElementById('minimize-notification')
     const clearBtn = document.getElementById('clear-notification')
 
-    if (!minimizedBtn || !panel || !list) return
+    if (!panel || !list) return
 
     // Show panel
     requestAnimationFrame(() => {
@@ -252,6 +258,8 @@ import { Icon } from 'astro-icon/components'
 
     if (newPosts.length > 0) {
       dot?.classList.remove('scale-0')
+      // Add visual indicator - animate the panel
+      panel.style.animation = 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
       if (isFresh) {
         setTimeout(() => {
           openPanel()
@@ -259,6 +267,8 @@ import { Icon } from 'astro-icon/components'
       }
     } else {
       dot?.classList.add('scale-0')
+      // Remove visual indicator
+      panel.style.animation = ''
     }
 
     setupEventListeners()
@@ -288,6 +298,20 @@ import { Icon } from 'astro-icon/components'
     }
 
     function setupEventListeners() {
+      // Bind to the panel itself as primary click target
+      panel.onclick = (e) => {
+        // Don't close if clicking inside content area
+        if (panel.classList.contains('is-open') && (e.target as HTMLElement).closest('#notification-content')) {
+          return
+        }
+        if (!panel.classList.contains('is-open')) {
+          openPanel()
+        } else {
+          closePanel()
+        }
+      }
+
+      // Fallback to minimized button if exists
       if (minimizedBtn) {
         minimizedBtn.onclick = () => {
           if (!panel.classList.contains('is-open')) {

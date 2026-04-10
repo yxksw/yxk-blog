@@ -6,6 +6,7 @@ import { getSortedPosts, getEntrySlug } from '@/utils/content'
 import MarkdownWrapper from '@/components/MarkdownWrapper.astro'
 import SectionBlock from '@/components/SectionBlock.astro'
 import { PostToc } from '@/components/post/PostToc'
+import { MobileTocButton } from '@/components/post/MobileTocButton'
 import PostMetaInfo from '@/components/post/PostMetaInfo.astro'
 import PostArchiveInfo from '@/components/post/PostArchiveInfo.astro'
 import { ReadingProgress } from '@/components/post/ReadingProgress'
@@ -133,6 +134,10 @@ const shouldShowAiSummary = current.data.aiSummary
         <PostNav prev={prev} next={next} />
         {current.data.comments && <Comments />}
       </section>
+    </div>
+    {/* 移动端目录按钮 - 放在通知按钮上方 */}
+    <div class="fixed right-4 bottom-[12rem] z-50 xl:hidden" data-pagefind-ignore>
+      <MobileTocButton headings={headings} client:idle />
     </div>
   </div>
 </MarkdownLayout>

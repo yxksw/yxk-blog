@@ -1,85 +1,85 @@
 name: Friend Request Processor
 
 on:
-  issues:
-    types: [closed]
+    issues:
+        types: [closed]
 
 jobs:
-  process-friend-request:
-    runs-on: ubuntu-latest
-    if: contains(github.event.issue.labels.*.name, '友链申请')
-    permissions:
-      contents: write
-      issues: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    process-friend-request:
+        runs-on: ubuntu-latest
+        if: contains(github.event.issue.labels.*.name, '友链申请')
+        permissions:
+            contents: write
+            issues: write
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
 
-      - name: Process friend request
-        id: process
-        env:
-          ISSUE_BODY: ${{ github.event.issue.body }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-        run: node .github/scripts/process-friend-request.cjs
+            - name: Process friend request
+              id: process
+              env:
+                  ISSUE_BODY: ${{ github.event.issue.body }}
+                  ISSUE_NUMBER: ${{ github.event.issue.number }}
+              run: node .github/scripts/process-friend-request.cjs
 
-      - name: Comment on issue (success)
-        if: steps.process.outputs.result == 'success'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '✅ 友链申请已通过！\n\n网站 **${{ steps.process.outputs.title }}** 已成功添加到友链列表。感谢你的申请！'
-            })
+            - name: Comment on issue (success)
+              if: steps.process.outputs.result == 'success'
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      github.rest.issues.createComment({
+                        issue_number: context.issue.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        body: '✅ 友链申请已通过！\n\n网站 **${{ steps.process.outputs.title }}** 已成功添加到友链列表。感谢你的申请！'
+                      })
 
-      - name: Comment on issue (unreachable)
-        if: steps.process.outputs.result == 'unreachable'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '❌ 友链申请未通过\n\n以下链接无法访问（已重试3次）：\n${{ steps.process.outputs.errors }}\n\n请检查链接是否正确，修复后重新提交申请。'
-            })
-            github.rest.issues.update({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open'
-            })
+            - name: Comment on issue (unreachable)
+              if: steps.process.outputs.result == 'unreachable'
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      github.rest.issues.createComment({
+                        issue_number: context.issue.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        body: '❌ 友链申请未通过\n\n以下链接无法访问（已重试3次）：\n${{ steps.process.outputs.errors }}\n\n请检查链接是否正确，修复后重新提交申请。'
+                      })
+                      github.rest.issues.update({
+                        issue_number: context.issue.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        state: 'open'
+                      })
 
-      - name: Comment on issue (invalid)
-        if: steps.process.outputs.result == 'invalid'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '⚠️ 表单验证失败\n\n${{ steps.process.outputs.errors }}\n\n请完善信息后重新提交。'
-            })
-            github.rest.issues.update({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open'
-            })
+            - name: Comment on issue (invalid)
+              if: steps.process.outputs.result == 'invalid'
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      github.rest.issues.createComment({
+                        issue_number: context.issue.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        body: '⚠️ 表单验证失败\n\n${{ steps.process.outputs.errors }}\n\n请完善信息后重新提交。'
+                      })
+                      github.rest.issues.update({
+                        issue_number: context.issue.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        state: 'open'
+                      })
 
-      - name: Commit changes
-        if: steps.process.outputs.result == 'success'
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add src/content/friends/friends.ts
-          git commit -m "Add friend: ${{ steps.process.outputs.title }} (closes #${{ github.event.issue.number }})" || echo "No changes to commit"
-          git push
+            - name: Commit changes
+              if: steps.process.outputs.result == 'success'
+              run: |
+                  git config --global user.name 'github-actions[bot]'
+                  git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+                  git add src/content/friends/friends.ts
+                  git commit -m "Add friend: ${{ steps.process.outputs.title }} (closes #${{ github.event.issue.number }})" || echo "No changes to commit"
+                  git push

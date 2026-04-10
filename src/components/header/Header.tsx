@@ -23,7 +23,7 @@ export function Header() {
         <div className="flex items-center justify-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           {!isMobile && <HeaderContent />}
         </div>
-        <div className="flex items-center justify-end flex-1 min-w-0 gap-2">
+        <div className="flex items-center justify-end flex-1 min-w-0 gap-2 relative z-20">
           <SearchButton />
           {isMobile ? <HeaderDrawer /> : <SocialLinks />}
         </div>
