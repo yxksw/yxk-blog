@@ -181,14 +181,9 @@
   },
   "projects": [
     {
-      "name": "Friend-Circle-lite",
-      "description": "轻量化友链朋友圈",
-      "url": "https://github.com/willow-god/Friend-Circle-Lite"
-    },
-    {
-      "name": "Hexo-Safego",
-      "description": "hexo插件之安全跳转中转页",
-      "url": "https://github.com/willow-god/hexo-safego"
+      "name": "yxk-blog",
+      "description": "博客源码",
+      "url": "https://github.com/yxksw/yxk-blog"
     }
   ],
   "hobbies": ["阅读", "小说", "编程", "魔改"],

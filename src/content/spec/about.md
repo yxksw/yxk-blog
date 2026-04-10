@@ -1,6 +1,6 @@
 ---
 title: 关于
-description: 关于作者
+description: 关于博客
 comments: false
 ---
 
