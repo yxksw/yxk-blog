@@ -9,7 +9,7 @@ import PostMetaInfo from '@/components/post/PostMetaInfo.astro'
 import { PostToc } from '@/components/post/PostToc'
 import { ReadingProgress } from '@/components/post/ReadingProgress'
 import { Comments } from '@/components/comment'
-import { PostCopyright } from '@/components/post/PostCopyright'
+import PostCopyright from '@/components/post/PostCopyright.astro'
 import PostNav from '@/components/post/PostNav.astro'
 
 export const getStaticPaths = (async () => {
@@ -223,10 +223,9 @@ const nextUrl = nextItem ? `/columns/${column.slug}/${nextItem.slug.split('/').p
       <div class="mt-8 space-y-8">
         <PostCopyright
           title={post.data.title}
-          slug={mdSlug}
+          slug={postPath}
           date={post.data.date as Date}
           lastMod={post.data.lastMod}
-          client:visible
         />
         <PostNav
           prev={prevItem ? { data: { title: prevItem.title } } : undefined}
