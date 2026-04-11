@@ -69,6 +69,15 @@ import { Icon } from '@iconify/react'
         }, 1000)
       }
       
+      // 拦截 location.reload，用于处理清空缓存后的刷新
+      // yyyz.min.js 中的清空缓存会调用 location.reload()
+      // 在 Astro 的 SPA 导航中，需要强制刷新整个页面
+      var originalReload = window.location.reload
+      window.location.reload = function(forceReload) {
+        // 强制刷新整个页面，而不是使用 Astro 的客户端导航
+        window.location.href = window.location.href
+      }
+      
       // 监听 Astro 页面加载事件
       document.addEventListener('astro:page-load', initFriendCircle)
       
