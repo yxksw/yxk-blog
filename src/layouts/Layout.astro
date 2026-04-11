@@ -16,7 +16,6 @@ import PostChangeHighlighter from '@/components/PostChangeHighlighter.astro'
 import MusicPlayer from '@/components/MusicPlayer.svelte'
 import config from '@/config.json'
 import '@/styles/global.css'
-import livecodesScriptUrl from '@/scripts/livecodes.ts?url'
 
 interface Props {
   title?: string
@@ -50,8 +49,8 @@ const { title, description, image } = Astro.props
     <NewPostNotification />
     <PostChangeHighlighter />
     <MusicPlayer client:only="svelte" config={config.musicPlayer as any} />
-    <script is:inline type="module" define:vars={{ livecodesScriptUrl }}>
-      const { initLivecodes } = await import(livecodesScriptUrl)
+    <script>
+      import { initLivecodes } from '@/scripts/livecodes.ts'
       document.addEventListener('astro:page-load', () => initLivecodes())
       initLivecodes()
     </script>
