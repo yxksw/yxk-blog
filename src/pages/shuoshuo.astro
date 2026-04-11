@@ -332,6 +332,13 @@ const CUSTOM_NAME = config.shuoshuo?.customName || ''
       })
     }
 
+    function decodeHtmlEntities(text) {
+      if (!text) return ''
+      const textarea = document.createElement('textarea')
+      textarea.innerHTML = text
+      return textarea.value
+    }
+
     function renderMemoItem(item) {
       const template = document.querySelector(JIKE_CONFIG.dom.template)
       if (!template) return null
@@ -340,7 +347,7 @@ const CUSTOM_NAME = config.shuoshuo?.customName || ''
       article.dataset.id = item.id
 
       const contentEl = frag.querySelector('.memos-content')
-      contentEl.innerHTML = item.content || item.title || ''
+      contentEl.innerHTML = decodeHtmlEntities(item.content || item.title || '')
 
       frag.querySelector('.memos-time').textContent = formatDate(item.pubDate)
 

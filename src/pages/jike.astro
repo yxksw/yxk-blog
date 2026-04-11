@@ -73,13 +73,20 @@ const title = '说说'
             })
           }
 
+          function decodeHtmlEntities(text) {
+            if (!text) return ''
+            const textarea = document.createElement('textarea')
+            textarea.innerHTML = text
+            return textarea.value
+          }
+
           function renderMemoItem(item) {
             const frag = memoTemplate.content.cloneNode(true)
             const article = frag.firstElementChild
             article.dataset.id = item.id
 
             const contentEl = frag.querySelector('.memos-content')
-            contentEl.innerHTML = item.content || item.title || ''
+            contentEl.innerHTML = decodeHtmlEntities(item.content || item.title || '')
 
             frag.querySelector('.memos-time').textContent = formatDate(item.pubDate)
 

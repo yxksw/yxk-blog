@@ -14,14 +14,14 @@ export interface DiaryItem {
 // 示例日记数据
 const diaryData: DiaryItem[] = [
   {
-    id: 1,
+    id: 2,
     content: '今天完成了博客95%的修改，并拓展了Gridea-pro。',
     date: '2025-04-11T00:18:00Z',
     tags: ['生活', '博客'],
     mood: '😊',
   },
   {
-    id: 2,
+    id: 1,
     content: '今天完成了博客90%的修改，继续加油！',
     date: '2025-04-09T23:00:00Z',
     tags: ['生活', '博客'],

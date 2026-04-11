@@ -667,20 +667,20 @@
          tabindex="0"
          aria-label="展开播放器">
       {#if isLoading}
-        <Icon icon="eos-icons:loading" class="text-[var(--primary-foreground)] text-lg" />
+        <Icon icon="eos-icons:loading" class="text-[rgb(var(--color-text-primary))] text-lg" />
       {:else if isPlaying}
         <div class="flex space-x-0.5">
-          <div class="w-0.5 h-3 bg-[var(--primary-foreground)] rounded-full animate-pulse"></div>
-          <div class="w-0.5 h-4 bg-[var(--primary-foreground)] rounded-full animate-pulse" style="animation-delay: 150ms;"></div>
-          <div class="w-0.5 h-2 bg-[var(--primary-foreground)] rounded-full animate-pulse" style="animation-delay: 300ms;"></div>
+          <div class="w-0.5 h-3 bg-[rgb(var(--color-text-primary))] rounded-full animate-pulse"></div>
+          <div class="w-0.5 h-4 bg-[rgb(var(--color-text-primary))] rounded-full animate-pulse" style="animation-delay: 150ms;"></div>
+          <div class="w-0.5 h-2 bg-[rgb(var(--color-text-primary))] rounded-full animate-pulse" style="animation-delay: 300ms;"></div>
         </div>
       {:else}
-        <Icon icon="material-symbols:music-note" class="text-[var(--primary-foreground)] text-lg" />
+        <Icon icon="material-symbols:music-note" class="text-[rgb(var(--color-text-primary))] text-lg" />
       {/if}
     </div>
 
     <!-- 展开状态的完整播放器 -->
-    <div class="expanded-player bg-[var(--background)] border border-[var(--border)] shadow-xl rounded-2xl p-4 transition-all duration-500 ease-in-out w-80 max-w-[calc(100vw-2rem)] pointer-events-auto"
+    <div class="expanded-player bg-[var(--background)]/95 backdrop-blur-md border border-[var(--border)] shadow-xl rounded-2xl p-4 transition-all duration-500 ease-in-out w-80 max-w-[calc(100vw-2rem)] pointer-events-auto"
          class:opacity-0={isCollapsed}
          class:scale-95={isCollapsed}
          class:pointer-events-none={isCollapsed}

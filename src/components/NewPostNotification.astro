@@ -45,6 +45,9 @@ import { Icon } from 'astro-icon/components'
     pointer-events: none;
     transform: none;
   }
+  #notification-panel.is-open #notification-bell-icon {
+    display: none;
+  }
   #notification-panel.is-open-content #notification-content {
     opacity: 1;
     pointer-events: auto;
@@ -55,9 +58,11 @@ import { Icon } from 'astro-icon/components'
 <div id="new-post-notification" class="fixed right-4 bottom-[8rem] z-50 pointer-events-none">
   <div
     id="notification-panel"
-    class="pointer-events-auto size-10 rounded-full shadow-lg shadow-zinc-800/5 border border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-card))] text-[rgb(var(--color-primary))] transform translate-y-20 opacity-0 flex items-center justify-center cursor-pointer"
+    class="pointer-events-auto size-10 rounded-full shadow-lg shadow-zinc-800/5 border border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg-card))] text-[rgb(var(--color-primary))] transform translate-y-20 opacity-0 flex items-center justify-center cursor-pointer backdrop-blur-md"
   >
-    <Icon name="lucide:bell" size={20} />
+    <span id="notification-bell-icon">
+      <Icon name="lucide:bell" size={20} />
+    </span>
     <button id="notification-minimized" aria-label="New post notification" class="hidden">
       <Icon name="lucide:bell" size={20} />
     </button>
