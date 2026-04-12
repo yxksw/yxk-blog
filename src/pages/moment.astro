@@ -1,0 +1,494 @@
+---
+import PageLayout from '@/layouts/PageLayout.astro'
+const title = '朋友圈'
+---
+
+<PageLayout title={title}>
+  <div class="w-full px-4 md:px-8 py-16 grid gap-6 lg:grid-cols-[1fr_minmax(0,900px)_1fr]">
+    <div class="lg:col-start-2 memos memos-scope">
+      <header class="space-y-2 mb-4">
+        <h1 class="text-4xl font-bold">朋友圈</h1>
+        <p class="text-muted-foreground">记录生活点滴</p>
+      </header>
+
+      <section class="memos-list">
+        <div id="moment-grid" class="memos-grid"></div>
+      </section>
+
+      <template id="moment-item-template">
+        <article class="memos-item">
+          <div class="moment-header">
+            <img class="moment-avatar" src="" alt="" />
+            <span class="moment-author"></span>
+          </div>
+          <div class="memos-content prose dark:prose-invert"></div>
+          <div class="moment-images"></div>
+          <div class="memos-footer">
+            <time class="memos-time"></time>
+            <a class="moment-location" href="#" target="_blank" rel="noopener noreferrer"></a>
+          </div>
+        </article>
+      </template>
+
+      <div class="bb-load" id="load-more-container"></div>
+
+      <script type="module" is:inline>
+        if (!window.__MOMENT_PAGE_INITED__) {
+          window.__MOMENT_PAGE_INITED__ = true
+          
+          const CONFIG = {
+            apiUrl: 'https://moment.050815.xyz/api.php',
+            limit: 10,
+            dom: {
+              gridContainer: '#moment-grid',
+              template: '#moment-item-template',
+              loadMore: '#load-more-container',
+            },
+          }
+
+          let currentPage = 1
+          let totalPages = 1
+          let isLoading = false
+          let momentGrid = document.querySelector(CONFIG.dom.gridContainer)
+          let momentTemplate = document.querySelector(CONFIG.dom.template)
+          let loadMoreContainer = document.querySelector(CONFIG.dom.loadMore)
+
+          function formatDate(dateStr) {
+            if (!dateStr) return ''
+            const date = new Date(dateStr.replace(/-/g, '/'))
+            const year = date.getFullYear()
+            const month = String(date.getMonth() + 1).padStart(2, '0')
+            const day = String(date.getDate()).padStart(2, '0')
+            const hour = String(date.getHours()).padStart(2, '0')
+            const minute = String(date.getMinutes()).padStart(2, '0')
+            return `${year}-${month}-${day} ${hour}:${minute}`
+          }
+
+          function renderContent(text) {
+            if (!text) return ''
+            // 先转义 HTML
+            let s = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            
+            // 解析 Markdown 基础语法
+            s = s.replace(/```([\s\S]*?)```/g, (_, code) => `<pre><code>${code}</code></pre>`)
+            s = s.replace(/`([^`]+)`/g, '<code>$1</code>')
+            s = s.replace(/^###\s+(.*)$/gm, '<h3>$1</h3>')
+            s = s.replace(/^##\s+(.*)$/gm, '<h2>$1</h2>')
+            s = s.replace(/^#\s+(.*)$/gm, '<h1>$1</h1>')
+            s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+            s = s.replace(/\*([^*]+)\*/g, '<em>$1</em>')
+            s = s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img alt="$1" src="$2" class="memo-img" />')
+            s = s.replace(
+              /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+              '<a href="$2" target="_blank" rel="noopener noreferrer" class="memo-link">$1</a>',
+            )
+            s = s.replace(/^>\s+(.*)$/gm, '<blockquote>$1</blockquote>')
+            
+            // 处理换行
+            s = s.split(/\n{2,}/).map((chunk) => {
+              if (/^\s*(<h\d|<ul|<pre|<blockquote|<img|<p)/.test(chunk)) return chunk
+              const lines = chunk.split(/\n/).map((l) => l.trim()).filter(Boolean)
+              if (!lines.length) return ''
+              return `<p>${lines.join('<br/>')}</p>`
+            }).join('\n')
+
+            return s
+          }
+
+          function renderMomentItem(post) {
+            const frag = momentTemplate.content.cloneNode(true)
+            const article = frag.firstElementChild
+            article.dataset.id = post.id
+
+            // 头像和作者
+            const avatarEl = frag.querySelector('.moment-avatar')
+            const authorEl = frag.querySelector('.moment-author')
+            avatarEl.src = post.author?.avatar || ''
+            avatarEl.alt = post.author?.name || ''
+            authorEl.textContent = post.author?.name || ''
+
+            // 内容
+            const contentEl = frag.querySelector('.memos-content')
+            contentEl.innerHTML = renderContent(post.content || '')
+
+            // 图片
+            const imagesEl = frag.querySelector('.moment-images')
+            if (post.images && post.images.length > 0) {
+              const imagesWrap = document.createElement('div')
+              imagesWrap.className = 'moment-images-wrap'
+              post.images.forEach((imgUrl) => {
+                const img = document.createElement('img')
+                img.className = 'memo-img'
+                img.src = imgUrl
+                img.loading = 'lazy'
+                imagesWrap.appendChild(img)
+              })
+              imagesEl.appendChild(imagesWrap)
+            }
+
+            // 时间
+            frag.querySelector('.memos-time').textContent = formatDate(post.created_at)
+
+            // 位置 - 可点击的 Bing 搜索链接
+            const locationEl = frag.querySelector('.moment-location')
+            if (post.music) {
+              locationEl.textContent = `📍 ${post.music}`
+              locationEl.href = `https://www.bing.com/search?q=${encodeURIComponent(post.music)}`
+            } else {
+              locationEl.style.display = 'none'
+            }
+
+            return frag
+          }
+
+          function updateMomentList(data = []) {
+            if (!momentGrid || data.length === 0) return
+            data.forEach((post) => momentGrid.appendChild(renderMomentItem(post)))
+          }
+
+          function initLoadMoreBtn() {
+            loadMoreContainer.innerHTML = '<button class="load-btn button-load">加载中…</button>'
+            const btn = loadMoreContainer.querySelector('.button-load')
+            btn.addEventListener('click', () => {
+              if (currentPage < totalPages) {
+                btn.textContent = '加载中…'
+                currentPage++
+                loadMoments().then(() => {
+                  btn.textContent = currentPage < totalPages ? '加载更多' : '没有更多了'
+                })
+              }
+            })
+            return btn
+          }
+
+          async function loadMoments() {
+            if (isLoading) return
+            isLoading = true
+            
+            try {
+              const url = `${CONFIG.apiUrl}?page=${currentPage}&limit=${CONFIG.limit}`
+              const res = await fetch(url)
+              const result = await res.json()
+              
+              if (result.code === 200 && result.data) {
+                const posts = result.data.posts || []
+                const pagination = result.data.pagination || {}
+                
+                totalPages = pagination.total_pages || 1
+                
+                if (currentPage === 1) {
+                  momentGrid.innerHTML = ''
+                }
+                
+                updateMomentList(posts)
+                
+                // 更新加载按钮状态
+                const btn = loadMoreContainer.querySelector('.button-load')
+                if (btn) {
+                  if (currentPage >= totalPages) {
+                    loadMoreContainer.innerHTML = '<div class="memo-end">没有更多了</div>'
+                  } else {
+                    btn.textContent = '加载更多'
+                  }
+                }
+              } else {
+                throw new Error(result.message || '加载失败')
+              }
+            } catch (err) {
+              console.error('加载失败:', err)
+              if (currentPage === 1) {
+                momentGrid.innerHTML = '<div class="memo-error">加载失败，请检查网络</div>'
+              }
+              loadMoreContainer.innerHTML = '<div class="memo-error">加载更多失败</div>'
+            } finally {
+              isLoading = false
+            }
+          }
+
+          function initMoments() {
+            momentGrid = document.querySelector(CONFIG.dom.gridContainer)
+            momentTemplate = document.querySelector(CONFIG.dom.template)
+            loadMoreContainer = document.querySelector(CONFIG.dom.loadMore)
+            if (!momentGrid || !momentTemplate) return
+            
+            currentPage = 1
+            totalPages = 1
+            momentGrid.innerHTML = ''
+            if (loadMoreContainer) loadMoreContainer.innerHTML = ''
+            
+            initLoadMoreBtn()
+            loadMoments()
+          }
+
+          window.__initMoments = initMoments
+          initMoments()
+        }
+      </script>
+    </div>
+  </div>
+</PageLayout>
+
+<style is:inline>
+  :root {
+    --text-primary: rgb(var(--color-text-primary));
+    --text-secondary: rgb(var(--color-text-secondary));
+    --line-divider: rgb(var(--color-border-primary));
+    --content-pane-bg: rgb(var(--color-bg-primary));
+    --text-link: rgb(var(--color-accent));
+    --theme-color: rgb(var(--color-accent));
+    --tag-bg: rgb(var(--color-accent) / 0.08);
+    --color-border: var(--line-divider);
+    --color-bg-1: var(--content-pane-bg);
+    --text-muted: var(--text-secondary);
+    --color-link: var(--text-link);
+    --grid-gap: 16px;
+    --card-min-width: 220px;
+  }
+
+  .dark {
+    --color-border: var(--line-divider);
+    --color-bg-1: var(--content-pane-bg);
+    --text-muted: var(--text-secondary);
+    --color-link: var(--text-link);
+  }
+
+  .memos {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .memos-list {
+    margin-top: 0.4rem;
+  }
+
+  .memos-grid {
+    column-count: 4;
+    column-gap: var(--grid-gap);
+    width: 100%;
+    column-width: var(--card-min-width);
+  }
+
+  .memos-item {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    background: var(--color-bg-1);
+    transition: box-shadow 0.2s ease;
+    break-inside: avoid;
+    margin-bottom: var(--grid-gap);
+  }
+
+  .memos-item:hover {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  }
+
+  /* 头部：头像和作者 */
+  .moment-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .moment-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .moment-author {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  /* 内容区域 */
+  .memos-content.prose {
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    color: var(--text-primary) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex: 1;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-all !important;
+    white-space: normal !important;
+  }
+
+  .memos-content.prose h1,
+  .memos-content.prose h2,
+  .memos-content.prose h3 {
+    margin: 0.3rem 0 0.15rem !important;
+    font-size: 1.1rem !important;
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+  }
+
+  .memos-content.prose p {
+    margin: 0.2rem 0 !important;
+  }
+
+  .memos-content.prose ul {
+    margin: 0.2rem 0 0.3rem 0.4rem !important;
+    padding-left: 1.2rem !important;
+    margin-left: 0 !important;
+  }
+
+  .memos-content.prose li {
+    margin: 0.1rem 0 !important;
+    font-size: 0.86rem !important;
+    line-height: 1.45 !important;
+    text-indent: -0.5em !important;
+    padding-left: 0.5em !important;
+  }
+
+  .memos-content.prose li::marker {
+    font-size: 0.9em !important;
+  }
+
+  .memos-content.prose blockquote {
+    margin: 0.3rem 0 !important;
+    padding: 0.2rem 0.5rem !important;
+    font-size: 0.84rem !important;
+  }
+
+  /* 图片样式 */
+  .moment-images-wrap {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .memo-img {
+    max-width: 100% !important;
+    height: auto !important;
+    border-radius: 6px !important;
+    margin: 0 !important;
+    cursor: pointer;
+  }
+
+  /* 链接样式 */
+  .memo-link {
+    color: var(--color-link) !important;
+    text-decoration: underline !important;
+    display: inline-block !important;
+    font-size: 0.86rem !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  /* 底部区域 */
+  .memos-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 0.5rem !important;
+    border-top: 1px solid var(--color-border);
+    line-height: 1 !important;
+    flex-wrap: wrap;
+  }
+
+  .memos-time {
+    font-size: 0.7rem !important;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .moment-location {
+    font-size: 0.7rem !important;
+    color: var(--text-muted);
+    margin-left: auto;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .moment-location:hover {
+    color: var(--color-link);
+    text-decoration: underline;
+  }
+
+  /* 加载更多按钮 */
+  .bb-load {
+    margin: 1rem 0 2rem;
+    column-span: all;
+  }
+
+  .button-load {
+    width: 100% !important;
+    font-size: 0.8rem;
+    background: none;
+    border-radius: 10px;
+    border: 1px solid var(--color-border);
+    padding: 10px 30px;
+    letter-spacing: 0.8rem;
+    text-align: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+
+  .button-load:hover {
+    border-color: var(--color-link);
+    color: var(--color-link);
+  }
+
+  /* 错误提示 */
+  .memo-error {
+    text-align: center;
+    color: #ef4444;
+    padding: 1rem;
+    font-size: 0.9rem;
+    column-span: all;
+  }
+
+  .memo-end {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 1rem;
+    font-size: 0.9rem;
+    column-span: all;
+  }
+
+  /* 响应式适配 */
+  @media (max-width: 1024px) {
+    .memos-grid {
+      column-count: 2;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .memos-grid {
+      column-count: 1;
+    }
+
+    .memos-item {
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+
+    .memos-content.prose {
+      font-size: 0.86rem !important;
+    }
+
+    .memos-content.prose h1,
+    .memos-content.prose h2,
+    .memos-content.prose h3 {
+      font-size: 0.9rem !important;
+    }
+
+    .memos-time,
+    .moment-location {
+      font-size: 0.68rem !important;
+    }
+  }
+</style>

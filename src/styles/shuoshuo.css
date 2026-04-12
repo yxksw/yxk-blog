@@ -440,8 +440,224 @@
   column-span: all;
 }
 
+/* Moment 朋友圈样式 */
+.moment-scope {
+  width: 100%;
+}
+
+.moment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+.moment-card-item {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--color-bg-1);
+  transition: box-shadow 0.2s ease;
+}
+
+.moment-card-item:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+/* 置顶样式 */
+.moment-card-item.moment-pinned {
+  border-color: var(--theme-color);
+  background: linear-gradient(135deg, var(--color-bg-1) 0%, rgba(var(--color-accent), 0.05) 100%);
+  box-shadow:
+    0 0 0 1px var(--theme-color),
+    0 4px 12px rgba(var(--color-accent), 0.15);
+}
+
+/* 广告/推荐样式 */
+.moment-card-item.moment-marked {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, var(--color-bg-1) 0%, rgba(245, 158, 11, 0.05) 100%);
+}
+
+/* 徽章容器 */
+.moment-badges {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+/* 徽章基础样式 */
+.moment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* 置顶徽章 */
+.moment-badge-pinned {
+  background: var(--theme-color);
+  color: white;
+  box-shadow: 0 2px 4px rgba(var(--color-accent), 0.3);
+}
+
+/* 推荐徽章 */
+.moment-badge-marked {
+  background: #f59e0b;
+  color: white;
+  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+
+.moment-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.moment-card-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.moment-card-author {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.moment-card-content {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.moment-card-content h1,
+.moment-card-content h2,
+.moment-card-content h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+
+.moment-card-content p {
+  margin: 0.3rem 0;
+}
+
+.moment-card-content code {
+  background: var(--tag-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+.moment-card-content pre {
+  background: rgba(var(--color-text-primary), 0.05);
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.moment-card-content blockquote {
+  border-left: 3px solid var(--theme-color);
+  padding-left: 12px;
+  margin: 0.5rem 0;
+  color: var(--text-muted);
+}
+
+.moment-images-wrap {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.moment-img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.moment-link-text {
+  color: var(--color-link);
+  text-decoration: underline;
+}
+
+.moment-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.moment-card-time {
+  white-space: nowrap;
+}
+
+.moment-card-location {
+  color: var(--text-muted);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.moment-card-location:hover {
+  color: var(--color-link);
+  text-decoration: underline;
+}
+
+.moment-end,
+.moment-error {
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.moment-error {
+  color: #ef4444;
+}
+
 .d-none {
   display: none !important;
+}
+
+/* Moment 响应式适配 */
+@media (max-width: 640px) {
+  .moment-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .moment-card-item {
+    padding: 12px;
+  }
+
+  .moment-card-content {
+    font-size: 0.9rem;
+  }
+
+  .moment-badge {
+    padding: 3px 8px;
+    font-size: 0.7rem;
+  }
 }
 
 .comment-global {

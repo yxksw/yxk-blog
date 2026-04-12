@@ -26,7 +26,25 @@
   },
   "shuoshuo": {
     "customAvatar": "https://cn.cravatar.com/avatar/56cd72b5460ecaa08ddffea9562f5629?size=512",
-    "customName": "异飨客"
+    "customName": "异飨客",
+    "sources": {
+      "jike": {
+        "enable": true,
+        "name": "即刻"
+      },
+      "web": {
+        "enable": true,
+        "name": "动态"
+      },
+      "moment": {
+        "enable": true,
+        "name": "朋友圈"
+      },
+      "diary": {
+        "enable": true,
+        "name": "日记"
+      }
+    }
   },
   "hero": {
     "name": "异飨客",

@@ -5,6 +5,7 @@ import { MomentCard } from '@/components/diary'
 import { getDiaryList, getAllTags } from '@/data/diary'
 import { Icon } from '@iconify/react'
 import config from '@/config.json'
+import '@/styles/shuoshuo.css'
 
 const title = '说说'
 const subtitle = '记录生活中的点滴瞬间'
@@ -30,6 +31,22 @@ const filterTabs = [
 // 从 config.json 读取自定义头像和名称
 const CUSTOM_AVATAR = config.shuoshuo?.customAvatar || ''
 const CUSTOM_NAME = config.shuoshuo?.customName || ''
+
+// 从 config.json 读取各数据源启用状态
+const SOURCES = config.shuoshuo?.sources || {
+  jike: { enable: true, name: '即刻' },
+  web: { enable: true, name: '动态' },
+  moment: { enable: true, name: '朋友圈' },
+  diary: { enable: true, name: '日记' }
+}
+
+// 获取启用的数据源列表
+const enabledSources = Object.entries(SOURCES)
+  .filter(([_, config]) => config.enable)
+  .map(([key, config]) => ({ key, ...config }))
+
+// 确定默认显示的数据源（第一个启用的）
+const defaultSource = enabledSources.length > 0 ? enabledSources[0].key : 'diary'
 ---
 
 <PageLayout title={title}>
@@ -59,75 +76,121 @@ const CUSTOM_NAME = config.shuoshuo?.customName || ''
 
       <!-- 数据源切换按钮 -->
       <div class="flex gap-3 flex-wrap mb-8">
-        <button id="btn-jike" class="source-btn" data-source="jike">
-          <Icon icon="ri:rss-line" className="w-4 h-4" client:load />
-          <span>即刻</span>
-        </button>
-        <button id="btn-web" class="source-btn" data-source="web">
-          <Icon icon="ri:at-line" className="w-4 h-4" client:load />
-          <span>动态</span>
-        </button>
-        <button id="btn-diary" class="source-btn active" data-source="diary">
-          <Icon icon="ri:book-open-line" className="w-4 h-4" client:load />
-          <span>日记</span>
-        </button>
+        {SOURCES.jike?.enable && (
+          <button id="btn-jike" class={`source-btn ${defaultSource === 'jike' ? 'active' : ''}`} data-source="jike">
+            <Icon icon="ri:rss-line" className="w-4 h-4" client:load />
+            <span>{SOURCES.jike?.name || '即刻'}</span>
+          </button>
+        )}
+        {SOURCES.web?.enable && (
+          <button id="btn-web" class={`source-btn ${defaultSource === 'web' ? 'active' : ''}`} data-source="web">
+            <Icon icon="ri:at-line" className="w-4 h-4" client:load />
+            <span>{SOURCES.web?.name || '动态'}</span>
+          </button>
+        )}
+        {SOURCES.moment?.enable && (
+          <button id="btn-moment" class={`source-btn ${defaultSource === 'moment' ? 'active' : ''}`} data-source="moment">
+            <Icon icon="ri:chat-smile-line" className="w-4 h-4" client:load />
+            <span>{SOURCES.moment?.name || '朋友圈'}</span>
+          </button>
+        )}
+        {SOURCES.diary?.enable && (
+          <button id="btn-diary" class={`source-btn ${defaultSource === 'diary' ? 'active' : ''}`} data-source="diary">
+            <Icon icon="ri:book-open-line" className="w-4 h-4" client:load />
+            <span>{SOURCES.diary?.name || '日记'}</span>
+          </button>
+        )}
       </div>
 
       <!-- Jike (RSS) 说说 -->
-      <div id="jike-container" class="shuoshuo-container hidden">
-        <div class="memos-scope">
-          <section class="memos-list">
-            <div id="jike-grid" class="memos-grid"></div>
-          </section>
-          <div id="memos-comment-global" class="comment-global d-none"></div>
+      {SOURCES.jike?.enable && (
+        <div id="jike-container" class={`shuoshuo-container ${defaultSource === 'jike' ? '' : 'hidden'}`}>
+          <div class="memos-scope">
+            <section class="memos-list">
+              <div id="jike-grid" class="memos-grid"></div>
+            </section>
+            <div id="memos-comment-global" class="comment-global d-none"></div>
 
-          <template id="memo-item-template">
-            <article class="memos-item">
-              <div class="memos-content prose dark:prose-invert"></div>
-              <div class="memos-footer">
-                <time class="memos-time"></time>
-                <a class="memos-link" target="_blank" rel="noopener noreferrer">查看原文</a>
-              </div>
-            </article>
-          </template>
+            <template id="memo-item-template">
+              <article class="memos-item">
+                <div class="memos-content prose dark:prose-invert"></div>
+                <div class="memos-footer">
+                  <time class="memos-time"></time>
+                  <a class="memos-link" target="_blank" rel="noopener noreferrer">查看原文</a>
+                </div>
+              </article>
+            </template>
 
-          <div class="bb-load" id="jike-load-more-container"></div>
+            <div class="bb-load" id="jike-load-more-container"></div>
+          </div>
         </div>
-      </div>
+      )}
 
       <!-- Web (Gitee Issue) 动态 -->
-      <div id="web-container" class="shuoshuo-container hidden">
-        <div class="web-scope">
-          <section class="web-list">
-            <div id="web-grid" class="web-grid"></div>
-          </section>
+      {SOURCES.web?.enable && (
+        <div id="web-container" class={`shuoshuo-container ${defaultSource === 'web' ? '' : 'hidden'}`}>
+          <div class="web-scope">
+            <section class="web-list">
+              <div id="web-grid" class="web-grid"></div>
+            </section>
 
-          <template id="web-item-template">
-            <article class="web-item">
-              <div class="web-header">
-                <img class="web-avatar" src="" alt="avatar" />
-                <div class="web-meta">
-                  <span class="web-author"></span>
-                  <time class="web-time"></time>
+            <template id="web-item-template">
+              <article class="web-item">
+                <div class="web-header">
+                  <img class="web-avatar" src="" alt="avatar" />
+                  <div class="web-meta">
+                    <span class="web-author"></span>
+                    <time class="web-time"></time>
+                  </div>
                 </div>
-              </div>
-              <div class="web-content prose dark:prose-invert"></div>
-              <div class="web-labels"></div>
-              <div class="web-footer">
-                <a class="web-link" href="#" target="_blank" rel="noopener noreferrer">
-                  查看原文
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                </a>
-              </div>
-            </article>
-          </template>
+                <div class="web-content prose dark:prose-invert"></div>
+                <div class="web-labels"></div>
+                <div class="web-footer">
+                  <a class="web-link" href="#" target="_blank" rel="noopener noreferrer">
+                    查看原文
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                  </a>
+                </div>
+              </article>
+            </template>
 
-          <div class="bb-load" id="web-load-more-container"></div>
+            <div class="bb-load" id="web-load-more-container"></div>
+          </div>
         </div>
-      </div>
+      )}
+
+      <!-- Moment 朋友圈 -->
+      {SOURCES.moment?.enable && (
+        <div id="moment-container" class={`shuoshuo-container ${defaultSource === 'moment' ? '' : 'hidden'}`}>
+          <div class="moment-scope">
+            <section class="moment-list">
+              <div id="moment-grid" class="moment-grid"></div>
+            </section>
+
+            <template id="moment-item-template">
+              <article class="moment-card-item">
+                <div class="moment-badges"></div>
+                <div class="moment-card-header">
+                  <img class="moment-card-avatar" src="" alt="" />
+                  <span class="moment-card-author"></span>
+                </div>
+                <div class="moment-card-content"></div>
+                <div class="moment-card-images"></div>
+                <div class="moment-card-footer">
+                  <time class="moment-card-time"></time>
+                  <a class="moment-card-location" href="#" target="_blank" rel="noopener noreferrer"></a>
+                </div>
+              </article>
+            </template>
+
+            <div class="bb-load" id="moment-load-more-container"></div>
+          </div>
+        </div>
+      )}
 
       <!-- Diary 日记 -->
-      <div id="diary-container" class="shuoshuo-container">
+      {SOURCES.diary?.enable && (
+        <div id="diary-container" class={`shuoshuo-container ${defaultSource === 'diary' ? '' : 'hidden'}`}>
         <!-- Filter Tabs -->
         {
           moments.length > 0 && allTags.length > 0 && (
@@ -201,54 +264,68 @@ const CUSTOM_NAME = config.shuoshuo?.customName || ''
         <div class="text-center mt-8 text-neutral-500 dark:text-neutral-500 text-sm italic">
           记录生活，留下回忆
         </div>
-      </div>
+        </div>
+      )}
     </div>
   </div>
 
-  <script is:inline define:vars={{ CUSTOM_AVATAR, CUSTOM_NAME }}>
+  <script is:inline define:vars={{ CUSTOM_AVATAR, CUSTOM_NAME, SOURCES, defaultSource }}>
     // ==================== Tab Switching ====================
-    const btnJike = document.getElementById('btn-jike')
-    const btnWeb = document.getElementById('btn-web')
-    const btnDiary = document.getElementById('btn-diary')
-    const jikeContainer = document.getElementById('jike-container')
-    const webContainer = document.getElementById('web-container')
-    const diaryContainer = document.getElementById('diary-container')
+    // 根据配置获取 DOM 元素
+    const btnJike = SOURCES.jike?.enable ? document.getElementById('btn-jike') : null
+    const btnWeb = SOURCES.web?.enable ? document.getElementById('btn-web') : null
+    const btnMoment = SOURCES.moment?.enable ? document.getElementById('btn-moment') : null
+    const btnDiary = SOURCES.diary?.enable ? document.getElementById('btn-diary') : null
+    const jikeContainer = SOURCES.jike?.enable ? document.getElementById('jike-container') : null
+    const webContainer = SOURCES.web?.enable ? document.getElementById('web-container') : null
+    const momentContainer = SOURCES.moment?.enable ? document.getElementById('moment-container') : null
+    const diaryContainer = SOURCES.diary?.enable ? document.getElementById('diary-container') : null
 
     function switchTab(source) {
       // Reset all buttons
-      btnJike.classList.remove('active')
-      btnWeb.classList.remove('active')
-      btnDiary.classList.remove('active')
+      if (btnJike) btnJike.classList.remove('active')
+      if (btnWeb) btnWeb.classList.remove('active')
+      if (btnMoment) btnMoment.classList.remove('active')
+      if (btnDiary) btnDiary.classList.remove('active')
       
       // Hide all containers
-      jikeContainer.classList.add('hidden')
-      webContainer.classList.add('hidden')
-      diaryContainer.classList.add('hidden')
+      if (jikeContainer) jikeContainer.classList.add('hidden')
+      if (webContainer) webContainer.classList.add('hidden')
+      if (momentContainer) momentContainer.classList.add('hidden')
+      if (diaryContainer) diaryContainer.classList.add('hidden')
       
       // Activate selected
-      if (source === 'jike') {
+      if (source === 'jike' && btnJike && jikeContainer) {
         btnJike.classList.add('active')
         jikeContainer.classList.remove('hidden')
         if (!window.__JIKE_INITED__) {
           window.__JIKE_INITED__ = true
           initJike()
         }
-      } else if (source === 'web') {
+      } else if (source === 'web' && btnWeb && webContainer) {
         btnWeb.classList.add('active')
         webContainer.classList.remove('hidden')
         if (!window.__WEB_INITED__) {
           window.__WEB_INITED__ = true
           initWeb()
         }
-      } else {
+      } else if (source === 'moment' && btnMoment && momentContainer) {
+        btnMoment.classList.add('active')
+        momentContainer.classList.remove('hidden')
+        if (!window.__MOMENT_INITED__) {
+          window.__MOMENT_INITED__ = true
+          initMoment()
+        }
+      } else if (source === 'diary' && btnDiary && diaryContainer) {
         btnDiary.classList.add('active')
         diaryContainer.classList.remove('hidden')
       }
     }
 
-    btnJike.addEventListener('click', () => switchTab('jike'))
-    btnWeb.addEventListener('click', () => switchTab('web'))
-    btnDiary.addEventListener('click', () => switchTab('diary'))
+    if (btnJike) btnJike.addEventListener('click', () => switchTab('jike'))
+    if (btnWeb) btnWeb.addEventListener('click', () => switchTab('web'))
+    if (btnMoment) btnMoment.addEventListener('click', () => switchTab('moment'))
+    if (btnDiary) btnDiary.addEventListener('click', () => switchTab('diary'))
 
     // ==================== Diary Filter ====================
     document.addEventListener('DOMContentLoaded', () => {
@@ -610,10 +687,225 @@ const CUSTOM_NAME = config.shuoshuo?.customName || ''
       await loadMoreIssues()
     }
 
+    // ==================== Moment (朋友圈) ====================
+    const MOMENT_CONFIG = {
+      apiUrl: 'https://moment.050815.xyz/api.php',
+      limit: 10,
+      dom: {
+        gridContainer: '#moment-grid',
+        template: '#moment-item-template',
+        loadMore: '#moment-load-more-container',
+      },
+    }
+
+    let momentCurrentPage = 1
+    let momentTotalPages = 1
+    let momentIsLoading = false
+
+    function formatMomentDate(dateStr) {
+      if (!dateStr) return ''
+      const date = new Date(dateStr.replace(/-/g, '/'))
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      const hour = String(date.getHours()).padStart(2, '0')
+      const minute = String(date.getMinutes()).padStart(2, '0')
+      return `${year}-${month}-${day} ${hour}:${minute}`
+    }
+
+    function renderMomentContent(text) {
+      if (!text) return ''
+      let s = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      
+      s = s.replace(/```([\s\S]*?)```/g, (_, code) => `<pre><code>${code}</code></pre>`)
+      s = s.replace(/`([^`]+)`/g, '<code>$1</code>')
+      s = s.replace(/^###\s+(.*)$/gm, '<h3>$1</h3>')
+      s = s.replace(/^##\s+(.*)$/gm, '<h2>$1</h2>')
+      s = s.replace(/^#\s+(.*)$/gm, '<h1>$1</h1>')
+      s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      s = s.replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      s = s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img alt="$1" src="$2" class="moment-img" />')
+      s = s.replace(
+        /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener noreferrer" class="moment-link-text">$1</a>',
+      )
+      s = s.replace(/^>\s+(.*)$/gm, '<blockquote>$1</blockquote>')
+      
+      s = s.split(/\n{2,}/).map((chunk) => {
+        if (/^\s*(<h\d|<ul|<pre|<blockquote|<img|<p)/.test(chunk)) return chunk
+        const lines = chunk.split(/\n/).map((l) => l.trim()).filter(Boolean)
+        if (!lines.length) return ''
+        return `<p>${lines.join('<br/>')}</p>`
+      }).join('\n')
+
+      return s
+    }
+
+    function renderMomentCard(post) {
+      const template = document.querySelector(MOMENT_CONFIG.dom.template)
+      if (!template) return null
+      const frag = template.content.cloneNode(true)
+      const article = frag.firstElementChild
+      article.dataset.id = post.id
+
+      // 处理置顶和广告标识
+      const badgesEl = frag.querySelector('.moment-badges')
+      if (post.is_pinned === 1) {
+        article.classList.add('moment-pinned')
+        const pinnedBadge = document.createElement('span')
+        pinnedBadge.className = 'moment-badge moment-badge-pinned'
+        pinnedBadge.innerHTML = '📌 置顶'
+        badgesEl.appendChild(pinnedBadge)
+      }
+      if (post.is_marked === true) {
+        article.classList.add('moment-marked')
+        const markedBadge = document.createElement('span')
+        markedBadge.className = 'moment-badge moment-badge-marked'
+        markedBadge.innerHTML = '🔥 推荐'
+        badgesEl.appendChild(markedBadge)
+      }
+
+      // 头像和作者
+      const avatarEl = frag.querySelector('.moment-card-avatar')
+      const authorEl = frag.querySelector('.moment-card-author')
+      avatarEl.src = post.author?.avatar || ''
+      avatarEl.alt = post.author?.name || ''
+      authorEl.textContent = post.author?.name || ''
+
+      // 内容
+      const contentEl = frag.querySelector('.moment-card-content')
+      contentEl.innerHTML = renderMomentContent(post.content || '')
+
+      // 图片
+      const imagesEl = frag.querySelector('.moment-card-images')
+      if (post.images && post.images.length > 0) {
+        const imagesWrap = document.createElement('div')
+        imagesWrap.className = 'moment-images-wrap'
+        post.images.forEach((imgUrl) => {
+          const img = document.createElement('img')
+          img.className = 'moment-img'
+          img.src = imgUrl
+          img.loading = 'lazy'
+          imagesWrap.appendChild(img)
+        })
+        imagesEl.appendChild(imagesWrap)
+      }
+
+      // 时间
+      frag.querySelector('.moment-card-time').textContent = formatMomentDate(post.created_at)
+
+      // 位置 - 可点击的 Bing 搜索链接
+      const locationEl = frag.querySelector('.moment-card-location')
+      if (post.music) {
+        locationEl.textContent = `📍 ${post.music}`
+        locationEl.href = `https://www.bing.com/search?q=${encodeURIComponent(post.music)}`
+      } else {
+        locationEl.style.display = 'none'
+      }
+
+      return frag
+    }
+
+    function updateMomentCardList(data = []) {
+      const grid = document.querySelector(MOMENT_CONFIG.dom.gridContainer)
+      if (!grid || data.length === 0) return
+      data.forEach((post) => {
+        const rendered = renderMomentCard(post)
+        if (rendered) grid.appendChild(rendered)
+      })
+    }
+
+    function initMomentLoadMoreBtn() {
+      const loadMoreContainer = document.querySelector(MOMENT_CONFIG.dom.loadMore)
+      loadMoreContainer.innerHTML = '<button class="load-btn button-load">加载中…</button>'
+      const btn = loadMoreContainer.querySelector('.button-load')
+      btn.addEventListener('click', () => {
+        if (momentCurrentPage < momentTotalPages) {
+          btn.textContent = '加载中…'
+          momentCurrentPage++
+          loadMoments().then(() => {
+            btn.textContent = momentCurrentPage < momentTotalPages ? '加载更多' : '没有更多了'
+          })
+        }
+      })
+      return btn
+    }
+
+    async function loadMoments() {
+      if (momentIsLoading) return
+      momentIsLoading = true
+      
+      const grid = document.querySelector(MOMENT_CONFIG.dom.gridContainer)
+      const loadMoreContainer = document.querySelector(MOMENT_CONFIG.dom.loadMore)
+      
+      try {
+        const url = `${MOMENT_CONFIG.apiUrl}?page=${momentCurrentPage}&limit=${MOMENT_CONFIG.limit}`
+        const res = await fetch(url)
+        const result = await res.json()
+        
+        if (result.code === 200 && result.data) {
+          const posts = result.data.posts || []
+          const pagination = result.data.pagination || {}
+          
+          momentTotalPages = pagination.total_pages || 1
+          
+          if (momentCurrentPage === 1) {
+            grid.innerHTML = ''
+          }
+          
+          updateMomentCardList(posts)
+          
+          const btn = loadMoreContainer.querySelector('.button-load')
+          if (btn) {
+            if (momentCurrentPage >= momentTotalPages) {
+              loadMoreContainer.innerHTML = '<div class="moment-end">没有更多了</div>'
+            } else {
+              btn.textContent = '加载更多'
+            }
+          }
+        } else {
+          throw new Error(result.message || '加载失败')
+        }
+      } catch (err) {
+        console.error('加载失败:', err)
+        if (momentCurrentPage === 1) {
+          grid.innerHTML = '<div class="moment-error">加载失败，请检查网络</div>'
+        }
+        loadMoreContainer.innerHTML = '<div class="moment-error">加载更多失败</div>'
+      } finally {
+        momentIsLoading = false
+      }
+    }
+
+    async function initMoment() {
+      const grid = document.querySelector(MOMENT_CONFIG.dom.gridContainer)
+      const loadMoreContainer = document.querySelector(MOMENT_CONFIG.dom.loadMore)
+      if (!grid || !loadMoreContainer) return
+      
+      momentCurrentPage = 1
+      momentTotalPages = 1
+      grid.innerHTML = ''
+      loadMoreContainer.innerHTML = ''
+      
+      initMomentLoadMoreBtn()
+      await loadMoments()
+    }
+
     // ==================== Initialize ====================
     if (!window.__SHUOSHUO_INITED__) {
       window.__SHUOSHUO_INITED__ = true
-      // 默认显示日记，不自动加载其他数据
+      // 根据配置自动加载默认数据源
+      if (defaultSource === 'jike' && SOURCES.jike?.enable) {
+        window.__JIKE_INITED__ = true
+        initJike()
+      } else if (defaultSource === 'web' && SOURCES.web?.enable) {
+        window.__WEB_INITED__ = true
+        initWeb()
+      } else if (defaultSource === 'moment' && SOURCES.moment?.enable) {
+        window.__MOMENT_INITED__ = true
+        initMoment()
+      }
+      // diary 是静态内容，不需要额外初始化
     }
   </script>
 </PageLayout>
