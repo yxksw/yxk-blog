@@ -14,6 +14,13 @@ export interface DiaryItem {
 // 示例日记数据
 const diaryData: DiaryItem[] = [
   {
+    id: 4,
+    content: '今天继续完善项目，然后修改添加页面。',
+    date: '2025-04-12T23:38:00Z',
+    tags: ['生活', '博客'],
+    location: '南京',
+  },
+  {
     id: 3,
     content: '今天参考原Gridea的思路，找到了主题的位置，然后开始魔改。感觉还行。',
     date: '2025-04-11T23:49:00Z',
