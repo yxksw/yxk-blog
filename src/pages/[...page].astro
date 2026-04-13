@@ -7,6 +7,11 @@ import { getSortedPosts } from '@/utils/content'
 import appConfig from '@/config.json'
 import type { CollectionEntry } from 'astro:content'
 import Hero from '@/components/hero/Hero.astro'
+import LiveTimetableStatus from '@/components/timetable/LiveTimetableStatus.astro'
+import { parseTimetableFile } from '@/utils/timetable-parser'
+import { buildTimetableViewModel, resolveCurrentWeek } from '@/utils/timetable-normalizer'
+import fs from 'node:fs'
+import path from 'node:path'
 
 export const getStaticPaths = (async () => {
   const sortedPosts = await getSortedPosts()
@@ -33,6 +38,23 @@ interface Props {
 
 const { currentPage, totalPage, data } = Astro.props
 
+// 获取课表数据
+let timetablePayload = { coursesByDay: {} }
+try {
+  const filePath = 'src/data/timetable/大三下.json'
+  const absoluteFilePath = path.join(process.cwd(), filePath)
+  const fileContent = fs.readFileSync(absoluteFilePath, 'utf-8')
+  const parsedData = parseTimetableFile(fileContent)
+  const currentWeek = resolveCurrentWeek(
+    parsedData.settings.startDate,
+    parsedData.settings.maxWeek,
+  )
+  const viewModel = buildTimetableViewModel(parsedData, currentWeek)
+  timetablePayload = { coursesByDay: viewModel.coursesByDay }
+} catch (error) {
+  console.error('Failed to load timetable:', error)
+}
+
 const getPageUrl = (page: number) => {
   if (page === 1) return '/'
   return `/page/${page}`
@@ -44,6 +66,12 @@ const getPageUrl = (page: number) => {
     {currentPage === 1 && <Hero />}
     <div class="w-full px-4 md:px-8 py-20 grid gap-10 lg:grid-cols-[1fr_minmax(0,900px)_1fr]">
       <div class="min-w-0 lg:col-start-2">
+        <!-- 课表状态组件 -->
+        {currentPage === 1 && (
+          <a href="/timetable" class="block mb-6 hover:opacity-90 transition-opacity max-w-md mx-auto">
+            <LiveTimetableStatus payload={timetablePayload} class="w-full" />
+          </a>
+        )}
         <div class="mb-6">
           <h2 class="text-xl font-bold mb-4">最新发布</h2>
           <PostList posts={data} />

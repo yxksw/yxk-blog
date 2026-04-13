@@ -139,7 +139,13 @@ const title = '说说'
             loadMoreContainer.innerHTML = '<div class="memo-loading">加载中…</div>'
 
             try {
-              const res = await fetch(CONFIG.jsonUrl)
+              const res = await fetch(CONFIG.jsonUrl, {
+                cache: 'no-cache',
+                headers: {
+                  'Cache-Control': 'no-cache',
+                  Pragma: 'no-cache',
+                },
+              })
               if (!res.ok) throw new Error('Network response was not ok')
               const jsonData = await res.json()
               allItems = parseJSON(jsonData)
