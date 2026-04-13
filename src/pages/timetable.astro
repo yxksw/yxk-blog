@@ -17,16 +17,18 @@ let viewModel: TimetableViewModel | null = null;
 let loadError = '';
 let isCurrentWeek = false;
 let jsonText = '';
+let startDate = '';
+let maxWeek = 20;
 
 try {
   jsonText = fs.readFileSync(absoluteFilePath, 'utf-8');
   const parsedData = parseTimetableFile(jsonText);
-  const currentWeek = resolveCurrentWeek(
-    parsedData.settings.startDate,
-    parsedData.settings.maxWeek
-  );
-  viewModel = buildTimetableViewModel(parsedData, currentWeek);
-  isCurrentWeek = viewModel.currentWeek === currentWeek;
+  startDate = parsedData.settings.startDate;
+  maxWeek = parsedData.settings.maxWeek;
+  // 服务端计算当前周（用于初始渲染）
+  const serverCurrentWeek = resolveCurrentWeek(startDate, maxWeek);
+  viewModel = buildTimetableViewModel(parsedData, serverCurrentWeek);
+  isCurrentWeek = true; // 标记为当前周，让客户端重新计算
 } catch (error) {
   loadError = error instanceof Error ? error.message : '课表数据加载失败';
 }
@@ -51,7 +53,7 @@ const breadcrumbSchema = {
 };
 ---
 
-<PageLayout title={viewModel ? `课表 - 第${viewModel.currentWeek}周` : '课表'}>
+<PageLayout title="课表">
   <script
     is:inline
     slot="head"
@@ -65,6 +67,8 @@ const breadcrumbSchema = {
           viewModel={viewModel}
           isCurrentWeek={isCurrentWeek}
           jsonText={jsonText}
+          startDate={startDate}
+          maxWeek={maxWeek}
         />
       ) : (
         <div class="card-base p-6 md:p-8 rounded-xl border border-border bg-card">

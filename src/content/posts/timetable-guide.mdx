@@ -1,0 +1,1198 @@
+---
+title: Astro博客建立课程表页面
+description: 详细解析如何使用Astro+TypeScript构建一个功能完整的课程表页面，包含数据解析、组件设计和响应式布局
+date: 2026-04-13T01:16:02.632Z
+updated: 2026-04-13T01:16:02.632Z
+categories:
+  - 博客
+  - 页面
+tags:
+  - 博客
+  - 页面
+  - Astro
+  - TypeScript
+  - 课程表
+slug: timetable-guide
+aiSummary: true
+summary: >-
+  文章介绍了如何在Astro博客中创建一个功能完整的课程表页面。文章首先概述了实现过程，包括数据结构设计、类型系统、组件架构和响应式布局等，然后详细解释了如何通过TypeScript定义数据类型、解析JSON文件、构建视图模型以及实现路由设计和组件层的具体实现。此外，还讨论了课程列表的渲染、编辑模式、数据验证和导出功能。最后，文章总结了整个实现过程，并提供了进一步扩展该课表页面的建议。
+comments: true
+draft: false
+column: 博客
+outdate: false
+cover: null
+status: true
+pinned: false
+---
+
+import Tab from '@/components/content/Tab.astro'
+import Folding from '@/components/content/Folding.astro'
+import Alert from '@/components/content/Alert.astro'
+import Timeline from '@/components/content/Timeline.astro'
+import Quote from '@/components/content/Quote.astro'
+import Tip from '@/components/content/Tip.astro'
+import Key from '@/components/content/Key.astro'
+import Pic from '@/components/content/Pic.astro'
+
+<Quote>有时候，写代码就像排课表一样，需要把各种元素安排得井井有条。</Quote>
+
+## 前言
+
+大家好！今天我想和大家聊聊如何在自己的 Astro 博客中添加一个功能完整的**课程表页面**。这个功能其实挺实用的，特别是对于学生党来说，可以随时查看自己的课程安排。
+
+整个实现涉及的知识点还挺多的，包括：
+
+- **数据结构设计** - 如何设计一个合理的数据格式来存储课程信息
+- **数据解析** - 如何把 JSON 数据转换成可用的数据结构
+- **类型系统** - TypeScript 类型的设计和使用
+- **组件架构** - 如何拆分和组织各个组件
+- **响应式布局** - 桌面端和移动端的适配
+- **实时状态** - 如何显示当前的上课状态
+
+<Tip tip="本文基于 fuwari 项目的课表功能进行解析">如果你正在使用 fuwari 主题，可以直接参考本文实现</Tip>
+
+## 整体架构
+
+在深入代码之前，我们先来看看整个课表页面的架构：
+
+<Timeline>
+  <dt class="timeline-caption">数据层</dt>
+  <dd class="timeline-body">JSON 文件存储课程数据，包含课程定义、时间安排、教室信息等</dd>
+  <dt class="timeline-caption">解析层</dt>
+  <dd class="timeline-body">TypeScript 工具函数负责解析 JSON 并计算当前周次</dd>
+  <dt class="timeline-caption">类型层</dt>
+  <dd class="timeline-body">定义完整的数据类型系统，确保类型安全</dd>
+  <dt class="timeline-caption">组件层</dt>
+  <dd class="timeline-body">Astro 组件负责渲染页面结构和样式</dd>
+  <dt class="timeline-caption">交互层</dt>
+  <dd class="timeline-body">客户端脚本实现实时状态更新和交互功能</dd>
+</Timeline>
+
+这个分层设计的好处是**职责清晰**，每一层只关心自己的事情，方便维护和扩展。
+
+## 数据结构设计
+
+### JSON 数据格式
+
+首先我们来看看课程数据是怎么存储的。在 fuwari 中，课程数据存储在一个 JSON 文件里，格式是这样的：
+
+<Folding title="点击查看完整的 JSON 数据结构">
+
+```json
+{
+  "config": {
+    "courseLen": 2,
+    "id": 1,
+    "name": "默认配置"
+  },
+  "nodeTimes": [
+    { "node": 1, "startTime": "08:00", "endTime": "09:40", "timeTable": 1 },
+    { "node": 2, "startTime": "10:00", "endTime": "11:40", "timeTable": 1 }
+  ],
+  "meta": {
+    "id": 1,
+    "tableName": "大三下",
+    "maxWeek": 20,
+    "nodes": 10,
+    "startDate": "2026-3-2",
+    "timeTable": 1,
+    "showSat": false,
+    "showSun": false
+  },
+  "courseDefinitions": [
+    {
+      "id": 1,
+      "courseName": "计算机网络",
+      "color": "#FF6B6B"
+    }
+  ],
+  "arrangements": [
+    {
+      "id": 1,
+      "day": 1,
+      "startNode": 1,
+      "step": 2,
+      "startWeek": 1,
+      "endWeek": 16,
+      "teacher": "张老师",
+      "room": "A101"
+    }
+  ]
+}
+```
+
+</Folding>
+
+<Alert type="info" title="数据结构设计思路">
+这个 JSON 结构采用了<strong>配置与数据分离</strong>的设计：
+<ul>
+<li><code>config</code> - 全局配置，比如每节课的时长</li>
+<li><code>nodeTimes</code> - 每节课的时间安排</li>
+<li><code>meta</code> - 课表元数据，包括学期名称、最大周数、开学日期等</li>
+<li><code>courseDefinitions</code> - 课程定义，存储课程名称和颜色</li>
+<li><code>arrangements</code> - 课程安排，存储具体的上课时间和地点</li>
+</ul>
+</Alert>
+
+### TypeScript 类型定义
+
+有了数据结构，接下来我们要定义对应的 TypeScript 类型。类型定义在 `src/types/timetable.ts` 文件中：
+
+<Tab tabs={['基础类型', '数据类型', '视图类型']}>
+  <div slot="tab1">
+
+```typescript
+// 配置段
+export interface TimetableConfigSegment {
+  courseLen: number;  // 每节课的时长（节数）
+  id: number;
+  name: string;
+}
+
+// 节次时间
+export interface TimetableNodeTime {
+  node: number;       // 第几节
+  startTime: string;  // 开始时间，如 "08:00"
+  endTime: string;    // 结束时间，如 "09:40"
+  timeTable: number;
+}
+
+// 元数据
+export interface TimetableMetaSegment {
+  id: number;
+  tableName: string;   // 课表名称
+  maxWeek: number;     // 最大周数
+  nodes: number;       // 每天节数
+  startDate: string;   // 开学日期
+  timeTable: number;
+  showSat?: boolean;   // 是否显示周六
+  showSun?: boolean;   // 是否显示周日
+}
+```
+
+  </div>
+  <div slot="tab2">
+
+```typescript
+// 课程定义
+export interface TimetableCourseDefinition {
+  id: number;
+  courseName: string;
+  color?: string;  // 课程颜色（可选）
+}
+
+// 课程安排
+export interface TimetableCourseArrangement {
+  id: number;
+  day: number;        // 星期几（1-7）
+  startNode: number;  // 开始节次
+  step: number;       // 持续节数
+  startWeek: number;  // 开始周
+  endWeek: number;    // 结束周
+  teacher?: string;   // 教师（可选）
+  room?: string;      // 教室（可选）
+}
+
+// 解析后的完整数据
+export interface ParsedTimetableData {
+  config: TimetableConfigSegment;
+  nodeTimes: TimetableNodeTime[];
+  meta: TimetableMetaSegment;
+  courseDefinitions: TimetableCourseDefinition[];
+  arrangements: TimetableCourseArrangement[];
+}
+```
+
+  </div>
+  <div slot="tab3">
+
+```typescript
+// 课程视图（用于渲染）
+export interface TimetableCourseView {
+  courseId: number;
+  courseName: string;
+  color: string;
+  teacher: string;
+  room: string;
+  day: number;
+  startNode: number;
+  endNode: number;
+  durationNodes: number;
+  startWeek: number;
+  endWeek: number;
+  nodeText: string;   // 如 "第 1-2 节"
+  timeText: string;   // 如 "08:00 - 09:40"
+}
+
+// 星期列
+export interface TimetableDayColumn {
+  day: number;
+  label: string;  // 如 "周一"
+}
+
+// 节次行
+export interface TimetableNodeRow {
+  node: number;
+  startTime: string;
+  endTime: string;
+}
+
+// 视图模型（组件使用的数据）
+export interface TimetableViewModel {
+  tableName: string;
+  maxWeek: number;
+  currentWeek: number;
+  weeks: number[];
+  dayColumns: TimetableDayColumn[];
+  nodeRows: TimetableNodeRow[];
+  coursesByDay: Record<number, TimetableCourseView[]>;
+}
+```
+
+  </div>
+</Tab>
+
+<Tip tip="类型设计的小技巧">把数据类型和视图类型分开，可以让数据处理层和UI层解耦，方便后续修改和扩展</Tip>
+
+## 数据解析层
+
+### JSON 解析器
+
+接下来我们看看如何把 JSON 文件解析成 TypeScript 对象。解析逻辑在 `src/utils/timetable-parser.ts` 中：
+
+<Folding title="点击查看 parser 完整代码">
+
+```typescript
+const EXPECTED_SEGMENT_COUNT = 5;
+
+function parseJsonLine<T>(line: string, lineNumber: number): T {
+  const normalizedLine = line.endsWith(",") ? line.slice(0, -1) : line;
+  try {
+    return JSON.parse(normalizedLine) as T;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `课表数据解析失败：第 ${lineNumber} 行不是合法 JSON（${message}）`,
+    );
+  }
+}
+
+export function parseTimetableText(rawText: string): ParsedTimetableData {
+  const lines = rawText
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+
+  if (lines.length !== EXPECTED_SEGMENT_COUNT) {
+    throw new Error(
+      `课表数据结构错误：必须恰好包含 ${EXPECTED_SEGMENT_COUNT} 段 JSON，当前为 ${lines.length} 段`,
+    );
+  }
+
+  const segments = lines.map((line, index) =>
+    parseJsonLine<unknown>(line, index + 1),
+  );
+  const [config, nodeTimes, meta, courseDefinitions, arrangements] = segments;
+
+  // 类型断言...
+  return {
+    config: config as TimetableConfigSegment,
+    nodeTimes: nodeTimes as TimetableNodeTime[],
+    meta: meta as TimetableMetaSegment,
+    courseDefinitions: courseDefinitions as TimetableCourseDefinition[],
+    arrangements: arrangements as TimetableCourseArrangement[],
+  };
+}
+```
+
+</Folding>
+
+<Alert type="success">
+<strong>解析逻辑的关键点：</strong>
+<ol>
+<li>按行分割文本，过滤空行</li>
+<li>检查是否恰好有 5 段数据</li>
+<li>逐行解析 JSON，处理末尾逗号</li>
+<li>按顺序解构出各个部分</li>
+</ol>
+</Alert>
+
+### 数据转换器
+
+解析完 JSON 后，我们需要把原始数据转换成视图模型。这个工作在 `src/utils/timetable-normalizer.ts` 中完成：
+
+#### 当前周计算
+
+首先是最关键的**当前周计算**功能：
+
+```typescript
+function parseDateFromYmd(ymd: string): Date | null {
+  const parts = ymd.split("-").map((part) => Number(part));
+  if (parts.length !== 3 || parts.some((part) => !Number.isFinite(part))) {
+    return null;
+  }
+  const [year, month, day] = parts;
+  return new Date(year, month - 1, day);
+}
+
+export function resolveCurrentWeek(
+  startDateText: string,
+  maxWeek: number,
+  now: Date = new Date(),
+): number {
+  const startDate = parseDateFromYmd(startDateText);
+  if (!startDate) {
+    return 1;
+  }
+
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const diffDays = Math.floor((now.getTime() - startDate.getTime()) / msPerDay);
+  const week = Math.floor(diffDays / 7) + 1;
+
+  if (week < 1) return 1;
+  if (week > maxWeek) return 1;
+  return week;
+}
+```
+
+<Tip tip="算法解析">计算逻辑很简单：用当前时间减去开学时间，得到相差天数，除以 7 取整再加 1，就是当前周数。注意 JavaScript 的月份是从 0 开始的，所以要减 1。</Tip>
+
+#### 视图模型构建
+
+然后是构建视图模型的核心函数：
+
+```typescript
+export function buildTimetableViewModel(
+  data: ParsedTimetableData,
+  selectedWeek: number,
+): TimetableViewModel {
+  const maxWeek = Math.max(1, data.meta.maxWeek || 1);
+  const week = Math.min(Math.max(1, selectedWeek), maxWeek);
+  
+  // 转换节次时间
+  const nodeRows = toNodeRows(data);
+  
+  // 转换星期列
+  const dayColumns = toDayColumns(data);
+
+  // 构建课程查找表
+  const courseMap = new Map(
+    data.courseDefinitions.map((course) => [course.id, course]),
+  );
+
+  // 按星期分组课程
+  const coursesByDay: Record<number, TimetableCourseView[]> = {};
+  for (const column of dayColumns) {
+    coursesByDay[column.day] = [];
+  }
+
+  // 筛选当前周的课程
+  for (const arrangement of data.arrangements) {
+    // 检查星期是否有效
+    if (arrangement.day < 1 || arrangement.day > 7) continue;
+    
+    // 检查当前周是否在课程范围内
+    if (week < arrangement.startWeek || week > arrangement.endWeek) continue;
+    
+    // 检查该星期是否在显示范围内
+    if (!(arrangement.day in coursesByDay)) continue;
+
+    const courseDef = courseMap.get(arrangement.id);
+    const courseName = courseDef?.courseName ?? `课程 #${arrangement.id}`;
+    const color = buildCourseColor(courseName, arrangement.id);
+    
+    coursesByDay[arrangement.day].push(
+      toCourseView(arrangement, courseName, color, nodeRows),
+    );
+  }
+
+  // 对每天的课程按节次排序
+  for (const day of Object.keys(coursesByDay)) {
+    coursesByDay[Number(day)].sort(
+      (a, b) => a.startNode - b.startNode,
+    );
+  }
+
+  return {
+    tableName: data.meta.tableName || "课表",
+    maxWeek,
+    currentWeek: week,
+    weeks: Array.from({ length: maxWeek }, (_, index) => index + 1),
+    dayColumns,
+    nodeRows,
+    coursesByDay,
+  };
+}
+```
+
+<Alert type="warning" title="关键点说明">
+<ol>
+<li><strong>周数过滤</strong> - 只保留在当前周范围内的课程安排</li>
+<li><strong>颜色生成</strong> - 根据课程名称和ID生成唯一的HSL颜色</li>
+<li><strong>时间计算</strong> - 根据节次查找对应的开始和结束时间</li>
+<li><strong>排序</strong> - 按开始节次排序，确保显示顺序正确</li>
+</ol>
+</Alert>
+
+## 页面路由设计
+
+### 首页路由
+
+课表页面有两个路由：首页和具体周次页。首页路由在 `src/pages/timetable.astro`：
+
+```astro
+---
+import fs from "node:fs";
+import path from "node:path";
+import type { TimetableViewModel } from "@/types/timetable";
+import TimetablePageContent from "@components/timetable/TimetablePageContent.astro";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+import {
+  buildTimetableViewModel,
+  resolveCurrentWeek,
+} from "@utils/timetable-normalizer";
+import { parseTimetableFile } from "@utils/timetable-parser-server";
+
+const filePath = "src/data/timetable/大三下.json";
+const absoluteFilePath = path.join(process.cwd(), filePath);
+
+let viewModel: TimetableViewModel | null = null;
+let loadError = "";
+let isCurrentWeek = false;
+let baselineText = "";
+
+try {
+  baselineText = fs.readFileSync(absoluteFilePath, "utf-8");
+  const parsedData = parseTimetableFile(filePath);
+  const currentWeek = resolveCurrentWeek(
+    parsedData.meta.startDate,
+    parsedData.meta.maxWeek,
+  );
+  viewModel = buildTimetableViewModel(parsedData, currentWeek);
+  isCurrentWeek = viewModel.currentWeek === currentWeek;
+} catch (error) {
+  loadError = error instanceof Error ? error.message : "课表数据加载失败";
+}
+---
+
+<MainGridLayout title={viewModel ? `课表 - 第${viewModel.currentWeek}周` : "课表"}>
+  {viewModel ? (
+    <TimetablePageContent
+      viewModel={viewModel}
+      isCurrentWeek={isCurrentWeek}
+      baselineText={baselineText}
+    />
+  ) : (
+    <div class="card-base p-6 md:p-8">
+      <div class="text-red-500">课表加载失败：{loadError}</div>
+    </div>
+  )}
+</MainGridLayout>
+```
+
+### 动态路由
+
+具体周次页使用 Astro 的动态路由功能，在 `src/pages/timetable/[week].astro`：
+
+```astro
+---
+// ... 导入语句与首页相同
+
+const weekParam = Number(Astro.params.week);
+
+try {
+  baselineText = fs.readFileSync(absoluteFilePath, "utf-8");
+  const parsedData = parseTimetableFile(filePath);
+  const currentWeek = resolveCurrentWeek(
+    parsedData.meta.startDate,
+    parsedData.meta.maxWeek,
+  );
+  
+  // 使用 URL 参数中的周次，如果无效则使用当前周
+  const selectedWeek =
+    Number.isFinite(weekParam) && weekParam >= 1
+      ? Math.floor(weekParam)
+      : currentWeek;
+      
+  viewModel = buildTimetableViewModel(parsedData, selectedWeek);
+  isCurrentWeek = viewModel.currentWeek === currentWeek;
+} catch (error) {
+  // ... 错误处理
+}
+
+// 生成所有周次的静态路径
+export function getStaticPaths() {
+  const parsedData = parseTimetableFile("src/data/timetable/大三下.json");
+  const maxWeek = Math.max(1, parsedData.meta.maxWeek || 1);
+  return Array.from({ length: maxWeek }, (_, index) => ({
+    params: {
+      week: String(index + 1),
+    },
+  }));
+}
+---
+```
+
+<Alert type="info" title="动态路由的关键点">
+<ol>
+<li><strong>getStaticPaths</strong> - 在构建时生成所有周次的静态页面</li>
+<li><strong>Astro.params.week</strong> - 获取 URL 中的周次参数</li>
+<li><strong>参数验证</strong> - 检查周次是否有效，无效则使用当前周</li>
+<li><strong>isCurrentWeek</strong> - 标记是否是当前周，用于显示"当前周"标签</li>
+</ol>
+</Alert>
+
+## 组件层实现
+
+### 页面容器组件
+
+`TimetablePageContent.astro` 是整个页面的容器组件：
+
+```astro
+---
+import type { TimetableViewModel } from "@/types/timetable";
+import LiveTimetableStatus from "@components/timetable/LiveTimetableStatus.astro";
+import TimetableDayList from "@components/timetable/TimetableDayList.astro";
+import TimetableGrid from "@components/timetable/TimetableGrid.astro";
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  viewModel: TimetableViewModel;
+  isCurrentWeek?: boolean;
+  baselineText: string;
+}
+
+const { viewModel, isCurrentWeek = false, baselineText } = Astro.props;
+
+const liveStatusPayload = {
+  coursesByDay: viewModel.coursesByDay,
+};
+---
+
+<div class="card-base p-6 md:p-8">
+  <!-- 页面头部 -->
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">{viewModel.tableName}</h1>
+    <span class="text-sm text-white/60">共 {viewModel.maxWeek} 周</span>
+  </div>
+
+  <!-- 周次导航 -->
+  <div class="flex items-center gap-3 mb-5">
+    <a
+      href={`/timetable/${Math.max(1, viewModel.currentWeek - 1)}/`}
+      class="btn-regular h-9 w-9 rounded-lg flex items-center justify-center"
+      class:list={[{ "opacity-50": viewModel.currentWeek <= 1 }]}
+    >
+      <Icon name="lucide:chevron-left" class="text-lg" />
+    </a>
+    <span class="min-w-[4.5rem] text-center font-medium">
+      第 {viewModel.currentWeek} 周
+    </span>
+    <a
+      href={`/timetable/${Math.min(viewModel.maxWeek, viewModel.currentWeek + 1)}/`}
+      class="btn-regular h-9 w-9 rounded-lg flex items-center justify-center"
+      class:list={[{ "opacity-50": viewModel.currentWeek >= viewModel.maxWeek }]}
+    >
+      <Icon name="lucide:chevron-right" class="text-lg" />
+    </a>
+    {isCurrentWeek && (
+      <span class="rounded-lg border border-emerald-400/30 
+                   bg-emerald-500/10 px-2.5 py-1 text-sm 
+                   font-medium text-emerald-200">
+        当前周
+      </span>
+    )}
+  </div>
+
+  <!-- 实时状态 -->
+  <LiveTimetableStatus payload={liveStatusPayload} class="mb-4" />
+
+  <!-- 桌面端网格 -->
+  <TimetableGrid viewModel={viewModel} />
+  
+  <!-- 移动端列表 -->
+  <TimetableDayList viewModel={viewModel} />
+</div>
+```
+
+<Tip tip="组件设计原则">把页面拆分成多个小组件，每个组件只负责一个功能，这样代码更易读、更易维护</Tip>
+
+### 桌面端网格组件
+
+`TimetableGrid.astro` 实现了桌面端的课表网格布局：
+
+```astro
+---
+import type { TimetableCourseView } from "@/types/timetable";
+import TimetableCourseCard from "@components/timetable/TimetableCourseCard.astro";
+
+interface Props {
+  viewModel: TimetableViewModel;
+}
+
+const { viewModel } = Astro.props;
+
+// 计算需要显示的星期
+const dayIndexes = viewModel.dayColumns.map((day) => day.day);
+const dayCount = viewModel.dayColumns.length;
+
+// 构建课程查找表，key 格式为 "星期-节次"
+const courseMapByDayAndNode = new Map<string, TimetableCourseView[]>();
+
+for (const day of dayIndexes) {
+  for (const course of viewModel.coursesByDay[day] ?? []) {
+    // 将课程按节次分组（每2节一组）
+    const pairStartNode =
+      course.startNode % 2 === 1 ? course.startNode : course.startNode - 1;
+    const key = `${day}-${Math.max(1, pairStartNode)}`;
+    const list = courseMapByDayAndNode.get(key) ?? [];
+    list.push(course);
+    courseMapByDayAndNode.set(key, list);
+  }
+}
+---
+
+<div class="hidden md:block card-base w-full overflow-hidden" 
+     style={`--day-count: ${dayCount}`}>
+  <!-- 表头 -->
+  <div class="timetable-header-grid border-b border-white/10">
+    <div class="px-3 py-2 text-xs border-r border-white/10">节次</div>
+    {viewModel.dayColumns.map((day) => (
+      <div class="px-3 py-2 text-sm font-semibold border-r last:border-r-0 
+                  border-white/10">
+        {day.label}
+      </div>
+    ))}
+  </div>
+
+  <!-- 课程行 -->
+  {viewModel.nodeRows
+    .filter((row) => row.node % 2 === 1)  // 只显示奇数节次（成对显示）
+    .map((row) => (
+      <div class="timetable-row-grid border-b last:border-b-0 border-white/10">
+        <!-- 节次信息 -->
+        <div class="px-3 py-3 border-r border-white/10">
+          <p class="text-xs font-medium">
+            第 {row.node}-{Math.min(row.node + 1, viewModel.nodeRows.length)} 节
+          </p>
+          <p class="text-[11px] text-white/80 mt-1">
+            {row.startTime} - {下一节结束时间}
+          </p>
+        </div>
+        
+        <!-- 每天的课程 -->
+        {viewModel.dayColumns.map((day) => {
+          const key = `${day.day}-${row.node}`;
+          const courses = courseMapByDayAndNode.get(key) ?? [];
+          return (
+            <div class="px-2 py-2 border-r last:border-r-0 border-white/10 
+                        align-top min-h-[88px]">
+              {courses.length > 0 ? (
+                <div class="space-y-2">
+                  {courses.map((course) => (
+                    <TimetableCourseCard course={course} compact={true} />
+                  ))}
+                </div>
+              ) : (
+                <div class="h-full flex items-center justify-center 
+                            text-[11px] text-white/60">—</div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    ))}
+</div>
+
+<style>
+  .timetable-header-grid,
+  .timetable-row-grid {
+    display: grid;
+    grid-template-columns: 120px repeat(var(--day-count), minmax(180px, 1fr));
+  }
+</style>
+```
+
+<Alert type="success" title="网格布局的关键点">
+<ol>
+<li><strong>CSS Grid</strong> - 使用 Grid 布局实现表格结构</li>
+<li><strong>动态列数</strong> - 通过 CSS 变量 --day-count 控制列数</li>
+<li><strong>课程分组</strong> - 将课程按节次分组，每2节课显示在一行</li>
+<li><strong>响应式</strong> - 使用 <code>hidden md:block</code> 在移动端隐藏</li>
+</ol>
+</Alert>
+
+### 课程卡片组件
+
+`TimetableCourseCard.astro` 是显示单个课程的组件：
+
+```astro
+---
+import type { TimetableCourseView } from "@/types/timetable";
+
+interface Props {
+  course: TimetableCourseView;
+  compact?: boolean;  // 是否紧凑模式（用于网格）
+  showTime?: boolean; // 是否显示时间（用于列表）
+}
+
+const { course, compact = false, showTime = false } = Astro.props;
+const borderColor = course.color || "#6b7280";
+---
+
+<article 
+  class:list={["course-card rounded-lg", compact ? "p-2.5" : "p-3"]}
+  style={`--course-color: ${borderColor}`}
+>
+  <div class="flex items-start justify-between gap-2">
+    <h3 class:list={["font-semibold text-white leading-tight", 
+                     compact ? "text-xs" : "text-sm"]}>
+      {course.courseName}
+    </h3>
+    <span class="text-[10px] text-white/80 whitespace-nowrap">
+      {course.startWeek}-{course.endWeek}周
+    </span>
+  </div>
+  
+  {showTime && (
+    <p class:list={["text-white/80 mt-1", compact ? "text-[11px]" : "text-xs"]}>
+      时间：{course.timeText}
+    </p>
+  )}
+  
+  <p class:list={["text-white/80", showTime ? "mt-0.5" : "mt-1", 
+                  compact ? "text-[11px]" : "text-xs"]}>
+    教室：{course.room}
+  </p>
+  
+  <p class:list={["text-white/80 mt-0.5", compact ? "text-[11px]" : "text-xs"]}>
+    教师：{course.teacher}
+  </p>
+</article>
+
+<style>
+  .course-card {
+    border-left: 4px solid var(--course-color);
+    background: color-mix(in oklab, var(--card-bg) 82%, var(--course-color) 18%);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--course-color) 38%, transparent);
+  }
+</style>
+```
+
+### 实时状态组件
+
+`LiveTimetableStatus.astro` 实现了实时显示当前上课状态的功能：
+
+<Folding title="点击查看实时状态组件完整代码">
+
+```astro
+---
+import type { TimetableCourseView } from "@/types/timetable";
+
+interface Props {
+  payload: {
+    coursesByDay: Record<number, TimetableCourseView[]>;
+  };
+}
+
+const { payload } = Astro.props;
+const payloadText = encodeURIComponent(JSON.stringify(payload));
+---
+
+<div data-live-status-root data-live-payload={payloadText}>
+  <p data-live-status class="text-sm font-semibold">状态计算中...</p>
+  <p class="mt-1 text-sm">
+    <span>下一堂课：</span>
+    <span data-live-next-detail class="font-medium">--</span>
+    <span data-live-next-tail></span>
+  </p>
+</div>
+
+<script is:inline>
+  function parseTimeToMinute(text) {
+    const parts = String(text || "").split(":");
+    if (parts.length !== 2) return null;
+    return Number(parts[0]) * 60 + Number(parts[1]);
+  }
+
+  function resolveLiveState(payload) {
+    const now = new Date();
+    const currentMinute = now.getHours() * 60 + now.getMinutes();
+    const day = now.getDay() === 0 ? 7 : now.getDay();
+
+    // 周末
+    if (day >= 6) {
+      return { status: "周末", nextDetail: "--", nextTail: "" };
+    }
+
+    // 获取今日课程
+    const courses = (payload?.coursesByDay?.[day] || [])
+      .map((course) => {
+        const match = course.timeText.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
+        if (!match) return null;
+        return {
+          ...course,
+          startMinute: parseTimeToMinute(match[1]),
+          endMinute: parseTimeToMinute(match[2]),
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.startMinute - b.startMinute);
+
+    if (courses.length === 0) {
+      return { status: "无课", nextDetail: "--", nextTail: "" };
+    }
+
+    // 判断当前状态
+    let status = "无课";
+    for (let i = 0; i < courses.length; i++) {
+      const current = courses[i];
+      if (currentMinute >= current.startMinute && currentMinute < current.endMinute) {
+        status = `上课（${current.courseName}）`;
+        break;
+      }
+      const next = courses[i + 1];
+      if (next && currentMinute >= current.endMinute && currentMinute < next.startMinute) {
+        status = `课间（下一节：${next.courseName}）`;
+        break;
+      }
+    }
+
+    // 查找下一节课
+    const nextCourse = courses.find((c) => c.startMinute > currentMinute);
+    if (!nextCourse) {
+      return { status, nextDetail: "--", nextTail: "" };
+    }
+
+    const remainMinutes = nextCourse.startMinute - currentMinute;
+    const hours = Math.floor(remainMinutes / 60);
+    const minutes = remainMinutes % 60;
+    const timeText = hours > 0 ? `${hours}小时${minutes}分钟` : `${minutes}分钟`;
+
+    return {
+      status,
+      nextDetail: `${nextCourse.courseName} - ${nextCourse.room || "未填写"}`,
+      nextTail: `（${timeText}后）`,
+      nextColor: nextCourse.color,
+    };
+  }
+
+  // 更新状态显示
+  function updateLiveStatus(root) {
+    const payloadRaw = decodeURIComponent(root.dataset.livePayload || "%7B%7D");
+    const payload = JSON.parse(payloadRaw);
+    const state = resolveLiveState(payload);
+    
+    root.querySelector("[data-live-status]").textContent = state.status;
+    root.querySelector("[data-live-next-detail]").textContent = state.nextDetail;
+    root.querySelector("[data-live-next-tail]").textContent = state.nextTail;
+    root.querySelector("[data-live-next-detail]").style.color = state.nextColor || "";
+  }
+
+  // 初始化并定时更新
+  function setupLiveStatus() {
+    document.querySelectorAll("[data-live-status-root]").forEach(updateLiveStatus);
+    setInterval(() => {
+      document.querySelectorAll("[data-live-status-root]").forEach(updateLiveStatus);
+    }, 30 * 1000); // 每30秒更新一次
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupLiveStatus);
+  } else {
+    setupLiveStatus();
+  }
+</script>
+```
+
+</Folding>
+
+<Tip tip="实时状态的核心逻辑">把时间转换成分钟数（小时×60+分钟），然后比较当前时间与课程时间，就能判断是在上课、课间还是无课状态</Tip>
+
+## 样式与交互
+
+### 响应式设计
+
+课表页面使用了响应式设计，桌面端显示网格，移动端显示列表：
+
+```astro
+<!-- 桌面端网格 -->
+<TimetableGrid viewModel={viewModel} />
+
+<!-- 移动端列表 -->
+<TimetableDayList viewModel={viewModel} />
+```
+
+在组件内部使用 Tailwind 的响应式类控制显示：
+
+```astro
+<!-- TimetableGrid.astro -->
+<div class="hidden md:block">...</div>
+
+<!-- TimetableDayList.astro -->
+<div class="md:hidden">...</div>
+```
+
+### 颜色生成
+
+每个课程卡片都有一个唯一的颜色，通过哈希函数生成：
+
+```typescript
+function hashText(input: string): number {
+  let hash = 0;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash * 31 + input.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+function buildCourseColor(courseName: string, courseId: number): string {
+  const seed = hashText(`${courseName}-${courseId}`);
+  const hue = seed % 360;
+  return `hsl(${hue} 78% 68%)`;
+}
+```
+
+<Alert type="info">使用 HSL 颜色模式，固定饱和度和亮度，只改变色相，这样生成的颜色既多样又和谐</Alert>
+
+## 可视化编辑器（进阶）
+
+前面我们讲了如何展示课表，现在来讲讲如何让课表**可编辑**。`TimetableVisualEditor.svelte` 是一个功能完整的可视化编辑器，让用户可以直接在浏览器里增删改课程。
+
+### 组件架构
+
+这个编辑器采用**双栏布局**：左侧是课程列表，右侧是属性编辑面板。
+
+<Timeline>
+  <dt class="timeline-caption">编辑模式切换</dt>
+  <dd class="timeline-body">提供"编辑课表"和"退出编辑"按钮，进入编辑模式后显示可视化界面</dd>
+  <dt class="timeline-caption">左侧课程列表</dt>
+  <dd class="timeline-body">按星期分组显示所有课程卡片，点击选中进行编辑</dd>
+  <dt class="timeline-caption">右侧属性面板</dt>
+  <dd class="timeline-body">根据选中课程或新增状态，显示对应的表单字段</dd>
+  <dt class="timeline-caption">数据验证</dt>
+  <dd class="timeline-body">实时验证课程数据的合法性，防止错误数据</dd>
+  <dt class="timeline-caption">导出功能</dt>
+  <dd class="timeline-body">将编辑后的数据导出为 JSON 文件</dd>
+</Timeline>
+
+### 核心数据结构
+
+编辑器使用了一些内部类型来管理编辑状态：
+
+```typescript
+// 新增课程的草稿数据
+type NewCourseDraft = {
+  courseName: string;
+  teacher: string;
+  room: string;
+  day: number;
+  startNode: number;
+  startWeek: number;
+  endWeek: number;
+};
+
+// 课程卡片显示项
+type ArrangementCardItem = {
+  arrangementIndex: number;
+  title: string;
+  teacher: string;
+  room: string;
+  nodeText: string;
+  weekText: string;
+  color: string;
+};
+
+// 按星期分组的卡片
+type ArrangementCardGroup = {
+  day: number;
+  label: string;
+  items: ArrangementCardItem[];
+};
+```
+
+### 状态管理
+
+编辑器需要管理多个状态：
+
+<Folding title="点击查看状态管理代码">
+
+```typescript
+let editMode = false;                    // 是否处于编辑模式
+let draftParsed: ParsedTimetableData;    // 编辑中的数据副本
+let previewViewModel: TimetableViewModel; // 预览用的视图模型
+let selectedArrangementRef: number | null; // 当前选中的课程索引
+let validationError = "";                // 验证错误信息
+let isDirty = false;                     // 数据是否有修改
+let creatingCourse = false;              // 是否正在创建新课程
+let newCourseDraft: NewCourseDraft;      // 新课程的草稿数据
+```
+
+</Folding>
+
+<Alert type="success" title="状态设计要点">
+<ol>
+<li><strong>草稿模式</strong> - 编辑时不直接修改原始数据，而是操作副本</li>
+<li><strong>响应式更新</strong> - 使用 Svelte 的 <code>$:</code> 语法自动计算派生状态</li>
+<li><strong>脏数据标记</strong> - <code>isDirty</code> 标记是否有未保存的修改</li>
+<li><strong>验证反馈</strong> - 实时显示验证错误，阻止非法操作</li>
+</ol>
+</Alert>
+
+### 课程列表渲染
+
+左侧课程列表按星期分组显示：
+
+```svelte
+<div class="grid gap-3 md:grid-cols-2">
+  {#each arrangementCards as dayGroup}
+    <div class="rounded-lg border border-[var(--line-divider)]/80 p-3">
+      <div class="mb-2 text-sm font-medium">{dayGroup.label}</div>
+      {#if dayGroup.items.length === 0}
+        <p class="text-xs text-white/70">本日暂无课程</p>
+      {:else}
+        <div class="flex flex-col gap-2">
+          {#each dayGroup.items as item}
+            <button
+              class={selectedArrangementRef === item.arrangementIndex 
+                ? "选中样式" 
+                : "默认样式"}
+              on:click={() => selectArrangement(item.arrangementIndex)}
+            >
+              <div style={`color:${item.color}`}>{item.title}</div>
+              <div>{item.nodeText} · {item.weekText}</div>
+              <div>{item.teacher} / {item.room}</div>
+            </button>
+          {/each}
+        </div>
+      {/if}
+    </div>
+  {/each}
+</div>
+```
+
+### 表单编辑与验证
+
+属性面板支持两种模式：新增课程和编辑现有课程。
+
+<Tip tip="智能提示功能">使用 HTML5 的 <code>datalist</code> 元素，可以根据已有数据提供自动完成建议，比如已存在的课程名、教师名、教室名</Tip>
+
+表单验证确保数据的合法性：
+
+```typescript
+function validateDraft(data: ParsedTimetableData): string {
+  for (let index = 0; index < data.arrangements.length; index += 1) {
+    const arrangement = data.arrangements[index];
+    
+    // 验证星期范围
+    if (arrangement.day < 1 || arrangement.day > 7) {
+      return `第 ${index + 1} 条课程安排的星期超出范围（1-7）`;
+    }
+    
+    // 验证节次范围
+    if (arrangement.startNode < 1 || arrangement.startNode > maxNode) {
+      return `第 ${index + 1} 条课程安排的起始节次超出范围`;
+    }
+    
+    // 验证周次逻辑
+    if (arrangement.startWeek > arrangement.endWeek) {
+      return `第 ${index + 1} 条课程安排的起止周非法`;
+    }
+    
+    // 验证课程名不能为空
+    const courseDef = data.courseDefinitions.find(c => c.id === arrangement.id);
+    if (!courseDef || !courseDef.courseName?.trim()) {
+      return `第 ${index + 1} 条课程安排关联课程名为空`;
+    }
+  }
+  return "";
+}
+```
+
+### 数据导出
+
+编辑完成后，可以将数据导出为 JSON 文件：
+
+```typescript
+function exportJson() {
+  const error = validateDraft(draftParsed);
+  if (error) {
+    validationError = error;
+    return;
+  }
+
+  const text = serializeTimetableDataToFileText(draftParsed);
+  const blob = new Blob([text], { type: "application/json;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  
+  // 创建临时链接并触发下载
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${baselineParsed.meta.tableName || "timetable"}.json`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+```
+
+<Alert type="warning" title="临时编辑模式说明">
+这个编辑器是<strong>临时编辑模式</strong>，导出后会自动退出编辑状态并恢复原始数据。这是因为：
+<ol>
+<li>Astro 是静态站点生成器，无法直接修改服务器上的文件</li>
+<li>用户需要手动将导出的 JSON 文件替换到数据目录</li>
+<li>这种设计保证了数据安全，避免误操作</li>
+</ol>
+</Alert>
+
+### 使用方式
+
+在 TimetablePageContent 组件中引入编辑器：
+
+```astro
+---
+import TimetableVisualEditor from "@components/timetable/TimetableVisualEditor.svelte";
+---
+
+<!-- 在适当位置插入编辑器 -->
+<TimetableVisualEditor 
+  viewModel={viewModel} 
+  baselineText={baselineText} 
+  client:load 
+/>
+```
+
+<Tip tip="client:load 指令">由于编辑器包含客户端交互逻辑，需要使用 Astro 的 client:load 指令在页面加载时激活 Svelte 组件</Tip>
+
+## 总结
+
+通过这篇文章，我们详细解析了一个完整的课程表页面的实现过程：
+
+<Timeline>
+  <dt class="timeline-caption">数据层</dt>
+  <dd class="timeline-body">设计了清晰的 JSON 数据结构，分离配置、定义和安排</dd>
+  <dt class="timeline-caption">类型层</dt>
+  <dd class="timeline-body">使用 TypeScript 定义完整类型，确保类型安全</dd>
+  <dt class="timeline-caption">解析层</dt>
+  <dd class="timeline-body">实现 JSON 解析、数据转换和当前周计算</dd>
+  <dt class="timeline-caption">路由层</dt>
+  <dd class="timeline-body">使用 Astro 动态路由生成所有周次页面</dd>
+  <dt class="timeline-caption">组件层</dt>
+  <dd class="timeline-body">拆分多个组件，实现网格布局、列表布局、课程卡片</dd>
+  <dt class="timeline-caption">交互层</dt>
+  <dd class="timeline-body">客户端脚本实现实时状态更新</dd>
+</Timeline>
+
+### 可扩展的功能
+
+如果你想进一步完善这个课表页面，可以考虑：
+
+1. **多课表支持** - 支持切换不同学期的课表
+2. **课程提醒** - 上课前发送浏览器通知
+3. **导出功能** - 导出为 ICS 日历文件
+4. **编辑功能** - 可视化编辑课程安排
+5. **数据同步** - 从教务系统自动同步课程
+
+希望这篇教程对你有帮助！如果你有任何问题，欢迎在评论区留言。
+
+<Key code="Enter" /> 感谢阅读！

@@ -1,0 +1,259 @@
+name: Sponsor Avatar Health Check
+
+on:
+  schedule:
+    # 每 30 天运行一次
+    - cron: '0 0 */30 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+env:
+  PAT: ${{ secrets.PAT }}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ env.PAT }}
+
+      - name: Check sponsor avatars
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const fs = require('fs')
+            const path = require('path')
+
+            const sponsorsPath = 'src/data/sponsors.json'
+
+            async function checkAvatarReachability(url) {
+              const controller = new AbortController()
+              const timer = setTimeout(() => controller.abort(), 10000)
+              try {
+                try {
+                  const u = new URL(url)
+                  if (u.protocol !== 'http:' && u.protocol !== 'https:') throw new Error('Invalid protocol')
+                  const h = u.hostname
+                  if (h === 'localhost' || h === '127.0.0.1' || h === '::1') throw new Error('Localhost not allowed')
+                  if (/^10\./.test(h)) throw new Error('Private IP not allowed')
+                  if (/^192\.168\./.test(h)) throw new Error('Private IP not allowed')
+                  if (/^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(h)) throw new Error('Private IP not allowed')
+                } catch (e) {
+                  return { ok: false, error: e.message }
+                }
+
+                const res = await fetch(url, {
+                  method: 'HEAD',
+                  redirect: 'follow',
+                  headers: {
+                    'user-agent': 'yxk-blog-sponsor/1.0 (+github actions)',
+                    accept: 'image/*,*/*;q=0.8',
+                  },
+                  signal: controller.signal,
+                })
+                return { ok: res.status >= 200 && res.status < 400, status: res.status }
+              } catch (e) {
+                return { ok: false, error: e?.message || String(e) }
+              } finally {
+                clearTimeout(timer)
+              }
+            }
+
+            // Read sponsors.json
+            let sponsors
+            try {
+              const raw = fs.readFileSync(sponsorsPath, 'utf-8')
+              sponsors = JSON.parse(raw)
+            } catch (e) {
+              core.error(`Failed to read sponsors.json: ${e.message}`)
+              return
+            }
+
+            if (!Array.isArray(sponsors)) {
+              core.error('sponsors.json must be an array')
+              return
+            }
+
+            // Check each avatar
+            const failedSponsors = []
+            for (const sponsor of sponsors) {
+              if (sponsor.avatar) {
+                const check = await checkAvatarReachability(sponsor.avatar)
+                if (!check.ok) {
+                  failedSponsors.push({
+                    name: sponsor.name,
+                    avatar: sponsor.avatar,
+                    error: check.error || `HTTP ${check.status}`,
+                  })
+                }
+              }
+            }
+
+            if (failedSponsors.length === 0) {
+              core.info('All sponsor avatars are reachable.')
+              return
+            }
+
+            core.warning(`Found ${failedSponsors.length} unreachable avatars`)
+
+            // Read existing failure counts from issue
+            const owner = context.repo.owner
+            const repo = context.repo.repo
+            const issueTitle = '赞助者头像健康检查'
+
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: 'open',
+              labels: 'sponsor-health-check',
+            })
+
+            let existingIssue = issues.find((i) => i.title === issueTitle)
+            let failureCounts = {}
+
+            if (existingIssue) {
+              // Parse existing failure counts from issue body
+              const match = existingIssue.body?.match(/<!-- failure-counts -->\n([\s\S]*?)\n<!-- \/failure-counts -->/)
+              if (match) {
+                try {
+                  failureCounts = JSON.parse(match[1])
+                } catch {}
+              }
+            }
+
+            // Update failure counts
+            for (const sponsor of failedSponsors) {
+              failureCounts[sponsor.name] = (failureCounts[sponsor.name] || 0) + 1
+            }
+
+            // Filter sponsors with >= 3 failures
+            const sponsorsToRemove = failedSponsors.filter((s) => failureCounts[s.name] >= 3)
+
+            // Remove failed sponsors from JSON
+            if (sponsorsToRemove.length > 0) {
+              const removedNames = sponsorsToRemove.map((s) => s.name)
+              sponsors = sponsors.filter((s) => !removedNames.includes(s.name))
+
+              // Write updated sponsors.json
+              fs.writeFileSync(sponsorsPath, JSON.stringify(sponsors, null, 2) + '\n')
+
+              // Commit changes
+              const { execSync } = require('child_process')
+              execSync('git config user.name "github-actions[bot]"')
+              execSync('git config user.email "github-actions[bot]@users.noreply.github.com"')
+              execSync(`git add ${sponsorsPath}`)
+              execSync(`git commit -m "chore: remove sponsors with unreachable avatars (${removedNames.join(', ')})"`)
+              execSync('git push')
+
+              core.info(`Removed sponsors: ${removedNames.join(', ')}`)
+            }
+
+            // Create or update issue
+            const issueBody = [
+              '## 赞助者头像健康检查报告',
+              '',
+              '检测时间：' + new Date().toISOString(),
+              '',
+              '### 不可达的头像',
+              '',
+              ...failedSponsors.map((s) => `- **${s.name}**: ${s.avatar} (${s.error}) - 失败次数: ${failureCounts[s.name]}`),
+              '',
+              sponsorsToRemove.length > 0 ? `### 已移除的赞助者（失败超过 3 次）\n\n${sponsorsToRemove.map((s) => `- ${s.name}`).join('\n')}` : '',
+              '',
+              '---',
+              '',
+              '<!-- failure-counts -->',
+              JSON.stringify(failureCounts, null, 2),
+              '<!-- /failure-counts -->',
+            ].join('\n')
+
+            if (existingIssue) {
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number: existingIssue.number,
+                body: issueBody,
+              })
+
+              // Reopen issue if there are failed sponsors
+              if (failedSponsors.length > 0) {
+                await github.rest.issues.update({
+                  owner,
+                  repo,
+                  issue_number: existingIssue.number,
+                  state: 'open',
+                })
+              }
+            } else {
+              await github.rest.issues.create({
+                owner,
+                repo,
+                title: issueTitle,
+                body: issueBody,
+                labels: ['sponsor-health-check'],
+              })
+            }
+
+            // Create PRs for sponsors with failed avatars (if not already removed)
+            for (const sponsor of failedSponsors) {
+              if (failureCounts[sponsor.name] < 3) {
+                const branchName = `sponsor-health-check/${sponsor.name.replace(/\s+/g, '-').toLowerCase()}`
+                const prTitle = `赞助者头像检查：${sponsor.name}`
+                const prBody = [
+                  `## 头像链接不可达`,
+                  '',
+                  `- 赞助者：${sponsor.name}`,
+                  `- 头像链接：${sponsor.avatar}`,
+                  `- 错误信息：${sponsor.error}`,
+                  `- 失败次数：${failureCounts[sponsor.name]}/3`,
+                  '',
+                  '请在 3 次检查失败前修复头像链接，否则将被自动移除。',
+                ].join('\n')
+
+                // Check if PR already exists
+                const { data: existingPRs } = await github.rest.pulls.list({
+                  owner,
+                  repo,
+                  state: 'open',
+                  head: `${owner}:${branchName}`,
+                })
+
+                if (existingPRs.length === 0) {
+                  // Create a new branch and PR
+                  try {
+                    const { data: ref } = await github.rest.git.getRef({
+                      owner,
+                      repo,
+                      ref: 'heads/main',
+                    })
+
+                    await github.rest.git.createRef({
+                      owner,
+                      repo,
+                      ref: `refs/heads/${branchName}`,
+                      sha: ref.object.sha,
+                    })
+
+                    await github.rest.pulls.create({
+                      owner,
+                      repo,
+                      title: prTitle,
+                      body: prBody,
+                      head: branchName,
+                      base: 'main',
+                      labels: ['sponsor-health-check'],
+                    })
+                  } catch (e) {
+                    core.warning(`Failed to create PR for ${sponsor.name}: ${e.message}`)
+                  }
+                }
+              }
+            }

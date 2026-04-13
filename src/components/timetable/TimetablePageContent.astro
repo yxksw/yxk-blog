@@ -11,9 +11,11 @@ interface Props {
   viewModel: TimetableViewModel;
   isCurrentWeek?: boolean;
   jsonText?: string;
+  startDate?: string;
+  maxWeek?: number;
 }
 
-const { viewModel, isCurrentWeek = false, jsonText = '' } = Astro.props;
+const { viewModel, isCurrentWeek = false, jsonText = '', startDate = '', maxWeek = 20 } = Astro.props;
 
 const liveStatusPayload = {
   coursesByDay: viewModel.coursesByDay,
@@ -32,8 +34,9 @@ const liveStatusPayload = {
   </div>
 
   <div class="flex flex-wrap items-center gap-3 mb-5 text-sm">
-    <div class="inline-flex items-center gap-1">
+    <div class="inline-flex items-center gap-1" id="week-navigator" data-start-date={startDate} data-max-week={maxWeek} data-server-week={viewModel.currentWeek}>
       <a
+        id="prev-week-link"
         href={`/timetable/${Math.max(1, viewModel.currentWeek - 1)}/`}
         class:list={[
           'h-9 w-9 rounded-lg flex items-center justify-center font-medium border border-border bg-secondary hover:bg-secondary/80 transition-colors',
@@ -43,10 +46,11 @@ const liveStatusPayload = {
       >
         <Icon name="lucide:chevron-left" class="text-lg" />
       </a>
-      <span class="min-w-[4.5rem] px-1 text-center font-medium text-foreground"
+      <span id="current-week-display" class="min-w-[4.5rem] px-1 text-center font-medium text-foreground"
         >第 {viewModel.currentWeek} 周</span
       >
       <a
+        id="next-week-link"
         href={`/timetable/${Math.min(viewModel.maxWeek, viewModel.currentWeek + 1)}/`}
         class:list={[
           'h-9 w-9 rounded-lg flex items-center justify-center font-medium border border-border bg-secondary hover:bg-secondary/80 transition-colors',
@@ -58,13 +62,90 @@ const liveStatusPayload = {
       </a>
       {
         isCurrentWeek && (
-          <span class="rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-sm font-medium text-emerald-500 leading-none">
+          <span id="current-week-badge" class="rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-sm font-medium text-emerald-500 leading-none">
             当前周
           </span>
         )
       }
     </div>
   </div>
+
+  <script is:inline>
+    // 客户端实时计算当前周
+    (function() {
+      const navigator = document.getElementById('week-navigator');
+      if (!navigator) return;
+      
+      const startDate = navigator.dataset.startDate;
+      const maxWeek = parseInt(navigator.dataset.maxWeek || '20', 10);
+      const serverWeek = parseInt(navigator.dataset.serverWeek || '1', 10);
+      
+      if (!startDate) return;
+      
+      // 解析日期
+      function parseDateFromYmd(ymd) {
+        const parts = ymd.split('-').map((part) => Number(part));
+        if (parts.length !== 3 || parts.some((part) => !Number.isFinite(part))) {
+          return null;
+        }
+        const [year, month, day] = parts;
+        return new Date(year, month - 1, day);
+      }
+      
+      // 计算当前周
+      function resolveCurrentWeek(startDateText, maxWeekNum) {
+        const startDate = parseDateFromYmd(startDateText);
+        if (!startDate) return 1;
+        
+        const now = new Date();
+        const msPerDay = 24 * 60 * 60 * 1000;
+        const diffDays = Math.floor((now.getTime() - startDate.getTime()) / msPerDay);
+        const week = Math.floor(diffDays / 7) + 1;
+        
+        if (week < 1) return 1;
+        if (week > maxWeekNum) return maxWeekNum;
+        return week;
+      }
+      
+      const clientCurrentWeek = resolveCurrentWeek(startDate, maxWeek);
+      
+      // 如果客户端计算的周数与服务器不同，更新显示
+      if (clientCurrentWeek !== serverWeek) {
+        const weekDisplay = document.getElementById('current-week-display');
+        const prevLink = document.getElementById('prev-week-link');
+        const nextLink = document.getElementById('next-week-link');
+        const badge = document.getElementById('current-week-badge');
+        
+        if (weekDisplay) {
+          weekDisplay.textContent = `第 ${clientCurrentWeek} 周`;
+        }
+        
+        // 更新链接
+        if (prevLink) {
+          prevLink.href = `/timetable/${Math.max(1, clientCurrentWeek - 1)}/`;
+          prevLink.classList.toggle('pointer-events-none', clientCurrentWeek <= 1);
+          prevLink.classList.toggle('opacity-50', clientCurrentWeek <= 1);
+        }
+        
+        if (nextLink) {
+          nextLink.href = `/timetable/${Math.min(maxWeek, clientCurrentWeek + 1)}/`;
+          nextLink.classList.toggle('pointer-events-none', clientCurrentWeek >= maxWeek);
+          nextLink.classList.toggle('opacity-50', clientCurrentWeek >= maxWeek);
+        }
+        
+        // 显示当前周标记
+        if (badge) {
+          badge.style.display = 'inline-block';
+        }
+        
+        // 更新页面标题
+        document.title = `课表 - 第${clientCurrentWeek}周`;
+      } else {
+        // 即使周数相同，也更新标题
+        document.title = `课表 - 第${serverWeek}周`;
+      }
+    })();
+  </script>
 
   <LiveTimetableStatus payload={liveStatusPayload} class="mb-4" />
 
