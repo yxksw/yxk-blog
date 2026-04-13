@@ -743,15 +743,34 @@
         </div>
       {/if}
 
-      <div class="progress-section mb-4">
-        <button class="progress-bar flex-1 h-2 bg-[var(--muted)] rounded-full cursor-pointer w-full p-0 border-0"
+      <div class="progress-section mb-4 w-full">
+        <div class="progress-bar w-full h-2 bg-gray-300 dark:bg-gray-600 rounded-full cursor-pointer relative overflow-hidden"
              bind:this={progressBar}
              onclick={setProgress}
-             aria-label={`进度 ${formatTime(currentTime)} / ${formatTime(duration)}`}>
-          <div class="h-full bg-[var(--primary)] rounded-full transition-all duration-100 pointer-events-none"
+             onkeydown={(e) => {
+               if (e.key === 'Enter' || e.key === ' ') {
+                 e.preventDefault();
+                 const rect = progressBar?.getBoundingClientRect();
+                 if (rect) {
+                   const percent = 0.5;
+                   const newTime = percent * duration;
+                   if (audio) {
+                     audio.currentTime = newTime;
+                     currentTime = newTime;
+                   }
+                 }
+               }
+             }}
+             role="slider"
+             tabindex="0"
+             aria-label={`进度 ${formatTime(currentTime)} / ${formatTime(duration)}`}
+             aria-valuemin="0"
+             aria-valuemax="100"
+             aria-valuenow={duration > 0 ? (currentTime / duration * 100) : 0}>
+          <div class="h-full bg-blue-500 rounded-full transition-all duration-100"
                style="width: {duration > 0 ? (currentTime / duration) * 100 : 0}%">
           </div>
-        </button>
+        </div>
       </div>
 
       <div class="controls flex items-center justify-center gap-2 mb-4">
